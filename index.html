@@ -86,14 +86,14 @@
 
 <div class="bottombar">
   <div class="bottombar__row">
-    <div class="search">
+    <form class="search" id="search-form" role="search" action="#" onsubmit="return false">
       <span class="search__icon" aria-hidden="true">🔍</span>
       <input type="search" id="q" class="search__input" enterkeyhint="search"
              autocomplete="off" autocorrect="off" spellcheck="false"
              placeholder="キーワード・登壇者・会社名"
              aria-label="セッションを検索">
       <button type="button" class="search__clear" id="btn-clear" aria-label="検索をクリア" hidden>✕</button>
-    </div>
+    </form>
     <button type="button" class="bottombar__btn" id="btn-filters-float"
             aria-label="絞り込み" title="絞り込み（カテゴリ・会場・キーワード）">
       <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true">

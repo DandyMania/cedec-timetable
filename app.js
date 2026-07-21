@@ -320,16 +320,18 @@ function sessionCard(s, terms, liveState, showDate) {
   // drives the decision, so both are shown for every session — but only for
   // years where the source actually carries the flags. Archive years have no
   // such data, and showing ✕ there would be a lie.
-  // Only positives are shown. The feed stores these as plain booleans with no
-  // "unset" state, so a false could equally mean "not allowed" or "nobody
-  // filled it in" — printing ✕ would assert something the data cannot back.
-  const mark = (label) => `<span class="mk mk--ok" title="${label}OK">${label}○</span>`;
+  // 撮影 / SNS / 配信: the official feed states these, so both sides are shown.
+  // 資料 / ASK: no "no" exists in the data, so only the positive is shown.
+  const mark = (label, on) =>
+    `<span class="mk ${on ? 'mk--ok' : 'mk--ng'}" title="${label}${on ? 'OK' : 'NG'}">${label}${
+      on ? '○' : '✕'
+    }</span>`;
   const marks = [
-    s.photoOk ? mark('撮影') : '',
-    s.cedil || s.cedilUrl ? mark('資料') : '',
-    s.snsOk ? mark('SNS') : '',
+    mark('撮影', s.photoOk),
+    mark('SNS', s.snsOk),
+    s.streamState ? mark('配信', s.streamState === 'ok') : '',
+    s.cedil || s.cedilUrl ? '<span class="mk mk--ok" title="講演資料あり">資料○</span>' : '',
     s.askSpeaker ? '<span class="mk mk--ask" title="ASK the Speaker あり">ASK</span>' : '',
-    s.streamState === 'ok' ? '<span class="mk mk--live" title="配信あり">配信</span>' : '',
   ]
     .filter(Boolean)
     .join('');
@@ -587,9 +589,16 @@ function renderGrid(rows) {
               s.category && s.category !== 'カテゴリなし'
                 ? `<span class="cat cat-${esc(s.category)}">${esc(s.category)}</span>`
                 : ''
-            }${s.cedil || s.cedilUrl ? '<span class="gmk">資料</span>' : ''}${
+            }<span class="gmk ${s.photoOk ? '' : 'gmk--ng'}">撮影${s.photoOk ? '○' : '✕'}</span>
+            <span class="gmk ${s.snsOk ? '' : 'gmk--ng'}">SNS${s.snsOk ? '○' : '✕'}</span>${
+              s.streamState
+                ? `<span class="gmk ${
+                    s.streamState === 'ok' ? 'gmk--live' : 'gmk--ng'
+                  }">配信${s.streamState === 'ok' ? '○' : '✕'}</span>`
+                : ''
+            }${s.cedil || s.cedilUrl ? '<span class="gmk">資料○</span>' : ''}${
               s.askSpeaker ? '<span class="gmk">ASK</span>' : ''
-            }${s.streamState === 'ok' ? '<span class="gmk gmk--live">配信</span>' : ''}</div>
+            }</div>
             <div class="gcell__title">${esc(s.title)}</div>
             <div class="gcell__co">${esc(
               (s.speakers ?? [])
@@ -992,13 +1001,23 @@ function bind() {
     clearTimeout(timer);
     timer = setTimeout(render, 120);
   });
-  els.q.addEventListener('search', () => {
+  // Wrapping the field in a form is what makes iOS show a "search" key; the
+  // submit and search events both mean "done", so close the keyboard.
+  const doneTyping = () => {
     state.query = els.q.value;
     render();
-    els.q.blur(); // dismiss the on-screen keyboard on "search"
-  });
+    els.q.blur();
+  };
+  els.q.addEventListener('search', doneTyping);
   els.q.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') els.q.blur();
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      doneTyping();
+    }
+  });
+  $('#search-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    doneTyping();
   });
   els.clear.addEventListener('click', () => {
     state.query = '';
