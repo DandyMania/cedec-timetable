@@ -21,6 +21,8 @@
       <div class="segmented" role="group" aria-label="表示の切り替え">
         <button type="button" class="segmented__btn" id="btn-view-list"
                 aria-pressed="true" aria-label="リストで見る">☰</button>
+        <button type="button" class="segmented__btn" id="btn-view-compact"
+                aria-pressed="false" aria-label="コンパクトに見る">▤</button>
         <button type="button" class="segmented__btn" id="btn-view" aria-pressed="false"
                 aria-label="表（タイムテーブル）で見る">▦</button>
       </div>
@@ -68,6 +70,12 @@
 </div>
 
 <div class="bottombar">
+  <nav class="bottombar__row" aria-label="表示する日">
+    <div class="tabs" id="tabs"></div>
+    <button type="button" class="bottombar__btn" id="btn-fav-bottom" aria-pressed="false"
+            aria-label="マイプラン">★<span class="bottombar__badge" id="fav-count-bottom">0</span></button>
+    <button type="button" class="bottombar__btn" id="btn-filters-float" aria-label="絞り込み">⛃</button>
+  </nav>
   <div class="search">
     <span class="search__icon" aria-hidden="true">🔍</span>
     <input type="search" id="q" class="search__input" enterkeyhint="search"
@@ -77,12 +85,6 @@
     <button type="button" class="search__clear" id="btn-clear" aria-label="検索をクリア" hidden>✕</button>
   </div>
   <div class="filterbar" hidden><div id="status" role="status"></div></div>
-  <nav class="bottombar__row" aria-label="表示する日">
-    <div class="tabs" id="tabs"></div>
-    <button type="button" class="bottombar__btn" id="btn-fav-bottom" aria-pressed="false"
-            aria-label="マイプラン">★<span class="bottombar__badge" id="fav-count-bottom">0</span></button>
-    <button type="button" class="bottombar__btn" id="btn-filters-float" aria-label="絞り込み">⛃</button>
-  </nav>
 </div>
 
 

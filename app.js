@@ -35,6 +35,7 @@ const els = {
   sheetBody: $('#sheet-body'),
   view: $('#btn-view'),
   viewList: $('#btn-view-list'),
+  viewCompact: $('#btn-view-compact'),
   menu: $('#menu'),
   btnMenu: $('#btn-menu'),
   menuNote: $('#menu-note'),
@@ -45,6 +46,8 @@ const els = {
 };
 
 // ---------------------------------------------------------------- utilities
+
+const gridView = () => state.view === 'grid';
 
 function esc(text) {
   return String(text ?? '')
@@ -224,8 +227,10 @@ function sessionCard(s, terms, liveState, showDate) {
     s.category && s.category !== 'カテゴリなし'
       ? `<span class="cat cat-${esc(s.category)}">${esc(s.category)}</span>`
       : '';
-  const room = s.room ? `第${esc(s.room)}会場` : '';
-  const time = s.start ? `<strong>${esc(s.start)}</strong>–${esc(s.end ?? '')}` : '日時未定';
+  const room = s.room ? `<span class="card__room">第${esc(s.room)}会場</span>` : '';
+  const time = s.start
+    ? `<span class="card__time"><strong>${esc(s.start)}</strong>–${esc(s.end ?? '')}</span>`
+    : '<span class="card__time">日時未定</span>';
   const format = s.format ? `<span class="card__format">${esc(s.format)}</span>` : '';
   const badge =
     liveState === 'live'
@@ -330,7 +335,7 @@ function render() {
     if (state.room) narrowed.push(`第${state.room}会場`);
     if (state.tags.size) narrowed.push([...state.tags].join('/'));
     els.status.textContent = `${rows.length}件${narrowed.length ? ' · ' + narrowed.join(' · ') : ''}`;
-    if (state.view === 'grid' && state.day !== 'fav') {
+    if (gridView() && state.day !== 'fav') {
       els.list.innerHTML = rows.length ? renderGrid(rows) : emptyMessage();
     } else {
       els.list.innerHTML = rows.length ? renderRows(rows, terms, true) : emptyMessage();
@@ -338,6 +343,7 @@ function render() {
   }
   const gridMode = state.view === 'grid' && !searching && state.day !== 'fav';
   els.list.classList.toggle('list--grid', gridMode);
+  els.list.classList.toggle('list--compact', state.view === 'compact');
   document.body.classList.toggle('view-grid', gridMode);
 
   const count = $('#filters-count');
@@ -670,9 +676,9 @@ function toggleFav(id) {
 // ---------------------------------------------------------------- events
 
 function setViewLabel() {
-  const grid = state.view === 'grid';
-  els.view.setAttribute('aria-pressed', String(grid));
-  els.viewList.setAttribute('aria-pressed', String(!grid));
+  els.view.setAttribute('aria-pressed', String(state.view === 'grid'));
+  els.viewList.setAttribute('aria-pressed', String(state.view === 'list'));
+  els.viewCompact.setAttribute('aria-pressed', String(state.view === 'compact'));
 }
 
 function setView(next) {
@@ -733,8 +739,12 @@ function bind() {
     els.filtersFloat.setAttribute('aria-pressed', 'false');
   });
 
-  els.q.addEventListener('focus', () => document.body.classList.add('kb-open'));
-  els.q.addEventListener('blur', () => document.body.classList.remove('kb-open'));
+  // Only used when the browser has no visualViewport: there the keyboard state
+  // is tracked by how much of the viewport it covers (see trackKeyboard).
+  if (!window.visualViewport) {
+    els.q.addEventListener('focus', () => document.body.classList.add('kb-open'));
+    els.q.addEventListener('blur', () => document.body.classList.remove('kb-open'));
+  }
 
   els.filters.addEventListener('change', (e) => {
     if (e.target.id === 'sel-cat') state.cat = e.target.value;
@@ -777,7 +787,7 @@ function bind() {
   const showFabs = () => {
     fabs.classList.add('is-visible');
     clearTimeout(fabTimer);
-    fabTimer = setTimeout(() => fabs.classList.remove('is-visible'), 1600);
+    fabTimer = setTimeout(() => fabs.classList.remove('is-visible'), 900);
   };
   document.addEventListener('scroll', showFabs, { capture: true, passive: true });
   document.addEventListener('touchstart', showFabs, { passive: true });
@@ -793,7 +803,7 @@ function bind() {
   });
 
   // Step through time blocks: slot headings in list view, 30-minute rows in grid view.
-  const stepTime = (dir) => {
+  function stepTime(dir) {
     const board = els.list.querySelector('.grid');
     if (board) {
       board.scrollBy({ top: dir * 30 * 2.4, behavior: 'smooth' });
@@ -802,15 +812,30 @@ function bind() {
     const top = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 110;
     const slots = [...els.list.querySelectorAll('.slot')];
     if (!slots.length) return;
-    const current = slots.findIndex((s) => s.getBoundingClientRect().top > top + 4);
-    let target;
-    if (dir > 0) target = slots[current < 0 ? slots.length - 1 : current];
-    else {
-      const idx = current < 0 ? slots.length - 1 : current - 1;
-      target = slots[Math.max(0, idx - 1)];
+    const tops = slots.map((s) => s.getBoundingClientRect().top);
+    let target = null;
+    if (dir > 0) {
+      // first heading still below the sticky bar
+      target = slots.find((_, i) => tops[i] > top + 6) ?? null;
+      if (!target && lazy.drawn < lazy.rows.length) {
+        drawMore();
+        return stepTime(dir);
+      }
+    } else {
+      // last heading already scrolled past it (the pinned one sits exactly at top)
+      for (let i = slots.length - 1; i >= 0; i--) {
+        if (tops[i] < top - 6) {
+          target = slots[i];
+          break;
+        }
+      }
+      if (!target) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
     }
     target?.scrollIntoView({ block: 'start', behavior: 'smooth' });
-  };
+  }
   $('#btn-prev').addEventListener('click', () => stepTime(-1));
   $('#btn-next').addEventListener('click', () => stepTime(1));
 
@@ -845,6 +870,7 @@ function bind() {
 
   els.view.addEventListener('click', () => setView('grid'));
   els.viewList.addEventListener('click', () => setView('list'));
+  els.viewCompact.addEventListener('click', () => setView('compact'));
 
   // Long-press a card to star it without aiming for the small ☆.
   let pressTimer = null;
@@ -1011,6 +1037,9 @@ async function boot() {
     const trackKeyboard = () => {
       const overlap = Math.max(0, window.innerHeight - (vv.height + vv.offsetTop));
       document.documentElement.style.setProperty('--kb', `${Math.round(overlap)}px`);
+      // Derive the keyboard state from the viewport, not from focus: dismissing
+      // the keyboard with the back gesture never fires blur.
+      document.body.classList.toggle('kb-open', overlap > 90);
     };
     vv.addEventListener('resize', trackKeyboard);
     vv.addEventListener('scroll', trackKeyboard);

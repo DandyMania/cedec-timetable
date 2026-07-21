@@ -34,6 +34,9 @@
 
 * { box-sizing: border-box; }
 
+/* display rules on flex containers would otherwise beat the hidden attribute */
+[hidden] { display: none !important; }
+
 html {
   /* Gently snap to the start of each time block while scrolling. */
   scroll-snap-type: y proximity;
@@ -252,7 +255,9 @@ a { color: var(--accent); }
   display: flex;
   flex-direction: column;
   gap: 7px;
-  padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+  /* extra bottom padding keeps the row above the home indicator, where a
+     thumb can actually reach it */
+  padding: 8px 10px calc(16px + env(safe-area-inset-bottom));
   background: color-mix(in srgb, var(--bg) 94%, transparent);
   backdrop-filter: saturate(180%) blur(12px);
   border-top: 1px solid var(--line);
@@ -269,8 +274,8 @@ a { color: var(--accent); }
   background: var(--bg-elev);
   color: var(--fg-muted);
   border-radius: 12px;
-  height: 38px;
-  min-width: 44px;
+  height: 42px;
+  min-width: 46px;
   padding: 0 10px;
   font-size: 15px;
   font-family: inherit;
@@ -300,7 +305,7 @@ a { color: var(--accent); }
   background: var(--bg-elev);
   color: var(--fg-muted);
   border-radius: 11px;
-  height: 38px;
+  height: 42px;
   padding: 0 6px;
   font-size: 13.5px;
   font-weight: 700;
@@ -924,12 +929,72 @@ body.is-archive .appbar__title::after {
 
 .mark { background: color-mix(in srgb, var(--accent) 28%, transparent); border-radius: 3px; }
 
+/* ---------- compact list: fit one time slot on a single screen ---------- */
+
+.list--compact .card {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  padding: 6px 32px 6px 9px;
+  margin-bottom: 4px;
+  border-radius: 9px;
+}
+.list--compact .card__head {
+  margin: 0;
+  flex: 0 0 auto;
+  display: flex;
+  gap: 5px;
+  font-size: 11px;
+}
+.list--compact .card__date,
+.list--compact .card__format,
+.list--compact .card__snippet,
+.list--compact .card__speakers { display: none; }
+.list--compact .card__time strong { font-size: 12px; }
+.list--compact .card__time { color: var(--fg-muted); }
+.list--compact .card__title {
+  flex: 1;
+  min-width: 0;
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.list--compact .card__star { font-size: 18px; padding: 4px 6px; bottom: 1px; }
+.list--compact .slot {
+  margin: 7px -12px 4px;
+  padding: 3px 12px;
+  font-size: 12px;
+}
+@media (max-width: 420px) {
+  .list--compact .card__room { display: none; }
+}
+
+/* ---------- wide screens: use the space ---------- */
+
 @media (min-width: 720px) {
-  .appbar, .list, .foot { max-width: 780px; margin-inline: auto; }
+  .appbar { max-width: 1180px; margin-inline: auto; }
+  .list { max-width: 1180px; margin-inline: auto; }
   .sheet__panel {
-    max-width: 720px;
+    max-width: 760px;
     margin-inline: auto;
     bottom: 0;
     border-radius: 18px 18px 0 0;
   }
+  /* two columns of cards, so a whole time slot is visible at once */
+  .list:not(.list--grid) {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+    gap: 0 10px;
+    align-items: start;
+  }
+  .list:not(.list--grid) .slot { grid-column: 1 / -1; }
+  .list:not(.list--grid) .sentinel { grid-column: 1 / -1; }
+  .list:not(.list--grid) .empty { grid-column: 1 / -1; }
+}
+@media (min-width: 1000px) {
+  .bottombar { max-width: 1180px; }
+  .filters { max-width: 1180px; }
 }
