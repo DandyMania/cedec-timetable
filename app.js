@@ -179,7 +179,13 @@ function renderFilters() {
         >${esc(t.tag)}<span class="tagcloud__n">${t.count}</span></button>`,
     )
     .join('');
+  // Order matters: the sheet slides up from the bottom, so the controls that
+  // should be easiest to reach go last.
   els.filters.innerHTML = `
+    <div class="filters__group">
+      <div class="filters__label">キーワード</div>
+      <div class="tagcloud">${cloud}</div>
+    </div>
     <div class="filters__row">
       <label class="select">
         <span class="select__label">カテゴリ</span>
@@ -189,10 +195,6 @@ function renderFilters() {
         <span class="select__label">会場</span>
         <select id="sel-room"><option value="">すべて</option>${roomOptions}</select>
       </label>
-    </div>
-    <div class="filters__group">
-      <div class="filters__label">キーワード</div>
-      <div class="tagcloud">${cloud}</div>
     </div>
     <div class="filters__group filters__foot">
       <button type="button" class="chip" data-reset>絞り込みを解除</button>
@@ -333,7 +335,7 @@ function emptyMessage() {
 
 // Wall-clock grid: rooms across, time down. Useful on a tablet or when the
 // phone is turned sideways.
-const PX_PER_MIN = 1.5;
+const PX_PER_MIN = 2.4;
 
 function renderGrid(rows) {
   const dated = rows.filter((s) => s.startMin != null && s.room);
@@ -364,15 +366,14 @@ function renderGrid(rows) {
         .filter((s) => s.room === room)
         .map((s) => {
           const top = (s.startMin - from) * PX_PER_MIN;
-          const h = Math.max(((s.endMin ?? s.startMin + 60) - s.startMin) * PX_PER_MIN - 3, 17);
+          const h = Math.max(((s.endMin ?? s.startMin + 60) - s.startMin) * PX_PER_MIN - 3, 22);
           const fav = state.favs.has(s.id);
           const ls = liveStateOf(s);
           return `<div class="gcell cat-edge-${esc(s.category || 'none')} ${
             ls === 'live' ? 'gcell--live' : ''
           } ${ls === 'past' ? 'gcell--past' : ''}"
             style="top:${top}px;height:${h}px" data-id="${esc(s.id)}" role="button" tabindex="0">
-            <div class="gcell__time">${esc(s.start)}${fav ? ' ★' : ''}</div>
-            <div class="gcell__title">${esc(s.title)}</div>
+            <div class="gcell__title">${fav ? '<span class="gcell__fav">★</span>' : ''}${esc(s.title)}</div>
           </div>`;
         })
         .join('');

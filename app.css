@@ -616,7 +616,17 @@ body.kb-open .bottombar__row { display: none; }
   display: flex;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-  padding-bottom: 10px;
+  padding-bottom: 4px;
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
+  scrollbar-color: var(--fg-faint) var(--bg-sunken);
+}
+.grid::-webkit-scrollbar { height: 9px; }
+.grid::-webkit-scrollbar-track { background: var(--bg-sunken); border-radius: 5px; }
+.grid::-webkit-scrollbar-thumb {
+  background: var(--fg-faint);
+  border-radius: 5px;
+  border: 2px solid var(--bg-sunken);
 }
 .grid__axis {
   position: sticky;
@@ -677,15 +687,13 @@ body.kb-open .bottombar__row { display: none; }
 }
 .gcell--live { border-color: var(--live); }
 .gcell--past { opacity: 0.42; }
-.gcell__time { font-size: 10px; color: var(--fg-faint); font-variant-numeric: tabular-nums; }
+.gcell__fav { color: var(--star); margin-right: 2px; }
 .gcell__title {
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 600;
-  line-height: 1.32;
-  display: -webkit-box;
-  -webkit-line-clamp: 4;
-  -webkit-box-orient: vertical;
+  line-height: 1.3;
   overflow: hidden;
+  height: 100%;
 }
 
 .sentinel {
