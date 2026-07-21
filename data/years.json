@@ -3,35 +3,5 @@
     "year": "2026",
     "total": 221,
     "archiveOnly": false
-  },
-  {
-    "year": "2025",
-    "total": 220,
-    "archiveOnly": true
-  },
-  {
-    "year": "2024",
-    "total": 207,
-    "archiveOnly": true
-  },
-  {
-    "year": "2023",
-    "total": 206,
-    "archiveOnly": true
-  },
-  {
-    "year": "2022",
-    "total": 209,
-    "archiveOnly": true
-  },
-  {
-    "year": "2021",
-    "total": 203,
-    "archiveOnly": true
-  },
-  {
-    "year": "2020",
-    "total": 182,
-    "archiveOnly": true
   }
 ]
