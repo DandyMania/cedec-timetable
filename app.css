@@ -1143,6 +1143,21 @@ body.is-archive .appbar__title::after {
   .list:not(.list--grid) .empty { grid-column: 1 / -1; }
 }
 @media (min-width: 1000px) {
-  .bottombar { max-width: 1180px; }
-  .filters { max-width: 1180px; }
+  /* the search row is moved into the header by app.js at this width */
+  .appbar .bottombar {
+    position: static;
+    max-width: none;
+    padding: 0 0 8px;
+    transform: none !important;
+    opacity: 1 !important;
+    transition: none;
+  }
+  .appbar .bottombar .search { box-shadow: none; }
+  .appbar .bottombar__row { gap: 8px; }
+  body.bar-top { padding-bottom: 24px; }
+  .filters { bottom: 14px; max-width: 1180px; }
+  /* the wall-clock board uses the whole window: more rooms visible at once */
+  .list--grid { max-width: none; margin-inline: 0; }
+  .list--grid .grid__cols { flex: 1; }
+  .list--grid .grid__col { flex: 1 1 0; min-width: 118px; }
 }

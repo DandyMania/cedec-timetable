@@ -862,9 +862,14 @@ function bind() {
       const dy = y - lastY;
       if (Math.abs(dy) < 6) return;
       lastY = y;
-      if (els.filters.hidden && !document.body.classList.contains('kb-open')) {
-        document.body.classList.toggle('bar-hidden', dy > 0 && y > 120);
-      }
+      // In grid view the board scrolls on its own, so folding the header there
+      // would only hide the room names.
+      const canFold =
+        els.filters.hidden &&
+        !document.body.classList.contains('kb-open') &&
+        !document.body.classList.contains('view-grid');
+      if (canFold) document.body.classList.toggle('bar-hidden', dy > 0 && y > 120);
+      else document.body.classList.remove('bar-hidden');
     },
     { passive: true },
   );
@@ -1138,6 +1143,21 @@ async function boot() {
   syncBars();
   new ResizeObserver(syncBars).observe(appbar);
   new ResizeObserver(syncBars).observe(bottombar);
+
+  // On a wide screen the search row belongs at the top with the rest of the
+  // chrome; on a phone it stays within thumb reach at the bottom.
+  const wide = window.matchMedia('(min-width: 1000px)');
+  const placeBar = () => {
+    if (wide.matches) {
+      if (bottombar.parentElement !== appbar) appbar.appendChild(bottombar);
+    } else if (bottombar.parentElement !== document.body) {
+      document.body.insertBefore(bottombar, document.querySelector('.fabs'));
+    }
+    document.body.classList.toggle('bar-top', wide.matches);
+    syncBars();
+  };
+  placeBar();
+  wide.addEventListener('change', placeBar);
 
   // Keep the bottom bar above the on-screen keyboard.
   const vv = window.visualViewport;
