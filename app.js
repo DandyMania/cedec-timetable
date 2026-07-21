@@ -1144,10 +1144,7 @@ function bind() {
     render();
   });
 
-  els.tabs.addEventListener('click', (e) => {
-    const btn = e.target.closest('[data-day]');
-    if (!btn) return;
-    const day = Number(btn.dataset.day);
+  const goToDay = (day) => {
     // Remember where the reader was on the day they are leaving, and restore
     // that spot when they come back to it.
     const boardNow = els.list.querySelector('.grid');
@@ -1177,6 +1174,39 @@ function bind() {
     } else {
       restoreSlot(currentTopSlot());
     }
+  };
+
+  els.tabs.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-day]');
+    if (btn) goToDay(Number(btn.dataset.day));
+  });
+
+  // Swipe sideways on the list to move between days. The board has its own
+  // horizontal scroll, so it is excluded.
+  let swipeFrom = null;
+  els.list.addEventListener(
+    'touchstart',
+    (e) => {
+      swipeFrom =
+        e.touches.length === 1 && !document.body.classList.contains('view-grid')
+          ? { x: e.touches[0].clientX, y: e.touches[0].clientY }
+          : null;
+    },
+    { passive: true },
+  );
+  els.list.addEventListener('touchend', (e) => {
+    if (!swipeFrom || state.day === 'fav') return;
+    const dx = (e.changedTouches[0]?.clientX ?? swipeFrom.x) - swipeFrom.x;
+    const dy = (e.changedTouches[0]?.clientY ?? swipeFrom.y) - swipeFrom.y;
+    swipeFrom = null;
+    if (Math.abs(dx) < 70 || Math.abs(dx) < Math.abs(dy) * 1.6) return;
+    const days = (state.meta.days ?? []).map((d) => d.day);
+    const current = state.query.trim() ? (state.searchDay ?? days[0]) : state.day;
+    const at = days.indexOf(current);
+    const next = days[at + (dx < 0 ? 1 : -1)];
+    if (next == null) return;
+    cancelPress();
+    goToDay(next);
   });
 
   const toggleFilters = () => {
