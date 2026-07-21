@@ -751,12 +751,20 @@ body.view-grid .foot { display: none; }
   position: absolute;
   left: 0;
   right: 0;
-  font-size: 10.5px;
-  color: var(--fg-faint);
-  padding-left: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--fg);
+  padding: 1px 4px 0;
   border-top: 1px solid var(--line);
   font-variant-numeric: tabular-nums;
 }
+/* the hour lines read stronger than the half-hour ones */
+.grid__tick--hour {
+  border-top: 1px solid color-mix(in srgb, var(--fg) 32%, transparent);
+  font-size: 12.5px;
+  font-weight: 800;
+}
+.grid__tick--half { color: var(--fg-faint); font-weight: 600; }
 .grid__now {
   position: absolute;
   left: 0;
@@ -785,9 +793,13 @@ body.view-grid .foot { display: none; }
   left: 0;
   right: 0;
   z-index: 1;
-  background: color-mix(in srgb, var(--fg) 7%, transparent);
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
+  background: repeating-linear-gradient(
+    -45deg,
+    color-mix(in srgb, var(--accent) 12%, transparent) 0 8px,
+    color-mix(in srgb, var(--accent) 5%, transparent) 8px 16px
+  );
+  border-top: 1px dashed color-mix(in srgb, var(--accent) 45%, var(--line));
+  border-bottom: 1px dashed color-mix(in srgb, var(--accent) 45%, var(--line));
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -795,28 +807,34 @@ body.view-grid .foot { display: none; }
 }
 .grid__break span {
   position: sticky;
-  /* stay clear of the sticky time axis while the board scrolls sideways */
-  left: 8px;
-  padding: 1px 8px;
-  border-radius: 6px;
-  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  /* clear the sticky 46px time axis so the label never slides under it */
+  left: 54px;
+  margin-left: 0;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-fg);
   font-size: 11px;
-  font-weight: 700;
-  color: var(--fg-muted);
+  font-weight: 800;
   white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .restbar {
-  margin: 10px -12px;
-  padding: 6px 12px;
-  background: color-mix(in srgb, var(--fg) 6%, transparent);
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--fg-muted);
+  margin: 12px -12px;
+  padding: 8px 12px;
+  background: repeating-linear-gradient(
+    -45deg,
+    color-mix(in srgb, var(--accent) 14%, transparent) 0 9px,
+    color-mix(in srgb, var(--accent) 6%, transparent) 9px 18px
+  );
+  border-top: 1px dashed color-mix(in srgb, var(--accent) 50%, var(--line));
+  border-bottom: 1px dashed color-mix(in srgb, var(--accent) 50%, var(--line));
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--accent);
   text-align: center;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.03em;
 }
 .list--compact .restbar { margin: 6px -12px; padding: 4px 12px; font-size: 11.5px; }
 

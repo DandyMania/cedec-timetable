@@ -392,9 +392,11 @@ function renderGrid(rows) {
 
   const ticks = [];
   for (let m = from; m <= to; m += 30) {
-    ticks.push(`<div class="grid__tick" style="top:${(m - from) * PX_PER_MIN}px">${String(
-      Math.floor(m / 60),
-    ).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}</div>`);
+    const onHour = m % 60 === 0;
+    ticks.push(`<div class="grid__tick ${onHour ? 'grid__tick--hour' : 'grid__tick--half'}"
+      style="top:${(m - from) * PX_PER_MIN}px">${String(Math.floor(m / 60)).padStart(2, '0')}:${String(
+      m % 60,
+    ).padStart(2, '0')}</div>`);
   }
 
   const today = todayIso(state.now);
