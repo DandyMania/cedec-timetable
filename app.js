@@ -413,6 +413,7 @@ function render() {
   let notes = [];
 
   let rows;
+  let eveningHtml = '';
   if (searching) {
     const intent = detectIntent(query, state.meta.categories);
     const hits = intent.rest ? search(intent.rest, state.index) : null;
@@ -473,6 +474,10 @@ function render() {
           )
         : state.sessions.filter((s) => s.day === state.day);
     rows = applyFilters(base, null);
+    eveningHtml =
+      state.day === 'fav' || state.cat || state.rooms.size || state.tags.size || state.flags.size
+        ? ''
+        : renderEvents(state.day);
     const narrowed = [];
     if (state.cat) narrowed.push(state.cat);
     if (state.rooms.size) narrowed.push(`第${[...state.rooms].join('・')}会場`);
@@ -491,7 +496,7 @@ function render() {
     if (gridView() && state.day !== 'fav') {
       els.list.innerHTML = rows.length ? renderGrid(rows) : emptyMessage();
     } else {
-      els.list.innerHTML = rows.length ? renderRows(rows, terms, true) : emptyMessage();
+      els.list.innerHTML = (rows.length ? renderRows(rows, terms, true) : emptyMessage()) + eveningHtml;
     }
   }
   const gridMode = state.view === 'grid' && state.day !== 'fav';
@@ -510,6 +515,30 @@ function render() {
   const canJump = viewingToday() && !searching && state.day !== 'fav';
   nowBtn.hidden = !canJump;
   nowBtn.textContent = '今';
+}
+
+/** Evening events (official Developers' Night plus the community meetups). */
+function renderEvents(day) {
+  if (state.year !== CURRENT_YEAR) return '';
+  const list = (state.events?.events ?? []).filter((e) => e.day === day);
+  if (!list.length) return '';
+  const cards = list
+    .map(
+      (e) => `<a class="evcard ${e.official ? 'evcard--official' : ''}"
+        href="${esc(e.url)}" target="_blank" rel="noopener">
+        <div class="evcard__head">${e.official ? '公式イベント' : '非公式'} ·
+          ${esc(e.start)}–${esc(e.end)}</div>
+        <div class="evcard__title">${esc(e.title)}</div>
+        <div class="evcard__place">@ ${esc(e.place)}${e.note ? ` · ${esc(e.note)}` : ''}</div>
+      </a>`,
+    )
+    .join('');
+  return `<div class="evsection">
+    <div class="slot slot--ev">夜のイベント</div>
+    ${cards}
+    <p class="evsection__note">${esc(state.events.note ?? '')}
+      出典: <a href="${esc(state.events.source ?? '')}" target="_blank" rel="noopener">CEDEC非公式タイムテーブル</a></p>
+  </div>`;
 }
 
 function emptyMessage() {
@@ -1442,6 +1471,9 @@ async function boot() {
   }
   state.index = buildIndex(sessions);
   buildTagCloud();
+  state.events = await fetch('./data/events.json')
+    .then((r) => r.json())
+    .catch(() => null);
 
   // Default to today when the conference is running.
   const today = todayIso(state.now);

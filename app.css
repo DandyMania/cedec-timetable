@@ -1110,6 +1110,36 @@ body.is-archive .appbar__title::after {
   vertical-align: 2px;
 }
 
+/* ---------- evening events ---------- */
+
+.evsection { margin-top: 6px; }
+.slot--ev::before { background: var(--star); }
+.evcard {
+  display: block;
+  background: color-mix(in srgb, var(--star) 9%, var(--bg-elev));
+  border: 1px solid color-mix(in srgb, var(--star) 32%, var(--line));
+  border-left: 3px solid var(--star);
+  border-radius: 10px;
+  padding: 9px 11px;
+  margin-bottom: 7px;
+  text-decoration: none;
+  color: inherit;
+}
+.evcard--official {
+  background: color-mix(in srgb, var(--accent) 9%, var(--bg-elev));
+  border-color: color-mix(in srgb, var(--accent) 32%, var(--line));
+  border-left-color: var(--accent);
+}
+.evcard__head { font-size: 11.5px; color: var(--fg-muted); font-variant-numeric: tabular-nums; }
+.evcard__title { font-size: 14px; font-weight: 700; line-height: 1.4; margin: 2px 0; }
+.evcard__place { font-size: 12px; color: var(--fg-faint); }
+.evsection__note {
+  font-size: 11px;
+  color: var(--fg-faint);
+  line-height: 1.7;
+  margin: 4px 0 0;
+}
+
 .empty {
   text-align: center;
   color: var(--fg-faint);

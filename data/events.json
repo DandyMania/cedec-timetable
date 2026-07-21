@@ -1,0 +1,92 @@
+{
+  "source": "https://kazunori-toybox.com/cedec_schedule/",
+  "note": "公式のセッションではありません。CEDEC非公式タイムテーブルが掲載している公式イベントと非公式の懇親会を、出典を明記したうえで取り込んでいます。参加条件や開催可否は必ずリンク先を確認してください。",
+  "events": [
+    {
+      "id": "ev-devnight",
+      "official": true,
+      "day": 2,
+      "start": "19:30",
+      "end": "21:30",
+      "title": "Developers' Night",
+      "place": "1階「G7＋G8」",
+      "url": "https://cedec.cesa.or.jp/2026/event/developer/",
+      "note": "会場で先着販売"
+    },
+    {
+      "id": "ev-aicedec",
+      "official": false,
+      "day": 1,
+      "start": "20:00",
+      "end": "22:00",
+      "title": "AiCEDEC2026@三宅ゲームAI懇親会",
+      "place": "Aging beef & Specialty coffee THE三本",
+      "url": "https://aicedec2026.peatix.com/",
+      "tags": ["AiCEDEC2026"]
+    },
+    {
+      "id": "ev-procedec",
+      "official": false,
+      "day": 3,
+      "start": "19:45",
+      "end": "21:45",
+      "title": "ProCEDEC 2026",
+      "place": "L.A.S.T ワールドポーターズ店",
+      "url": "https://procedec2026.peatix.com/",
+      "tags": ["ProCEDEC"]
+    },
+    {
+      "id": "ev-gdgd",
+      "official": false,
+      "day": 3,
+      "start": "20:00",
+      "end": "22:00",
+      "title": "CEDEC・GDGD #2026（CEDEC3日目ゲームデザイン懇親会）",
+      "place": "橙家 横浜みなとみらい東急スクエア店",
+      "url": "https://cedec-gdgd-2026.peatix.com/"
+    },
+    {
+      "id": "ev-amt",
+      "official": false,
+      "day": 3,
+      "start": "20:00",
+      "end": "22:00",
+      "title": "Artists Meet Technicals 2026 supported by TA Night",
+      "place": "世界のビール博物館 横浜店（World BEER Museum）",
+      "url": "https://www.creativevillage.ne.jp/category/event-list/176115/"
+    },
+    {
+      "id": "ev-uicedec",
+      "official": false,
+      "day": 3,
+      "start": "20:00",
+      "end": "22:30",
+      "title": "ＵＩ・ＵＸ交流会／ＵＩ　ＣＥＤＥＣ２０２６",
+      "place": "グレースバリ横浜関内店",
+      "url": "https://peatix.com/event/5074207",
+      "tags": ["UICEDEC"]
+    },
+    {
+      "id": "ev-cedecon",
+      "official": false,
+      "day": 3,
+      "start": "20:00",
+      "end": "22:00",
+      "title": "CEDECON2026",
+      "place": "パセラリゾーツ横浜関内店",
+      "url": "https://cedecon2026.peatix.com/",
+      "tags": ["CEDECON"]
+    },
+    {
+      "id": "ev-shadergrill",
+      "official": false,
+      "day": 3,
+      "start": "19:30",
+      "end": "22:00",
+      "title": "ShaderGrill",
+      "place": "詳細不明（時間は仮）",
+      "url": "https://x.com/ProjectAsura/status/2062511714479013947?s=20",
+      "tags": ["ShaderGrill2026"]
+    }
+  ]
+}
