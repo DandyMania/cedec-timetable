@@ -63,6 +63,7 @@
       <span class="menu__icon">ⓘ</span>このページについて</button>
     <div class="menu__note" id="menu-note"></div>
   </div>
+  <nav class="tabs" id="tabs" aria-label="表示する日"></nav>
   <div class="offline" id="offline" hidden>オフラインで表示中（保存済みのデータ）</div>
 </header>
 
@@ -78,19 +79,18 @@
 </div>
 
 <div class="bottombar">
-  <nav class="bottombar__row" aria-label="表示する日">
-    <div class="tabs" id="tabs"></div>
+  <div class="bottombar__row">
+    <div class="search">
+      <span class="search__icon" aria-hidden="true">🔍</span>
+      <input type="search" id="q" class="search__input" enterkeyhint="search"
+             autocomplete="off" autocorrect="off" spellcheck="false"
+             placeholder="話し言葉でOK（例: AIで開発を効率化）"
+             aria-label="セッションを検索">
+      <button type="button" class="search__clear" id="btn-clear" aria-label="検索をクリア" hidden>✕</button>
+    </div>
     <button type="button" class="bottombar__btn" id="btn-fav-bottom" aria-pressed="false"
             aria-label="マイプラン">★<span class="bottombar__badge" id="fav-count-bottom">0</span></button>
     <button type="button" class="bottombar__btn" id="btn-filters-float" aria-label="絞り込み">⛃</button>
-  </nav>
-  <div class="search">
-    <span class="search__icon" aria-hidden="true">🔍</span>
-    <input type="search" id="q" class="search__input" enterkeyhint="search"
-           autocomplete="off" autocorrect="off" spellcheck="false"
-           placeholder="話し言葉でOK（例: AIで開発を効率化する話）"
-           aria-label="セッションを検索">
-    <button type="button" class="search__clear" id="btn-clear" aria-label="検索をクリア" hidden>✕</button>
   </div>
   <div class="filterbar" hidden><div id="status" role="status"></div></div>
 </div>
