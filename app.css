@@ -372,9 +372,8 @@ a { color: var(--accent); }
   z-index: 48;
   overflow-y: auto;
   overscroll-behavior: contain;
-  /* translucent so the list behind stays readable */
-  background: color-mix(in srgb, var(--bg-elev) 55%, transparent);
-  backdrop-filter: saturate(150%) blur(6px);
+  /* plain translucency, no frosting: the text behind should stay legible */
+  background: color-mix(in srgb, var(--bg-elev) 62%, transparent);
   border-top: 1px solid var(--line);
   border-radius: 14px 14px 0 0;
   padding: 7px 12px 9px;
