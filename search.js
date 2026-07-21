@@ -201,12 +201,13 @@ export function parseQuery(query) {
 
     // "サイゲノ" -> also try "サイゲ". Keeping both is safe: a wrong split
     // simply matches nothing.
-    const forms = [c.text];
-    const stripped = c.text.match(TAIL_PARTICLE);
-    if (stripped && c.cls !== 'latin') forms.push(stripped[1]);
+    const stripped = c.cls !== 'latin' ? c.text.match(TAIL_PARTICLE) : null;
+    const forms = stripped ? [stripped[1], c.text] : [c.text];
+    // Only the primary form counts towards coverage; the other is a spelling
+    // variant, not a separate requirement.
+    groups.push(forms[0]);
 
     for (const form of forms) {
-      groups.push(form);
       push(form, 1, 'core');
       if (form.length >= 3) for (const g of bigrams(form)) push(g, 0.25, 'part');
       for (const syn of SYNONYMS.get(form) ?? []) push(syn, 0.55, 'syn');
@@ -268,6 +269,7 @@ export function search(query, index) {
   if (!terms.length) return null;
 
   const coreTerms = terms.filter((t) => t.kind === 'core' && t.text.length >= 2);
+  const groupSet = new Set(groups);
   const results = [];
 
   for (let i = 0; i < index.length; i++) {
@@ -287,10 +289,9 @@ export function search(query, index) {
       }
       if (best > 0) {
         score += best;
-        if (term.kind === 'core') coveredGroups.add(term.text);
-        if (term.kind === 'syn') {
-          for (const g of groups) if ((SYNONYMS.get(g) ?? new Set()).has(term.text)) coveredGroups.add(g);
-        }
+        // Synonyms lift the ranking but do not satisfy a typed word: searching
+        // for 育成 should not be answered by a talk that only says 組織.
+        if (term.kind === 'core' && groupSet.has(term.text)) coveredGroups.add(term.text);
       }
     }
 

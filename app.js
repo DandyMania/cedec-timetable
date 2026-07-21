@@ -243,6 +243,23 @@ function sessionCard(s, terms, liveState, showDate) {
     ? `<span class="card__time"><strong>${esc(s.start)}</strong>–${esc(s.end ?? '')}</span>`
     : '<span class="card__time">日時未定</span>';
   const format = s.format ? `<span class="card__format">${esc(s.format)}</span>` : '';
+  // Shown for every session, not only when true: whether you can photograph
+  // the talk and whether the slides will be published drives the decision.
+  const hasDoc = Boolean(s.cedil || s.cedilUrl);
+  const marks = [
+    `<span class="mk ${s.photoOk ? 'mk--ok' : 'mk--ng'}" title="${
+      s.photoOk ? '撮影OK' : '撮影NG'
+    }">📷${s.photoOk ? '○' : '✕'}</span>`,
+    `<span class="mk ${hasDoc ? 'mk--ok' : 'mk--ng'}" title="${
+      hasDoc ? '講演資料あり' : '講演資料なし'
+    }">資料${hasDoc ? '○' : '✕'}</span>`,
+    `<span class="mk ${s.snsOk ? 'mk--ok' : 'mk--ng'}" title="${
+      s.snsOk ? 'SNS投稿OK' : 'SNS投稿NG'
+    }">SNS${s.snsOk ? '○' : '✕'}</span>`,
+    s.liveStream ? '<span class="mk mk--live" title="配信あり">配信</span>' : '',
+  ]
+    .filter(Boolean)
+    .join('');
   const badge =
     liveState === 'live'
       ? '<span class="tag tag--live">開催中</span>'
@@ -265,16 +282,20 @@ function sessionCard(s, terms, liveState, showDate) {
     .slice(0, 88);
   const fav = state.favs.has(s.id);
   return `<div class="card cat-edge-${esc(s.category || 'none')} ${liveState === 'live' ? 'card--live' : ''} ${
-    liveState === 'past' ? 'card--past' : ''
-  } ${fav ? 'card--fav' : ''}" data-id="${esc(s.id)}" role="button" tabindex="0">
+    liveState === 'next' ? 'card--next' : ''
+  } ${liveState === 'past' ? 'card--past' : ''} ${
+    fav ? 'card--fav' : ''
+  }" data-id="${esc(s.id)}" role="button" tabindex="0">
     <div class="card__head">${s.date ? `<span class="card__date">${dayLabel(s.date)}</span>` : ''}${time}${
       room ? ' · ' + room : ''
-    }${cat ? ' · ' + cat : ''}${format ? ' · ' + format : ''} ${badge}</div>
+    }${cat ? ' · ' + cat : ''}${format ? ' · ' + format : ''} ${badge}${
+      marks ? `<span class="marks">${marks}</span>` : ''
+    }</div>
     <h2 class="card__title">${highlight(s.title, terms)}</h2>
     ${speakers ? `<p class="card__speakers">${speakers}</p>` : ''}
     ${gist ? `<p class="card__snippet">${highlight(gist, terms)}…</p>` : ''}
     <button type="button" class="card__star" data-star="${esc(s.id)}"
-      aria-pressed="${fav}" aria-label="マイプランに追加">${fav ? '★' : '☆'}</button>
+      aria-pressed="${fav}" aria-label="お気に入りに追加">${fav ? '★' : '☆'}</button>
   </div>`;
 }
 
@@ -391,7 +412,7 @@ function render() {
 
 function emptyMessage() {
   if (state.day === 'fav')
-    return `<div class="empty">マイプランは空っぽ<div class="empty__hint">
+    return `<div class="empty">お気に入りは空っぽ<div class="empty__hint">
       カードの右下の ☆ を押すと、ここに集まるよ</div></div>`;
   return `<div class="empty">条件に合うセッションが無い<div class="empty__hint">
     絞り込みを解除してみて</div></div>`;
@@ -694,7 +715,7 @@ function openSheet(id) {
     }
     <span class="sheet__spacer"></span>
     <button type="button" class="btn btn--star ${fav ? 'is-fav' : ''}" data-star="${esc(s.id)}"
-      aria-pressed="${fav}" aria-label="マイプラン">${fav ? '★' : '☆'}</button>
+      aria-pressed="${fav}" aria-label="お気に入り">${fav ? '★' : '☆'}</button>
     <button type="button" class="btn btn--close" data-close aria-label="閉じる">✕</button>
   </div>`;
   els.sheet.hidden = false;
@@ -722,7 +743,7 @@ function openAbout() {
     のデータを利用しています。</p>
     <h3>使い方</h3>
     <p>・検索は話し言葉でOK。略称（サイゲ / バンナム など）も引けます
-・カードを長押し、または ☆ でマイプランに登録できます
+・カードを長押し、または ☆ でお気に入りに登録できます
 ・一度開けばオフラインでも表示できます
 ・ホーム画面に追加するとアプリのように開けます</p>
     <h3>注意</h3>

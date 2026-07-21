@@ -578,7 +578,20 @@ body.bar-hidden .tabs { margin-top: 2px; }
   position: relative;
 }
 .card:active { transform: scale(0.995); }
-.card--live { border-color: var(--live); box-shadow: 0 0 0 1px var(--live) inset; }
+.card--live {
+  border-color: var(--live);
+  box-shadow: 0 0 0 2px var(--live) inset, 0 0 14px color-mix(in srgb, var(--live) 45%, transparent);
+}
+.card--live .card__head::after {
+  content: '開催中';
+  background: var(--live);
+  color: #fff;
+  border-radius: 5px;
+  padding: 1px 7px;
+  font-weight: 800;
+  margin-left: 4px;
+}
+.card--next { border-color: color-mix(in srgb, var(--accent) 65%, var(--line)); }
 .card--past { opacity: 0.5; }
 .card--fav {
   background: color-mix(in srgb, var(--star) 13%, var(--bg-elev));
@@ -628,6 +641,33 @@ body.bar-hidden .tabs { margin-top: 2px; }
   font-weight: 700;
 }
 .card__format { color: var(--fg-faint); }
+
+/* At-a-glance markers: materials, photos, SNS, streaming */
+.marks { display: inline-flex; gap: 4px; margin-left: 2px; }
+.mk {
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.6;
+  padding: 0 5px;
+  border-radius: 4px;
+  background: var(--bg-sunken);
+  color: var(--fg-muted);
+  border: 1px solid var(--line);
+}
+.mk--ok {
+  background: color-mix(in srgb, #1e9c7a 18%, transparent);
+  border-color: color-mix(in srgb, #1e9c7a 40%, var(--line));
+  color: #1e9c7a;
+}
+@media (prefers-color-scheme: dark) { .mk--ok { color: #5fd7b4; } }
+:root[data-theme='dark'] .mk--ok { color: #5fd7b4; }
+:root[data-theme='light'] .mk--ok { color: #1e9c7a; }
+.mk--ng { opacity: 0.45; }
+.mk--live {
+  background: color-mix(in srgb, var(--live) 18%, transparent);
+  border-color: color-mix(in srgb, var(--live) 40%, var(--line));
+  color: var(--live);
+}
 
 .card__snippet {
   margin: 6px 0 0;
@@ -1147,12 +1187,22 @@ body.is-archive .appbar__title::after {
 @media (min-width: 720px) {
   .appbar { max-width: 1180px; margin-inline: auto; }
   .list { max-width: 1180px; margin-inline: auto; }
+  /* centred dialog on a desktop, bottom sheet on a phone */
   .sheet__panel {
     max-width: 760px;
     margin-inline: auto;
-    bottom: 0;
-    border-radius: 18px 18px 0 0;
+    top: 50%;
+    bottom: auto;
+    transform: translateY(-50%);
+    max-height: 82vh;
+    border-radius: 16px;
   }
+  .sheet__panel::before { display: none; }
+  @keyframes sheet-in-center {
+    from { transform: translateY(calc(-50% + 14px)); opacity: 0.6; }
+  }
+  .sheet__panel { animation: sheet-in-center 0.18s ease-out; }
+  .sheet__footer { margin: 0 -16px -0px; border-radius: 0 0 16px 16px; }
   /* two columns of cards, so a whole time slot is visible at once */
   .list:not(.list--grid) {
     display: grid;
