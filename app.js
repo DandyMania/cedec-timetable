@@ -203,7 +203,14 @@ const FLAG_FILTERS = [
   { key: 'photo', label: '撮影', get: (s) => Boolean(s.photoOk) },
   { key: 'doc', label: '資料', get: (s) => Boolean(s.cedil || s.cedilUrl) },
   { key: 'sns', label: 'SNS', get: (s) => Boolean(s.snsOk) },
-  { key: 'live', label: '配信', get: (s) => Boolean(s.liveStream) },
+  // Streaming is the one flag with a real "not stated" case, so ○ and ✕ both
+  // require an explicit note rather than treating silence as a no.
+  {
+    key: 'live',
+    label: '配信',
+    get: (s) => s.streamState === 'ok',
+    excludes: (s) => s.streamState === 'ng',
+  },
   { key: 'ask', label: 'ASK the Speaker', get: (s) => Boolean(s.askSpeaker) },
 ];
 
@@ -350,7 +357,8 @@ function applyFilters(list, intent) {
     for (const [key, mode] of state.flags) {
       const f = FLAG_FILTERS.find((x) => x.key === key);
       if (!f) continue;
-      if (mode === '+' ? !f.get(s) : f.get(s)) return false;
+      const no = f.excludes ?? ((x) => !f.get(x));
+      if (mode === '+' ? !f.get(s) : !no(s)) return false;
     }
     if (intent?.categories?.length && !intent.categories.includes(s.category)) return false;
     if (intent?.level != null && s.difficulty?.level !== intent.level) return false;

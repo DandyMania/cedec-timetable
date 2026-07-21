@@ -270,6 +270,13 @@ async function buildCurrent(year) {
       cedil: s.CEDiL === 1 || s.CEDiL === true,
       cedilUrl: cedilByTitle.get(titleKey(s.title)) ?? null,
       notes,
+      // Three states, not two: some sessions say "配信 OK", some say
+      // "配信 NG", and many say nothing about streaming at all.
+      streamState: notes.some((n) => /配信\s*OK/i.test(n))
+        ? 'ok'
+        : notes.some((n) => /配信\s*NG/i.test(n))
+          ? 'ng'
+          : null,
       liveStream: notes.some((n) => /配信\s*OK/.test(n)),
       archive: notes.some((n) => n.includes('アーカイブ可')),
       askSpeaker: notes.some((n) => n.includes('ASK the Speaker')),
@@ -336,6 +343,7 @@ async function buildPast(year) {
       cedil: false,
       cedilUrl: cedilByTitle.get(titleKey(s.title)) ?? null,
       notes: [],
+      streamState: s.youtube ? 'ok' : null,
       liveStream: Boolean(s.youtube),
       archive: false,
       askSpeaker: false,
