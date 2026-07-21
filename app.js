@@ -317,7 +317,9 @@ function sessionCard(s, terms, liveState, showDate) {
     ? `<span class="card__room" data-room="${esc(s.room)}会場">第${esc(s.room)}会場</span>`
     : '';
   const time = s.start
-    ? `<span class="card__time"><strong>${esc(s.start)}</strong>–${esc(s.end ?? '')}</span>`
+    ? `<span class="card__time"><strong>${esc(s.start)}</strong><span class="card__time-end">–${esc(
+        s.end ?? '',
+      )}</span></span>`
     : '<span class="card__time">日時未定</span>';
   const format = s.format ? `<span class="card__format">${esc(s.format)}</span>` : '';
   // Whether you may photograph the talk and whether slides get published

@@ -1379,13 +1379,18 @@ body.is-archive .appbar__title::after {
   margin-bottom: 4px;
   border-radius: 9px;
 }
+/* Squeeze the meta column so titles start as far left as possible: no room for
+   the star (it is in the corner), tighter gaps, start time only. */
 .list--compact .card__head {
   margin: 0;
   flex: 0 0 auto;
   display: flex;
-  gap: 5px;
+  gap: 3px;
+  padding-right: 0;
   font-size: 11px;
 }
+.list--compact .card__time-end { display: none; }
+.list--compact .card__title { padding-right: 26px; }
 .list--compact .card__date,
 .list--compact .card__format,
 .list--compact .card__snippet,
