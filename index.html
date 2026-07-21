@@ -29,6 +29,8 @@
     </div>
   </div>
   <div class="menu" id="menu" hidden>
+    <div class="menu__sep">開催年</div>
+    <div class="menu__years" id="menu-years"></div>
     <div class="menu__sep">公式</div>
     <a class="menu__item" href="https://cedec.cesa.or.jp/2026/timetable/" target="_blank" rel="noopener">
       <span class="menu__icon">↗</span>公式タイムテーブル</a>
@@ -62,7 +64,12 @@
 
 <main id="list" class="list" aria-live="polite"></main>
 
-<button type="button" class="fab fab--primary" id="btn-now" hidden>now</button>
+<div class="fabs">
+  <button type="button" class="fab fab--round" id="btn-top" aria-label="一番上へ">↑</button>
+  <button type="button" class="fab fab--round" id="btn-prev" aria-label="前の時間帯へ">∧</button>
+  <button type="button" class="fab fab--round" id="btn-next" aria-label="次の時間帯へ">∨</button>
+  <button type="button" class="fab fab--primary" id="btn-now" hidden>now</button>
+</div>
 
 <div class="bottombar">
   <div class="search">

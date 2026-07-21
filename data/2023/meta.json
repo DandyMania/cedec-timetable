@@ -1,0 +1,76 @@
+{
+  "year": "2023",
+  "total": 206,
+  "days": [
+    {
+      "day": 1,
+      "date": "2023-08-23",
+      "count": 67
+    },
+    {
+      "day": 2,
+      "date": "2023-08-24",
+      "count": 69
+    },
+    {
+      "day": 3,
+      "date": "2023-08-25",
+      "count": 70
+    }
+  ],
+  "undated": 0,
+  "categories": [
+    {
+      "code": "基調講演",
+      "label": "基調講演"
+    },
+    {
+      "code": "GD",
+      "label": "GD"
+    },
+    {
+      "code": "ENG",
+      "label": "ENG"
+    },
+    {
+      "code": "PRD",
+      "label": "PRD"
+    },
+    {
+      "code": "BP",
+      "label": "BP"
+    },
+    {
+      "code": "VA",
+      "label": "VA"
+    },
+    {
+      "code": "SND",
+      "label": "SND"
+    },
+    {
+      "code": "AC",
+      "label": "AC"
+    }
+  ],
+  "rooms": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "11",
+    "12",
+    "13"
+  ],
+  "generatedAt": "2026-07-21T15:50:40.680Z",
+  "sourceUrl": "https://kazunori-toybox.com/cedec_schedule/web_data/2023/schedule.json",
+  "sourceLastModified": null,
+  "roomSource": "https://kazunori-toybox.com/cedec_schedule/web_data/2023/schedule.json",
+  "archiveOnly": true
+}

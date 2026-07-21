@@ -1,0 +1,77 @@
+{
+  "year": "2025",
+  "total": 220,
+  "days": [
+    {
+      "day": 1,
+      "date": "2025-07-22",
+      "count": 71
+    },
+    {
+      "day": 2,
+      "date": "2025-07-23",
+      "count": 71
+    },
+    {
+      "day": 3,
+      "date": "2025-07-24",
+      "count": 78
+    }
+  ],
+  "undated": 0,
+  "categories": [
+    {
+      "code": "基調講演",
+      "label": "基調講演"
+    },
+    {
+      "code": "GD",
+      "label": "GD"
+    },
+    {
+      "code": "BP",
+      "label": "BP"
+    },
+    {
+      "code": "ENG",
+      "label": "ENG"
+    },
+    {
+      "code": "PRD",
+      "label": "PRD"
+    },
+    {
+      "code": "AC",
+      "label": "AC"
+    },
+    {
+      "code": "SND",
+      "label": "SND"
+    },
+    {
+      "code": "VA",
+      "label": "VA"
+    }
+  ],
+  "rooms": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "11",
+    "12",
+    "Epic部屋",
+    "13"
+  ],
+  "generatedAt": "2026-07-21T15:50:40.567Z",
+  "sourceUrl": "https://kazunori-toybox.com/cedec_schedule/web_data/2025/schedule.json",
+  "sourceLastModified": null,
+  "roomSource": "https://kazunori-toybox.com/cedec_schedule/web_data/2025/schedule.json",
+  "archiveOnly": true
+}

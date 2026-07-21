@@ -2,6 +2,8 @@ import { buildIndex, search, highlightTerms, detectIntent, normalize, TIME_BANDS
 
 const $ = (sel) => document.querySelector(sel);
 
+const CURRENT_YEAR = '2026';
+
 const state = {
   sessions: [],
   meta: null,
@@ -14,6 +16,8 @@ const state = {
   favs: new Set(),
   tagCloud: [],
   view: 'list',
+  year: CURRENT_YEAR,
+  years: [],
   now: new Date(),
 };
 
@@ -156,6 +160,20 @@ function buildTagCloud() {
     // 0..1 -> font scale, so heavy tags read as heavier.
     heat: max === min ? 0.5 : (count - min) / (max - min),
   }));
+}
+
+/** Year switcher in the menu. Past years are archive-only (no abstracts). */
+function renderYearMenu() {
+  const box = $('#menu-years');
+  if (!box) return;
+  box.innerHTML = state.years
+    .map((y) => {
+      const active = y.year === state.year;
+      const href = y.year === CURRENT_YEAR ? './' : `./?year=${y.year}`;
+      return `<a class="menu__year ${active ? 'is-active' : ''}" href="${href}">${y.year}
+        <span class="menu__year-n">${y.total ?? ''}</span></a>`;
+    })
+    .join('');
 }
 
 function renderFilters() {
@@ -373,9 +391,9 @@ function renderGrid(rows) {
           const ls = liveStateOf(s);
           return `<div class="gcell cat-edge-${esc(s.category || 'none')} ${
             ls === 'live' ? 'gcell--live' : ''
-          } ${ls === 'past' ? 'gcell--past' : ''}"
+          } ${ls === 'past' ? 'gcell--past' : ''} ${fav ? 'gcell--fav' : ''}"
             style="top:${top}px;height:${h}px" data-id="${esc(s.id)}" role="button" tabindex="0">
-            <div class="gcell__title">${fav ? '<span class="gcell__fav">★</span>' : ''}${esc(s.title)}</div>
+            <div class="gcell__title">${esc(s.title)}</div>
           </div>`;
         })
         .join('');
@@ -544,6 +562,12 @@ function openSheet(id) {
     </p>
   </div>
   <div class="detail__scroll detail">
+    ${
+      state.meta?.archiveOnly
+        ? `<p class="detail__notice">${esc(state.year)} 年のアーカイブです。
+           説明文は公式ページ、資料は CEDiL のリンクから見られます。</p>`
+        : ''
+    }
     ${s.description ? `<h3>セッションの内容</h3><p>${esc(s.description)}</p>` : ''}
     ${s.takeaway ? `<h3>受講して得られるもの</h3><p>${esc(s.takeaway)}</p>` : ''}
     ${s.expectedSkill ? `<h3>受講対象</h3><p>${esc(s.expectedSkill)}</p>` : ''}
@@ -554,7 +578,12 @@ function openSheet(id) {
     ${speakers ? `<h3>登壇者</h3>${speakers}` : ''}
   </div>
   <div class="sheet__footer">
-    ${s.url ? `<a class="btn" href="${esc(s.url)}" target="_blank" rel="noopener">公式ページ</a>` : ''}
+    ${s.url ? `<a class="btn" href="${esc(s.url)}" target="_blank" rel="noopener">公式</a>` : ''}
+    ${
+      s.cedilUrl
+        ? `<a class="btn" href="${esc(s.cedilUrl)}" target="_blank" rel="noopener">資料</a>`
+        : ''
+    }
     <button type="button" class="btn btn--star ${fav ? 'is-fav' : ''}" data-star="${esc(s.id)}"
       aria-pressed="${fav}" aria-label="マイプラン">${fav ? '★' : '☆'}</button>
     <button type="button" class="btn btn--close" data-close aria-label="閉じる">✕</button>
@@ -605,12 +634,30 @@ function closeSheet(fromPop) {
   if (!fromPop && history.state?.sheet) history.back();
 }
 
+/**
+ * Toggle in place. A full re-render would reset the lazy list and yank the
+ * scroll position out from under the user's thumb.
+ */
 function toggleFav(id) {
   if (state.favs.has(id)) state.favs.delete(id);
   else state.favs.add(id);
   saveFavs();
-  render();
-  if (!els.sheet.hidden) openSheet(id);
+  const fav = state.favs.has(id);
+  const sel = typeof CSS !== 'undefined' && CSS.escape ? CSS.escape(id) : id;
+
+  for (const btn of document.querySelectorAll(`[data-star="${sel}"]`)) {
+    btn.setAttribute('aria-pressed', String(fav));
+    if (btn.classList.contains('card__star') || btn.classList.contains('btn--star')) {
+      btn.textContent = fav ? '★' : '☆';
+    }
+    btn.classList.toggle('is-fav', fav);
+    btn.closest('.card')?.classList.toggle('card--fav', fav);
+  }
+  els.list.querySelector(`.gcell[data-id="${sel}"]`)?.classList.toggle('gcell--fav', fav);
+  els.favCount.textContent = String(state.favs.size);
+
+  // The my-plan list is defined by the stars, so it does need rebuilding.
+  if (state.day === 'fav') render();
 }
 
 // ---------------------------------------------------------------- events
@@ -718,6 +765,34 @@ function bind() {
   });
 
   $('#btn-now').addEventListener('click', jumpToNow);
+
+  $('#btn-top').addEventListener('click', () => {
+    const board = els.list.querySelector('.grid');
+    if (board) board.scrollTo({ top: 0, behavior: 'smooth' });
+    else window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  // Step through time blocks: slot headings in list view, 30-minute rows in grid view.
+  const stepTime = (dir) => {
+    const board = els.list.querySelector('.grid');
+    if (board) {
+      board.scrollBy({ top: dir * 30 * 2.4, behavior: 'smooth' });
+      return;
+    }
+    const top = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 110;
+    const slots = [...els.list.querySelectorAll('.slot')];
+    if (!slots.length) return;
+    const current = slots.findIndex((s) => s.getBoundingClientRect().top > top + 4);
+    let target;
+    if (dir > 0) target = slots[current < 0 ? slots.length - 1 : current];
+    else {
+      const idx = current < 0 ? slots.length - 1 : current - 1;
+      target = slots[Math.max(0, idx - 1)];
+    }
+    target?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+  };
+  $('#btn-prev').addEventListener('click', () => stepTime(-1));
+  $('#btn-next').addEventListener('click', () => stepTime(1));
 
   els.btnMenu.addEventListener('click', () => {
     const open = els.menu.hidden;
@@ -861,12 +936,26 @@ async function boot() {
   } catch { /* ignore */ }
   setViewLabel();
 
+  const params = new URLSearchParams(location.search);
+  const wanted = params.get('year');
+
+  state.years = await fetch('./data/years.json')
+    .then((r) => r.json())
+    .catch(() => [{ year: CURRENT_YEAR, archiveOnly: false }]);
+  state.year = state.years.some((y) => y.year === wanted) ? wanted : CURRENT_YEAR;
+
   const [sessions, meta] = await Promise.all([
-    fetch('./data/sessions.json').then((r) => r.json()),
-    fetch('./data/meta.json').then((r) => r.json()),
+    fetch(`./data/${state.year}/sessions.json`).then((r) => r.json()),
+    fetch(`./data/${state.year}/meta.json`).then((r) => r.json()),
   ]);
   state.sessions = sessions;
   state.meta = meta;
+  renderYearMenu();
+  document.body.classList.toggle('is-archive', Boolean(meta.archiveOnly));
+  if (meta.archiveOnly) {
+    document.querySelector('.appbar__title').textContent = `CEDEC ${state.year}`;
+    document.title = `CEDEC ${state.year} 講演検索`;
+  }
   state.index = buildIndex(sessions);
   buildTagCloud();
 
@@ -909,9 +998,9 @@ async function boot() {
   }
 
   const stamp = meta.sourceLastModified ? new Date(meta.sourceLastModified) : null;
-  const note = `セッション ${meta.total} 件 · データ ${
-    stamp ? stamp.toLocaleString('ja-JP') : '不明'
-  } 時点`;
+  const note = meta.archiveOnly
+    ? `${state.year} 年のアーカイブ · ${meta.total} 件（タイトルと登壇者のみ）`
+    : `セッション ${meta.total} 件 · データ ${stamp ? stamp.toLocaleString('ja-JP') : '不明'} 時点`;
   els.footMeta.textContent = note;
   els.menuNote.textContent = note;
 

@@ -1,0 +1,76 @@
+{
+  "year": "2026",
+  "total": 221,
+  "days": [
+    {
+      "day": 1,
+      "date": "2026-07-22",
+      "count": 71
+    },
+    {
+      "day": 2,
+      "date": "2026-07-23",
+      "count": 72
+    },
+    {
+      "day": 3,
+      "date": "2026-07-24",
+      "count": 69
+    }
+  ],
+  "undated": 9,
+  "categories": [
+    {
+      "code": "カテゴリなし",
+      "label": "カテゴリなし"
+    },
+    {
+      "code": "ENG",
+      "label": "エンジニアリング"
+    },
+    {
+      "code": "VA",
+      "label": "ビジュアルアーツ"
+    },
+    {
+      "code": "GD",
+      "label": "ゲームデザイン"
+    },
+    {
+      "code": "SND",
+      "label": "サウンド"
+    },
+    {
+      "code": "PRD",
+      "label": "プロダクション"
+    },
+    {
+      "code": "BP",
+      "label": "ビジネス&プロデュース"
+    },
+    {
+      "code": "AC",
+      "label": "学術研究"
+    }
+  ],
+  "rooms": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "11",
+    "12",
+    "13"
+  ],
+  "generatedAt": "2026-07-21T15:50:40.523Z",
+  "sourceUrl": "https://stat.cedec.cesa.or.jp/download/2026/cedec_schedule.json",
+  "sourceLastModified": "Tue, 21 Jul 2026 10:35:20 GMT",
+  "roomSource": "https://kazunori-toybox.com/cedec_schedule/web_data/2026/schedule.json",
+  "archiveOnly": false
+}

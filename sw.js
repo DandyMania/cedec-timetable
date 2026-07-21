@@ -15,7 +15,9 @@ const SHELL_ASSETS = [
   './icon.svg',
 ];
 
-const DATA_ASSETS = ['./data/sessions.json', './data/meta.json'];
+// Only the current year is precached; archive years load on demand and are
+// kept by the same stale-while-revalidate rule once visited.
+const DATA_ASSETS = ['./data/2026/sessions.json', './data/2026/meta.json', './data/years.json'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
