@@ -1093,18 +1093,19 @@ body.view-grid .foot { display: none; }
   padding: 18px 0 28px;
 }
 
+/* bottom-left: the cards' star sits top-right, so the two never overlap */
 .fabs {
   position: fixed;
-  right: 10px;
+  left: 10px;
   bottom: calc(var(--bottombar-h, 108px) + var(--kb, 0px) + 10px);
   z-index: 45;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: flex-start;
   gap: 6px;
   opacity: 0;
   pointer-events: none;
-  transform: translateX(6px);
+  transform: translateX(-6px);
   transition: opacity 0.22s ease, transform 0.22s ease;
 }
 .fabs.is-visible { opacity: 1; pointer-events: auto; transform: none; }

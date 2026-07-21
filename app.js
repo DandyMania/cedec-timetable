@@ -1322,7 +1322,7 @@ function bind() {
   document.addEventListener(
     'mousemove',
     (e) => {
-      if (e.clientX > window.innerWidth - 200 && e.clientY > window.innerHeight - 340) showFabs();
+      if (e.clientX < 200 && e.clientY > window.innerHeight - 340) showFabs();
     },
     { passive: true },
   );
@@ -1423,12 +1423,14 @@ function bind() {
 
   // Long-press a card to star it without aiming for the small ☆.
   let pressTimer = null;
+  let pressScrollY = null;
   // Time-based rather than a flag: a long press does not always emit a click,
   // and a stale flag would swallow the *next* tap.
   let suppressClickUntil = 0;
   const cancelPress = () => {
     clearTimeout(pressTimer);
     pressTimer = null;
+    pressScrollY = null;
   };
   let pressAt = null;
   els.list.addEventListener(
@@ -1460,8 +1462,21 @@ function bind() {
   );
   els.list.addEventListener('touchend', cancelPress);
   els.list.addEventListener('touchcancel', cancelPress);
-  // Scrolling the page must abort a pending long press.
-  window.addEventListener('scroll', cancelPress, { passive: true, capture: true });
+  // A real scroll aborts the press, but the browser also fires scroll events
+  // for tiny rubber-band movements, so only give up once the page has actually
+  // moved a noticeable amount.
+  window.addEventListener(
+    'scroll',
+    () => {
+      if (!pressTimer) return;
+      if (pressScrollY == null) {
+        pressScrollY = window.scrollY;
+        return;
+      }
+      if (Math.abs(window.scrollY - pressScrollY) > 8) cancelPress();
+    },
+    { passive: true, capture: true },
+  );
 
   els.list.addEventListener('contextmenu', (e) => {
     const card = e.target.closest('[data-id]');
