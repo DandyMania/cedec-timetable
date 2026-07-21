@@ -1188,7 +1188,9 @@ body.is-archive .appbar__title::after {
   .filters {
     top: calc(var(--appbar-h, 108px) + 6px);
     bottom: auto;
-    max-width: 1180px;
+    /* a compact panel rather than a full-width band */
+    max-width: 460px;
+    margin-inline: auto;
     padding: 12px 16px 14px;
     border-radius: 14px;
     border: 1px solid var(--line);
