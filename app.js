@@ -204,7 +204,7 @@ function renderFilters() {
   // should be easiest to reach go last.
   els.filters.innerHTML = `
     <div class="filters__group filters__foot">
-      <div class="filters__label">キーワード</div>
+      <div class="filters__label">キーワード<span class="filters__count" id="filters-count"></span></div>
       <button type="button" class="iconbtn iconbtn--sm" data-reset
               aria-label="絞り込みを解除" title="絞り込みを解除">🗑</button>
     </div>
@@ -339,6 +339,9 @@ function render() {
   const gridMode = state.view === 'grid' && !searching && state.day !== 'fav';
   els.list.classList.toggle('list--grid', gridMode);
   document.body.classList.toggle('view-grid', gridMode);
+
+  const count = $('#filters-count');
+  if (count) count.textContent = els.status.textContent;
 
   renderTabs();
   writeHash();

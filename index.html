@@ -53,9 +53,6 @@
       <span class="menu__icon">ⓘ</span>このページについて</button>
     <div class="menu__note" id="menu-note"></div>
   </div>
-  <div class="filterbar">
-    <div class="filterbar__status" id="status" role="status"></div>
-  </div>
   <div class="offline" id="offline" hidden>オフラインで表示中（保存済みのデータ）</div>
 </header>
 
@@ -79,6 +76,7 @@
            aria-label="セッションを検索">
     <button type="button" class="search__clear" id="btn-clear" aria-label="検索をクリア" hidden>✕</button>
   </div>
+  <div class="filterbar" hidden><div id="status" role="status"></div></div>
   <nav class="bottombar__row" aria-label="表示する日">
     <div class="tabs" id="tabs"></div>
     <button type="button" class="bottombar__btn" id="btn-fav-bottom" aria-pressed="false"

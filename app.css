@@ -373,8 +373,8 @@ a { color: var(--accent); }
   overflow-y: auto;
   overscroll-behavior: contain;
   /* translucent so the list behind stays readable */
-  background: color-mix(in srgb, var(--bg-elev) 78%, transparent);
-  backdrop-filter: saturate(170%) blur(16px);
+  background: color-mix(in srgb, var(--bg-elev) 55%, transparent);
+  backdrop-filter: saturate(150%) blur(6px);
   border-top: 1px solid var(--line);
   border-radius: 14px 14px 0 0;
   padding: 7px 12px 9px;
@@ -400,6 +400,13 @@ a { color: var(--accent); }
   align-items: center;
 }
 .filters__foot .filters__label { margin-bottom: 0; }
+.filters__count {
+  margin-left: 8px;
+  color: var(--fg-muted);
+  font-weight: 700;
+  font-size: 11.5px;
+  letter-spacing: 0;
+}
 .filters__group--tight { margin-top: 4px; }
 .iconbtn--sm { min-width: 32px; height: 28px; font-size: 13px; padding: 0 8px; }
 
