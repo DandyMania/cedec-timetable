@@ -479,7 +479,14 @@ body.bar-hidden .tabs { margin-top: 2px; }
   letter-spacing: 0;
 }
 .filters__group--tight { margin-top: 4px; }
-.iconbtn--sm { min-width: 32px; height: 28px; font-size: 13px; padding: 0 8px; }
+.iconbtn--sm {
+  min-width: 34px;
+  height: 30px;
+  font-size: 13px;
+  padding: 0 9px;
+  border-color: color-mix(in srgb, var(--live) 45%, var(--line));
+  color: var(--live);
+}
 
 .select {
   flex: 1;
@@ -1176,7 +1183,16 @@ body.is-archive .appbar__title::after {
   .appbar .bottombar__row { gap: 8px; }
   .appbar__title { flex: 0 0 auto; margin-right: 4px; }
   body.bar-top { padding-bottom: 24px; }
-  .filters { bottom: 14px; max-width: 1180px; padding: 12px 16px 14px; }
+  /* on a wide screen the sheet drops from the header instead of rising from
+     the bottom, so it sits next to the controls that opened it */
+  .filters {
+    top: calc(var(--appbar-h, 108px) + 6px);
+    bottom: auto;
+    max-width: 1180px;
+    padding: 12px 16px 14px;
+    border-radius: 14px;
+    border: 1px solid var(--line);
+  }
   /* room to breathe: show every keyword at once instead of scrolling sideways */
   .filters .tagcloud {
     display: flex;

@@ -16,29 +16,36 @@ export function normalize(text) {
     .trim();
 }
 
-// Phrases that carry no signal in a spoken-style query.
+// Phrases that carry no signal in a spoken-style query. These run *after*
+// normalize(), which folds hiragana into katakana, so they are written in
+// katakana on purpose.
 const FILLER = [
-  /について(の|は|も)?/g,
-  /に関(する|して)/g,
-  /みたいな(のは|の)?/g,
-  /のような/g,
-  /どんな/g,
-  /どういう/g,
-  /(が|を|は)?(聞|き)きたい/g,
-  /(が|を|は)?知りたい/g,
-  /(が|を|は)?探して(いる|る)?/g,
-  /(を|が)?教えて(ほしい|くれ)?/g,
-  /(し|やり)たい/g,
-  /ですか?/g,
-  /ますか?/g,
-  /ください/g,
+  /ニツイテ(ノ|ハ|モ)?/g,
+  /ニ関(スル|シテ)/g,
+  /ニカン(スル|シテ)/g,
+  /ミタイナ(ノハ|ノ)?/g,
+  /ノヨウナ/g,
+  /ドンナ/g,
+  /ドウイウ/g,
+  /(ガ|ヲ|ハ)?(聞|キ)キタイ/g,
+  /(ガ|ヲ|ハ)?知リタイ/g,
+  /(ガ|ヲ|ハ)?探シテ(イル|ル)?/g,
+  /(ヲ|ガ)?教エテ(ホシイ|クレ)?/g,
+  /(シ|ヤリ)タイ/g,
+  /デスカ?/g,
+  /マスカ?/g,
+  /クダサイ/g,
   /セッション/g,
   /講演/g,
-  /とか/g,
-  /など/g,
-  /ような/g,
-  /(の)?話(を|が|は)?/g,
+  /トカ/g,
+  /ナド/g,
+  /ヨウナ/g,
+  /(ノ)?話(ヲ|ガ|ハ)?/g,
 ];
+
+// Trailing grammatical particles, in katakana for the same reason. A query
+// chunk like "サイゲノ" also gets searched as "サイゲ".
+const TAIL_PARTICLE = /^(.{2,}?)(ニツイテ|ニカンスル|カラ|マデ|ヨリ|ノ|ニ|ヲ|ハ|ガ|デ|ト|モ|ヘ)$/;
 
 // Query word -> extra words to also look for. Bidirectional at build time.
 const SYNONYM_SEED = [
@@ -190,10 +197,20 @@ export function parseQuery(query) {
   for (const c of chunk(text)) {
     if (c.cls === 'hira' && c.text.length < 3) continue; // particles / inflection
     if (c.cls === 'latin' && c.text.length < 2 && !/\d/.test(c.text)) continue;
-    groups.push(c.text);
-    push(c.text, 1, 'core');
-    if (c.text.length >= 3) for (const g of bigrams(c.text)) push(g, 0.25, 'part');
-    for (const syn of SYNONYMS.get(c.text) ?? []) push(syn, 0.55, 'syn');
+    if (c.cls === 'kana' && c.text.length < 2) continue; // stray particle
+
+    // "サイゲノ" -> also try "サイゲ". Keeping both is safe: a wrong split
+    // simply matches nothing.
+    const forms = [c.text];
+    const stripped = c.text.match(TAIL_PARTICLE);
+    if (stripped && c.cls !== 'latin') forms.push(stripped[1]);
+
+    for (const form of forms) {
+      groups.push(form);
+      push(form, 1, 'core');
+      if (form.length >= 3) for (const g of bigrams(form)) push(g, 0.25, 'part');
+      for (const syn of SYNONYMS.get(form) ?? []) push(syn, 0.55, 'syn');
+    }
   }
 
   // Whole normalized query as a phrase, when it is a single short expression.
