@@ -804,7 +804,7 @@ body.bar-top .dropdown__menu { bottom: auto; top: calc(100% + 4px); }
 /* top-right, clear of the floating scroll buttons in the bottom corner */
 .card__star {
   position: absolute;
-  right: 2px;
+  right: 4px;
   top: 2px;
   border: 0;
   background: transparent;
@@ -1148,9 +1148,10 @@ body.view-grid .foot { display: none; }
   right: 10px;
   bottom: calc(var(--bottombar-h, 108px) + var(--kb, 0px) + 10px);
   z-index: 45;
+  /* one row, not a column: stacked they reached up to the cards' star */
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
+  flex-direction: row;
+  align-items: center;
   gap: 6px;
   opacity: 0;
   pointer-events: none;
