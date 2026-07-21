@@ -1,0 +1,67 @@
+name: Refresh data and deploy
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    # Every two hours. GitHub cron is UTC; the conference runs 2026-07-22..24 JST.
+    - cron: '5 */2 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Refresh schedule data
+        id: refresh
+        continue-on-error: true
+        run: node scripts/fetch-data.mjs
+
+      - name: Commit refreshed data
+        if: steps.refresh.outcome == 'success'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git status --porcelain data)" ]; then
+            git add data
+            git commit -m "chore: refresh schedule data"
+            git push
+          else
+            echo "no changes"
+          fi
+
+      - name: Stamp the service worker so clients pick up new assets
+        run: |
+          STAMP=$(git rev-parse --short HEAD)
+          sed -i "s/const VERSION = '[^']*'/const VERSION = '${STAMP}'/" sw.js
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

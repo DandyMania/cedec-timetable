@@ -1,0 +1,15 @@
+# Working notes and local tooling - never publish these.
+.nagi/
+.claude/
+.ai/
+scratch/
+tmp/
+
+# Node
+node_modules/
+npm-debug.log*
+
+# OS
+Thumbs.db
+desktop.ini
+.DS_Store

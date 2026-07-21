@@ -1,0 +1,16 @@
+{
+  "name": "CEDEC 2026 講演検索",
+  "short_name": "CEDEC 講演検索",
+  "description": "CEDEC 2026 のセッションをスマホで探すための非公式ビューア。オフライン対応。",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0e1116",
+  "theme_color": "#0e1116",
+  "lang": "ja",
+  "icons": [
+    { "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}
