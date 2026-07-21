@@ -790,12 +790,16 @@ body.view-grid .foot { display: none; }
   border-bottom: 1px solid var(--line);
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   pointer-events: none;
 }
 .grid__break span {
   position: sticky;
+  /* stay clear of the sticky time axis while the board scrolls sideways */
   left: 8px;
+  padding: 1px 8px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
   font-size: 11px;
   font-weight: 700;
   color: var(--fg-muted);
