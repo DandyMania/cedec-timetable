@@ -370,28 +370,29 @@ a { color: var(--accent); }
   right: 0;
   bottom: calc(var(--bottombar-h, 108px) + var(--kb, 0px));
   z-index: 48;
-  max-height: 52vh;
   overflow-y: auto;
   overscroll-behavior: contain;
-  background: var(--bg-elev);
+  /* translucent so the list behind stays readable */
+  background: color-mix(in srgb, var(--bg-elev) 78%, transparent);
+  backdrop-filter: saturate(170%) blur(16px);
   border-top: 1px solid var(--line);
-  border-radius: 16px 16px 0 0;
-  padding: 12px 14px 16px;
-  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.3);
+  border-radius: 14px 14px 0 0;
+  padding: 7px 12px 9px;
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.22);
   animation: sheet-in 0.16s ease-out;
 }
 @media (min-width: 720px) {
   .filters { max-width: 780px; margin-inline: auto; border-radius: 16px; }
 }
-.filters__group { margin-top: 10px; }
+.filters__group { margin-top: 6px; }
 .filters__label {
-  font-size: 11px;
+  font-size: 10.5px;
   color: var(--fg-faint);
   letter-spacing: 0.06em;
-  margin-bottom: 5px;
+  margin-bottom: 3px;
 }
 .filters__chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.filters__row { display: flex; gap: 8px; margin-top: 8px; }
+.filters__row { display: flex; gap: 7px; margin-top: 6px; }
 .filters__foot {
   display: flex;
   gap: 8px;
@@ -402,23 +403,16 @@ a { color: var(--accent); }
 .filters__group--tight { margin-top: 4px; }
 .iconbtn--sm { min-width: 32px; height: 28px; font-size: 13px; padding: 0 8px; }
 
-.select { flex: 1; min-width: 0; }
-.select__label {
-  display: block;
-  font-size: 11px;
-  color: var(--fg-faint);
-  letter-spacing: 0.06em;
-  margin-bottom: 4px;
-}
-.select select {
-  width: 100%;
-  padding: 8px 10px;
-  font-size: 14px;
+.select {
+  flex: 1;
+  min-width: 0;
+  padding: 7px 8px;
+  font-size: 13px;
   font-family: inherit;
   color: var(--fg);
   background: var(--bg-sunken);
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: 9px;
 }
 
 /* Two fixed rows that scroll sideways: the sheet stays short. */
@@ -428,10 +422,10 @@ a { color: var(--accent); }
   grid-template-rows: repeat(2, auto);
   justify-content: start;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   overflow-x: auto;
   overscroll-behavior-x: contain;
-  padding: 2px 0 6px;
+  padding: 0 0 5px;
   scrollbar-width: thin;
 }
 .tagcloud__item {

@@ -34,7 +34,6 @@ const els = {
   viewList: $('#btn-view-list'),
   menu: $('#menu'),
   btnMenu: $('#btn-menu'),
-  menuFilters: $('#menu-filters'),
   menuNote: $('#menu-note'),
   fav: $('#btn-fav-bottom'),
   favCount: $('#fav-count-bottom'),
@@ -191,14 +190,10 @@ function renderFilters() {
       <div class="tagcloud">${cloud}</div>
     </div>
     <div class="filters__row">
-      <label class="select">
-        <span class="select__label">カテゴリ</span>
-        <select id="sel-cat"><option value="">すべて</option>${catOptions}</select>
-      </label>
-      <label class="select">
-        <span class="select__label">会場</span>
-        <select id="sel-room"><option value="">すべて</option>${roomOptions}</select>
-      </label>
+      <select id="sel-cat" class="select" aria-label="カテゴリ">
+        <option value="">カテゴリ：すべて</option>${catOptions}</select>
+      <select id="sel-room" class="select" aria-label="会場">
+        <option value="">会場：すべて</option>${roomOptions}</select>
     </div>`;
 }
 
@@ -734,13 +729,6 @@ function bind() {
     els.menu.hidden = true;
     els.btnMenu.setAttribute('aria-expanded', 'false');
     openAbout();
-  });
-
-  els.menuFilters.addEventListener('click', () => {
-    els.menu.hidden = true;
-    els.btnMenu.setAttribute('aria-expanded', 'false');
-    els.filters.hidden = false;
-    els.filtersFloat.setAttribute('aria-pressed', 'true');
   });
 
   els.fav.addEventListener('click', () => {
