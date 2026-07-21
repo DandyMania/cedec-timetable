@@ -501,6 +501,7 @@ function render() {
     if (state.tags.size) narrowed.push([...state.tags].join('/'));
     els.status.textContent = `${rows.length}件${narrowed.length ? ' · ' + narrowed.join(' · ') : ''}`;
     if (gridView() && state.day !== 'fav') {
+      // The board already places the evening events on the clock.
       els.list.innerHTML = rows.length ? renderGrid(rows) : emptyMessage();
     } else {
       els.list.innerHTML = (rows.length ? renderRows(rows, terms, true) : emptyMessage()) + eveningHtml;
@@ -572,6 +573,17 @@ function renderGrid(rows) {
 
   const rooms = [...new Set(dated.map((s) => s.room))].sort((a, b) => Number(a) - Number(b));
 
+  // Evening events are laid out on the same clock, spread across the full width
+  // below the last session.
+  const toMin = (hhmm) => {
+    const m = String(hhmm ?? '').match(/^(\d{1,2}):(\d{2})/);
+    return m ? Number(m[1]) * 60 + Number(m[2]) : null;
+  };
+  const events =
+    state.year === CURRENT_YEAR
+      ? (state.events?.events ?? []).filter((e) => e.day === state.day && toMin(e.start) != null)
+      : [];
+
   // One explicit column width shared by the header row and the board, so the
   // two can never drift apart. Wide screens fit every room; phones scroll.
   const boardWidth = els.list.clientWidth || window.innerWidth;
@@ -580,7 +592,9 @@ function renderGrid(rows) {
       ? Math.max(100, Math.floor((boardWidth - 47) / rooms.length))
       : 150;
   const from = Math.floor(Math.min(...dated.map((s) => s.startMin)) / 30) * 30;
-  const to = Math.ceil(Math.max(...dated.map((s) => s.endMin ?? s.startMin + 60)) / 30) * 30;
+  const lastSession = Math.max(...dated.map((s) => s.endMin ?? s.startMin + 60));
+  const lastEvent = events.length ? Math.max(...events.map((e) => toMin(e.end) ?? 0)) : 0;
+  const to = Math.ceil(Math.max(lastSession, lastEvent) / 30) * 30;
   const height = (to - from) * PX_PER_MIN;
 
   const ticks = [];
@@ -652,6 +666,24 @@ function renderGrid(rows) {
     })
     .join('');
 
+  const eventBlocks = events
+    .map((e, i) => {
+      const start = toMin(e.start);
+      const end = toMin(e.end) ?? start + 60;
+      const width = 100 / events.length;
+      return `<div class="gev ${e.official ? 'gev--official' : ''}"
+        style="top:${(start - from) * PX_PER_MIN}px;height:${Math.max(
+          (end - start) * PX_PER_MIN - 3,
+          30,
+        )}px;left:${(i * width).toFixed(3)}%;width:calc(${width.toFixed(3)}% - 4px)"
+        data-event="${esc(e.url)}" role="button" tabindex="0">
+        <div class="gev__head">${e.official ? '公式' : '非公式'} ${esc(e.start)}–${esc(e.end)}</div>
+        <div class="gev__title">${esc(e.title)}</div>
+        <div class="gev__place">@ ${esc(e.place)}</div>
+      </div>`;
+    })
+    .join('');
+
   // The header row is a direct child of the scroller so that `position: sticky`
   // pins it reliably while the board scrolls in both directions. Both rows use
   // the same explicit column width, so they can never drift apart.
@@ -666,7 +698,7 @@ function renderGrid(rows) {
     </div>
     <div class="grid__panes">
       <div class="grid__axis" style="height:${height}px">${ticks.join('')}</div>
-      <div class="grid__cols">${columns}${breaks}
+      <div class="grid__cols">${columns}${breaks}${eventBlocks}
         ${
           showNow ? `<div class="grid__now" style="top:${(nowMin - from) * PX_PER_MIN}px"></div>` : ''
         }
@@ -1368,6 +1400,11 @@ function bind() {
     if (star) {
       e.stopPropagation();
       toggleFav(star.dataset.star);
+      return;
+    }
+    const ev = e.target.closest('[data-event]');
+    if (ev) {
+      window.open(ev.dataset.event, '_blank', 'noopener');
       return;
     }
     const card = e.target.closest('[data-id]');
