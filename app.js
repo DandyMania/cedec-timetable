@@ -840,11 +840,15 @@ function bind() {
   $('#btn-prev').addEventListener('click', () => stepTime(-1));
   $('#btn-next').addEventListener('click', () => stepTime(1));
 
-  els.btnMenu.addEventListener('click', () => {
-    const open = els.menu.hidden;
+  // Opening the menu locks the page behind it, otherwise a stray swipe scrolls
+  // the list under the panel.
+  const setMenu = (open) => {
     els.menu.hidden = !open;
     els.btnMenu.setAttribute('aria-expanded', String(open));
-  });
+    document.body.classList.toggle('menu-open', open);
+    if (!open && els.sheet.hidden) document.body.style.overflow = '';
+  };
+  els.btnMenu.addEventListener('click', () => setMenu(els.menu.hidden));
 
   $('#menu-about').addEventListener('click', () => {
     els.menu.hidden = true;

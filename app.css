@@ -66,10 +66,12 @@
 [hidden] { display: none !important; }
 
 html {
-  /* Gently snap to the start of each time block while scrolling. */
-  scroll-snap-type: y proximity;
   scroll-padding-top: calc(var(--appbar-h, 108px) + 4px);
   scroll-behavior: smooth;
+  /* No scroll snapping here: combined with the lazy list and the sticky time
+     headings it made the page creep downwards on its own. The ∧ / ∨ buttons
+     provide the same "jump by time block" without that side effect. */
+  overflow-anchor: none;
 }
 
 html, body {
@@ -98,9 +100,8 @@ a { color: var(--accent); }
   position: sticky;
   top: 0;
   z-index: 20;
-  background: color-mix(in srgb, var(--bg) 92%, transparent);
-  backdrop-filter: saturate(180%) blur(12px);
-  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg) 72%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--line) 60%, transparent);
   padding: calc(env(safe-area-inset-top) + 8px) 12px 0;
 }
 
@@ -286,18 +287,27 @@ a { color: var(--accent); }
   flex-direction: column;
   gap: 7px;
   /* extra bottom padding keeps the row above the home indicator, where a
-     thumb can actually reach it */
+     thumb can actually reach it. No background: only the controls themselves
+     are opaque, so the list stays visible behind them. */
   padding: 8px 10px calc(28px + env(safe-area-inset-bottom));
-  background: color-mix(in srgb, var(--bg) 94%, transparent);
-  backdrop-filter: saturate(180%) blur(12px);
-  border-top: 1px solid var(--line);
+  background: none;
+  border: 0;
+  pointer-events: none;
 }
+.bottombar > * { pointer-events: auto; }
+.bottombar .search,
+.bottombar__btn {
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.22);
+}
+.bottombar .search__input { background: var(--bg-elev); border-color: var(--line); }
 .bottombar__row { display: flex; align-items: center; gap: 6px; }
 .bottombar .search { margin: 0; flex: 1; min-width: 0; }
 .bottombar .search__input { height: 42px; padding-top: 0; padding-bottom: 0; }
 @media (min-width: 720px) {
-  .bottombar { max-width: 780px; margin-inline: auto; border-radius: 16px 16px 0 0; border: 1px solid var(--line); }
+  .bottombar { max-width: 780px; margin-inline: auto; }
 }
+
+body.menu-open { overflow: hidden; }
 
 .bottombar__btn {
   flex: 0 0 auto;
@@ -505,13 +515,11 @@ a { color: var(--accent); }
   font-weight: 800;
   letter-spacing: 0.02em;
   color: var(--fg);
-  background: color-mix(in srgb, var(--bg) 88%, transparent);
-  backdrop-filter: saturate(180%) blur(10px);
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg) 78%, transparent);
+  border-top: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
   font-variant-numeric: tabular-nums;
 }
-.slot { scroll-snap-align: start; scroll-snap-stop: normal; }
 .slot::before {
   content: '';
   width: 4px;
