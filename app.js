@@ -146,8 +146,11 @@ function renderTabs() {
     const [, m, day] = d.date.split('-');
     const wd = ['日', '月', '火', '水', '木', '金', '土'][new Date(`${d.date}T00:00:00`).getDay()];
     const active = state.day === 'fav' ? state.favDay === d.day : state.day === d.day;
+    // Stay usable while searching: the tabs still switch days, and in grid view
+    // they pick which day's hits are laid out.
+    const selected = searching && !gridView() ? false : active;
     return `<button type="button" class="tab ${isToday ? 'tab--today' : ''}" role="tab"
-      data-day="${d.day}" aria-selected="${!searching && active}"
+      data-day="${d.day}" aria-selected="${selected}"
       >${Number(m)}/${Number(day)}<span class="tab__sub">${wd}</span></button>`;
   });
   els.tabs.innerHTML = parts.join('');
@@ -434,10 +437,20 @@ function render() {
     els.status.textContent = `全日程から ${rows.length}件${
       notes.length ? ' · ' + notes.join(' · ') : ''
     }`;
-    els.list.innerHTML = rows.length
-      ? renderRows(rows, terms, false)
-      : `<div class="empty">見つからなかった<div class="empty__hint">
-          言葉を減らすか、別の言い方を試してみて<br>例:「AI 効率化」「新人 育成」「描画 最適化」</div></div>`;
+    if (gridView() && state.day !== 'fav') {
+      // Keep the wall-clock view usable while searching: show the hits that
+      // fall on the selected day.
+      const dayHits = rows.filter((s) => s.day === state.day);
+      els.list.innerHTML = dayHits.length
+        ? renderGrid(dayHits)
+        : `<div class="empty">この日には見つからなかった<div class="empty__hint">
+            別の日を選ぶか、リスト表示に切り替えてみて</div></div>`;
+    } else {
+      els.list.innerHTML = rows.length
+        ? renderRows(rows, terms, false)
+        : `<div class="empty">見つからなかった<div class="empty__hint">
+            言葉を減らすか、別の言い方を試してみて<br>例:「AI 効率化」「新人 育成」「描画 最適化」</div></div>`;
+    }
   } else {
     const base =
       state.day === 'fav'
@@ -467,7 +480,7 @@ function render() {
       els.list.innerHTML = rows.length ? renderRows(rows, terms, true) : emptyMessage();
     }
   }
-  const gridMode = state.view === 'grid' && !searching && state.day !== 'fav';
+  const gridMode = state.view === 'grid' && state.day !== 'fav';
   els.list.classList.toggle('list--grid', gridMode);
   els.list.classList.toggle('list--compact', state.view === 'compact');
   document.body.classList.toggle('view-grid', gridMode);
@@ -913,6 +926,10 @@ function bind() {
   els.q.addEventListener('search', () => {
     state.query = els.q.value;
     render();
+    els.q.blur(); // dismiss the on-screen keyboard on "search"
+  });
+  els.q.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') els.q.blur();
   });
   els.clear.addEventListener('click', () => {
     state.query = '';
