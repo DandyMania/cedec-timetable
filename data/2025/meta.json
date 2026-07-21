@@ -69,7 +69,137 @@
     "Epic部屋",
     "13"
   ],
-  "generatedAt": "2026-07-21T16:26:16.316Z",
+  "breaks": [
+    {
+      "day": 1,
+      "from": 650,
+      "to": 670,
+      "start": "10:50",
+      "end": "11:10",
+      "label": "休憩"
+    },
+    {
+      "day": 1,
+      "from": 730,
+      "to": 820,
+      "start": "12:10",
+      "end": "13:40",
+      "label": "昼休み"
+    },
+    {
+      "day": 1,
+      "from": 880,
+      "to": 900,
+      "start": "14:40",
+      "end": "15:00",
+      "label": "休憩"
+    },
+    {
+      "day": 1,
+      "from": 960,
+      "to": 1000,
+      "start": "16:00",
+      "end": "16:40",
+      "label": "休憩"
+    },
+    {
+      "day": 1,
+      "from": 1060,
+      "to": 1080,
+      "start": "17:40",
+      "end": "18:00",
+      "label": "休憩"
+    },
+    {
+      "day": 2,
+      "from": 630,
+      "to": 650,
+      "start": "10:30",
+      "end": "10:50",
+      "label": "休憩"
+    },
+    {
+      "day": 2,
+      "from": 710,
+      "to": 730,
+      "start": "11:50",
+      "end": "12:10",
+      "label": "休憩"
+    },
+    {
+      "day": 2,
+      "from": 760,
+      "to": 800,
+      "start": "12:40",
+      "end": "13:20",
+      "label": "昼休み"
+    },
+    {
+      "day": 2,
+      "from": 860,
+      "to": 880,
+      "start": "14:20",
+      "end": "14:40",
+      "label": "休憩"
+    },
+    {
+      "day": 2,
+      "from": 940,
+      "to": 980,
+      "start": "15:40",
+      "end": "16:20",
+      "label": "休憩"
+    },
+    {
+      "day": 2,
+      "from": 1040,
+      "to": 1060,
+      "start": "17:20",
+      "end": "17:40",
+      "label": "休憩"
+    },
+    {
+      "day": 3,
+      "from": 650,
+      "to": 670,
+      "start": "10:50",
+      "end": "11:10",
+      "label": "休憩"
+    },
+    {
+      "day": 3,
+      "from": 730,
+      "to": 820,
+      "start": "12:10",
+      "end": "13:40",
+      "label": "昼休み"
+    },
+    {
+      "day": 3,
+      "from": 880,
+      "to": 900,
+      "start": "14:40",
+      "end": "15:00",
+      "label": "休憩"
+    },
+    {
+      "day": 3,
+      "from": 960,
+      "to": 1000,
+      "start": "16:00",
+      "end": "16:40",
+      "label": "休憩"
+    },
+    {
+      "day": 3,
+      "from": 1060,
+      "to": 1080,
+      "start": "17:40",
+      "end": "18:00",
+      "label": "休憩"
+    }
+  ],
+  "generatedAt": "2026-07-21T16:35:12.663Z",
   "sourceUrl": "https://kazunori-toybox.com/cedec_schedule/web_data/2025/schedule.json",
   "sourceLastModified": null,
   "roomSource": "https://kazunori-toybox.com/cedec_schedule/web_data/2025/schedule.json",

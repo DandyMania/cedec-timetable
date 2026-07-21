@@ -68,7 +68,113 @@
     "12",
     "13"
   ],
-  "generatedAt": "2026-07-21T16:26:16.380Z",
+  "breaks": [
+    {
+      "day": 1,
+      "from": 740,
+      "to": 810,
+      "start": "12:20",
+      "end": "13:30",
+      "label": "昼休み"
+    },
+    {
+      "day": 1,
+      "from": 870,
+      "to": 890,
+      "start": "14:30",
+      "end": "14:50",
+      "label": "休憩"
+    },
+    {
+      "day": 1,
+      "from": 950,
+      "to": 990,
+      "start": "15:50",
+      "end": "16:30",
+      "label": "休憩"
+    },
+    {
+      "day": 1,
+      "from": 1050,
+      "to": 1070,
+      "start": "17:30",
+      "end": "17:50",
+      "label": "休憩"
+    },
+    {
+      "day": 2,
+      "from": 660,
+      "to": 680,
+      "start": "11:00",
+      "end": "11:20",
+      "label": "休憩"
+    },
+    {
+      "day": 2,
+      "from": 740,
+      "to": 810,
+      "start": "12:20",
+      "end": "13:30",
+      "label": "昼休み"
+    },
+    {
+      "day": 2,
+      "from": 870,
+      "to": 890,
+      "start": "14:30",
+      "end": "14:50",
+      "label": "休憩"
+    },
+    {
+      "day": 2,
+      "from": 950,
+      "to": 990,
+      "start": "15:50",
+      "end": "16:30",
+      "label": "休憩"
+    },
+    {
+      "day": 2,
+      "from": 1050,
+      "to": 1070,
+      "start": "17:30",
+      "end": "17:50",
+      "label": "休憩"
+    },
+    {
+      "day": 3,
+      "from": 740,
+      "to": 810,
+      "start": "12:20",
+      "end": "13:30",
+      "label": "昼休み"
+    },
+    {
+      "day": 3,
+      "from": 870,
+      "to": 890,
+      "start": "14:30",
+      "end": "14:50",
+      "label": "休憩"
+    },
+    {
+      "day": 3,
+      "from": 950,
+      "to": 990,
+      "start": "15:50",
+      "end": "16:30",
+      "label": "休憩"
+    },
+    {
+      "day": 3,
+      "from": 1050,
+      "to": 1070,
+      "start": "17:30",
+      "end": "17:50",
+      "label": "休憩"
+    }
+  ],
+  "generatedAt": "2026-07-21T16:35:12.730Z",
   "sourceUrl": "https://kazunori-toybox.com/cedec_schedule/web_data/2023/schedule.json",
   "sourceLastModified": null,
   "roomSource": "https://kazunori-toybox.com/cedec_schedule/web_data/2023/schedule.json",

@@ -64,7 +64,33 @@
     "8",
     "9"
   ],
-  "generatedAt": "2026-07-21T16:26:16.493Z",
+  "breaks": [
+    {
+      "day": 1,
+      "from": 720,
+      "to": 780,
+      "start": "12:00",
+      "end": "13:00",
+      "label": "昼休み"
+    },
+    {
+      "day": 2,
+      "from": 720,
+      "to": 780,
+      "start": "12:00",
+      "end": "13:00",
+      "label": "昼休み"
+    },
+    {
+      "day": 3,
+      "from": 720,
+      "to": 780,
+      "start": "12:00",
+      "end": "13:00",
+      "label": "昼休み"
+    }
+  ],
+  "generatedAt": "2026-07-21T16:35:12.823Z",
   "sourceUrl": "https://kazunori-toybox.com/cedec_schedule/web_data/2020/schedule.json",
   "sourceLastModified": null,
   "roomSource": "https://kazunori-toybox.com/cedec_schedule/web_data/2020/schedule.json",

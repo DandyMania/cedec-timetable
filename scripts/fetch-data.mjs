@@ -117,6 +117,44 @@ async function fetchCedil(year) {
   }
 }
 
+/** Stretches of 20+ minutes where no room has a session: breaks. */
+function findBreaks(sessions) {
+  const byDay = new Map();
+  for (const s of sessions) {
+    if (s.day == null || s.startMin == null || s.endMin == null) continue;
+    if (!byDay.has(s.day)) byDay.set(s.day, []);
+    byDay.get(s.day).push([s.startMin, s.endMin]);
+  }
+  const pad = (n) => String(n).padStart(2, '0');
+  const fmt = (m) => `${pad(Math.floor(m / 60))}:${pad(m % 60)}`;
+  const out = [];
+  for (const [day, spans] of [...byDay.entries()].sort((a, b) => a[0] - b[0])) {
+    spans.sort((a, b) => a[0] - b[0]);
+    const merged = [];
+    for (const span of spans) {
+      const last = merged[merged.length - 1];
+      if (last && span[0] <= last[1]) last[1] = Math.max(last[1], span[1]);
+      else merged.push([...span]);
+    }
+    for (let i = 1; i < merged.length; i++) {
+      const from = merged[i - 1][1];
+      const to = merged[i][0];
+      if (to - from < 20) continue;
+      // A long gap straddling noon is the lunch break.
+      const lunch = to - from >= 30 && from < 14 * 60 && to > 11 * 60 + 30;
+      out.push({
+        day,
+        from,
+        to,
+        start: fmt(from),
+        end: fmt(to),
+        label: lunch ? '昼休み' : '休憩',
+      });
+    }
+  }
+  return out;
+}
+
 function summarize(year, sessions, extra) {
   const dates = [...new Set(sessions.map((s) => s.date).filter(Boolean))].sort();
   const categories = [];
@@ -137,6 +175,7 @@ function summarize(year, sessions, extra) {
     undated: sessions.filter((s) => s.day == null).length,
     categories,
     rooms: [...new Set(sessions.map((s) => s.room).filter(Boolean))].sort((a, b) => Number(a) - Number(b)),
+    breaks: findBreaks(sessions),
     ...extra,
   };
 }

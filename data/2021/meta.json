@@ -67,7 +67,121 @@
     "11",
     "12"
   ],
-  "generatedAt": "2026-07-21T16:26:16.441Z",
+  "breaks": [
+    {
+      "day": 1,
+      "from": 665,
+      "to": 810,
+      "start": "11:05",
+      "end": "13:30",
+      "label": "昼休み"
+    },
+    {
+      "day": 1,
+      "from": 870,
+      "to": 890,
+      "start": "14:30",
+      "end": "14:50",
+      "label": "休憩"
+    },
+    {
+      "day": 1,
+      "from": 950,
+      "to": 970,
+      "start": "15:50",
+      "end": "16:10",
+      "label": "休憩"
+    },
+    {
+      "day": 1,
+      "from": 1030,
+      "to": 1050,
+      "start": "17:10",
+      "end": "17:30",
+      "label": "休憩"
+    },
+    {
+      "day": 1,
+      "from": 1110,
+      "to": 1130,
+      "start": "18:30",
+      "end": "18:50",
+      "label": "休憩"
+    },
+    {
+      "day": 2,
+      "from": 660,
+      "to": 680,
+      "start": "11:00",
+      "end": "11:20",
+      "label": "休憩"
+    },
+    {
+      "day": 2,
+      "from": 740,
+      "to": 810,
+      "start": "12:20",
+      "end": "13:30",
+      "label": "昼休み"
+    },
+    {
+      "day": 2,
+      "from": 870,
+      "to": 890,
+      "start": "14:30",
+      "end": "14:50",
+      "label": "休憩"
+    },
+    {
+      "day": 2,
+      "from": 950,
+      "to": 970,
+      "start": "15:50",
+      "end": "16:10",
+      "label": "休憩"
+    },
+    {
+      "day": 2,
+      "from": 1030,
+      "to": 1050,
+      "start": "17:10",
+      "end": "17:30",
+      "label": "休憩"
+    },
+    {
+      "day": 3,
+      "from": 740,
+      "to": 810,
+      "start": "12:20",
+      "end": "13:30",
+      "label": "昼休み"
+    },
+    {
+      "day": 3,
+      "from": 870,
+      "to": 890,
+      "start": "14:30",
+      "end": "14:50",
+      "label": "休憩"
+    },
+    {
+      "day": 3,
+      "from": 950,
+      "to": 970,
+      "start": "15:50",
+      "end": "16:10",
+      "label": "休憩"
+    },
+    {
+      "day": 3,
+      "from": 1030,
+      "to": 1050,
+      "start": "17:10",
+      "end": "17:30",
+      "label": "休憩"
+    }
+  ],
+  "generatedAt": "2026-07-21T16:35:12.793Z",
   "sourceUrl": "https://kazunori-toybox.com/cedec_schedule/web_data/2021/schedule.json",
   "sourceLastModified": null,
   "roomSource": "https://kazunori-toybox.com/cedec_schedule/web_data/2021/schedule.json",

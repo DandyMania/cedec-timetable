@@ -375,6 +375,12 @@ function emptyMessage() {
 // phone is turned sideways.
 const PX_PER_MIN = 2.4;
 
+/** "昼休み（13:00 - 13:40）" / "20分休憩（12:10 - 12:30）" */
+function breakLabel(b) {
+  const head = b.label === '昼休み' ? '昼休み' : `${b.to - b.from}分休憩`;
+  return `${head}（${b.start} - ${b.end}）`;
+}
+
 function renderGrid(rows) {
   const dated = rows.filter((s) => s.startMin != null && s.room);
   if (!dated.length) return emptyMessage();
@@ -397,6 +403,14 @@ function renderGrid(rows) {
     (state.meta.days ?? []).some((d) => d.date === today && d.day === state.day) &&
     nowMin >= from &&
     nowMin <= to;
+
+  const breaks = (state.meta.breaks ?? [])
+    .filter((b) => b.day === state.day && b.from >= from && b.to <= to)
+    .map(
+      (b) => `<div class="grid__break" style="top:${(b.from - from) * PX_PER_MIN + 30}px;
+        height:${(b.to - b.from) * PX_PER_MIN}px"><span>${esc(breakLabel(b))}</span></div>`,
+    )
+    .join('');
 
   const columns = rooms
     .map((room) => {
@@ -427,7 +441,7 @@ function renderGrid(rows) {
       <div class="grid__head"></div>
       <div class="grid__body" style="height:${height}px">${ticks.join('')}</div>
     </div>
-    <div class="grid__cols">${columns}
+    <div class="grid__cols">${columns}${breaks}
       ${
         showNow
           ? `<div class="grid__now" style="top:${(nowMin - from) * PX_PER_MIN + 30}px"></div>`
@@ -450,6 +464,10 @@ function chunkHtml(rows, terms, startSlot) {
       const slot = s.start ?? '日時未定';
       if (slot !== currentSlot) {
         currentSlot = slot;
+        const gap = (state.meta.breaks ?? []).find(
+          (b) => b.day === s.day && b.end === slot,
+        );
+        if (gap) out.push(`<div class="restbar">${esc(breakLabel(gap))}</div>`);
         out.push(`<div class="slot" data-slot="${esc(slot)}">${esc(slot)}</div>`);
       }
     }
