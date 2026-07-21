@@ -11,7 +11,7 @@
 //
 // Output: data/<year>/sessions.json, data/<year>/meta.json, data/years.json
 
-import { writeFile, mkdir } from 'node:fs/promises';
+import { writeFile, mkdir, readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
@@ -339,8 +339,23 @@ async function main() {
     }
   }
 
-  await writeFile(path.join(DATA_DIR, 'years.json'), JSON.stringify(years, null, 2), 'utf8');
-  console.log(`years: ${years.map((y) => y.year).join(', ')}`);
+  // Keep archive years listed even on a current-year-only refresh: the
+  // scheduled job runs without --past and must not drop them.
+  const yearsPath = path.join(DATA_DIR, 'years.json');
+  let merged = years;
+  if (!withPast) {
+    try {
+      const existing = JSON.parse(await readFile(yearsPath, 'utf8'));
+      const byYear = new Map(existing.map((y) => [y.year, y]));
+      for (const y of years) byYear.set(y.year, y);
+      merged = [...byYear.values()].sort((a, b) => Number(b.year) - Number(a.year));
+    } catch {
+      /* no previous list: fall back to what we just built */
+    }
+  }
+
+  await writeFile(yearsPath, JSON.stringify(merged, null, 2), 'utf8');
+  console.log(`years: ${merged.map((y) => y.year).join(', ')}`);
 }
 
 main().catch((err) => {
