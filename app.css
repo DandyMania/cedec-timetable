@@ -315,6 +315,19 @@ body.bar-hidden .bottombar {
   opacity: 0;
 }
 
+/* Reading downwards: fold the title row away and keep only the day tabs. */
+.appbar__row {
+  overflow: hidden;
+  transition: max-height 0.2s ease, opacity 0.2s ease, margin 0.2s ease;
+  max-height: 44px;
+}
+body.bar-hidden .appbar__row {
+  max-height: 0;
+  opacity: 0;
+  margin-bottom: -2px;
+}
+body.bar-hidden .tabs { margin-top: 2px; }
+
 .bottombar__btn {
   flex: 0 0 auto;
   border: 1px solid var(--line);
