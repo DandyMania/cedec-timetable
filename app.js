@@ -791,6 +791,22 @@ function bind() {
     fabTimer = setTimeout(() => fabs.classList.remove('is-visible'), 900);
   };
   document.addEventListener('scroll', showFabs, { capture: true, passive: true });
+
+  // Hide the bottom bar while scrolling down, bring it back on the way up.
+  let lastY = window.scrollY;
+  window.addEventListener(
+    'scroll',
+    () => {
+      const y = window.scrollY;
+      const dy = y - lastY;
+      if (Math.abs(dy) < 6) return;
+      lastY = y;
+      if (els.filters.hidden && !document.body.classList.contains('kb-open')) {
+        document.body.classList.toggle('bar-hidden', dy > 0 && y > 120);
+      }
+    },
+    { passive: true },
+  );
   document.addEventListener('touchstart', showFabs, { passive: true });
   fabs.addEventListener('pointerenter', showFabs);
   showFabs();
@@ -851,8 +867,7 @@ function bind() {
   els.btnMenu.addEventListener('click', () => setMenu(els.menu.hidden));
 
   $('#menu-about').addEventListener('click', () => {
-    els.menu.hidden = true;
-    els.btnMenu.setAttribute('aria-expanded', 'false');
+    setMenu(false);
     openAbout();
   });
 
@@ -869,8 +884,7 @@ function bind() {
   document.addEventListener('click', (e) => {
     if (els.menu.hidden) return;
     if (e.target.closest('#menu') || e.target.closest('#btn-menu')) return;
-    els.menu.hidden = true;
-    els.btnMenu.setAttribute('aria-expanded', 'false');
+    setMenu(false);
   });
 
   els.view.addEventListener('click', () => setView('grid'));
