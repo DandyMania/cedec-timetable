@@ -1132,7 +1132,8 @@ body.is-archive .appbar__title::after {
     gap: 0 10px;
     align-items: start;
   }
-  .list:not(.list--grid) .slot { grid-column: 1 / -1; }
+  .list:not(.list--grid) .slot,
+  .list:not(.list--grid) .restbar { grid-column: 1 / -1; }
   .list:not(.list--grid) .sentinel { grid-column: 1 / -1; }
   .list:not(.list--grid) .empty { grid-column: 1 / -1; }
 }
