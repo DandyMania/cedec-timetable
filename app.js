@@ -822,11 +822,12 @@ function openAbout() {
     <p class="detail__meta">セッション ${m.total ?? '-'} 件 · データ ${stamp} 時点</p>
   </div>
   <div class="detail__scroll detail">
-    <p>CEDEC 2026 のセッションをスマホで探すための<strong>非公式</strong>のビューアです。
+    <p>CEDEC 2026 のセッションを探すための<strong>非公式</strong>のビューアです。
     CESA / CEDEC 運営委員会とは関係ありません。</p>
     <h3>データの出どころ</h3>
     <p>セッション情報は <a href="https://cedec.cesa.or.jp/2026/" target="_blank" rel="noopener">CEDEC 2026 公式</a>
-    が配布しているデータを取り込んでいます。2 時間おきに取り直しています。</p>
+    が配布している JSON を取り込んでいます。2 時間ごとの定期実行で取り直していますが、
+    GitHub Actions の都合で遅れることがあります。最新は公式サイトを確認してください。</p>
     <p>会場（部屋番号）は公式データに含まれないため、
     <a href="https://kazunori-toybox.com/cedec_schedule/" target="_blank" rel="noopener">CEDEC非公式タイムテーブル</a>
     のデータを利用しています。</p>
@@ -839,7 +840,9 @@ function openAbout() {
     <p>最新かつ正確な情報は必ず公式サイトを確認してください。</p>
   </div>
   <div class="sheet__footer">
-    <a class="btn" href="https://github.com/DandyMania/cedec-timetable" target="_blank" rel="noopener">ソース</a>
+    <a class="btn btn--sm" href="https://github.com/DandyMania/cedec-timetable"
+       target="_blank" rel="noopener">ソース</a>
+    <span class="sheet__spacer"></span>
     <button type="button" class="btn btn--close" data-close aria-label="閉じる">✕</button>
   </div>`;
   els.sheet.hidden = false;

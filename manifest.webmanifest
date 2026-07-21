@@ -1,7 +1,7 @@
 {
   "name": "CEDEC 2026 講演検索",
   "short_name": "CEDEC 講演検索",
-  "description": "CEDEC 2026 のセッションをスマホで探すための非公式ビューア。オフライン対応。",
+  "description": "CEDEC 2026 のセッションを探すための非公式ビューア。オフライン対応。",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
