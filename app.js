@@ -1039,6 +1039,43 @@ function openSheet(id) {
   }
 }
 
+const HELP_ROWS = [
+  ['一覧を左右にスワイプ', '7/22 → 7/23 → 7/24 → ★お気に入り を行き来'],
+  ['カードをタップ', '詳細をひらく'],
+  ['カードを長押し / ★', 'お気に入りに入れる・外す'],
+  ['詳細を左右にフリック', 'とじる（下にフリック・背景タップ・端末の戻るでも可）'],
+  ['上から引っ張る', '最新のデータに更新'],
+  ['☰ ▤ ▦（右上）', 'リスト / コンパクト / タイムテーブル の切り替え'],
+  ['↑ ∧ ∨ 今（右下）', '一番上へ / 前の時間帯 / 次の時間帯 / 今の時間へ'],
+  ['🔍 検索', '略称でも引けます（サイゲ・バンナム・にんてん など）。'
+    + '「サイゲのAIの話」のような書き方もOK'],
+  ['▼ 絞り込み', 'カテゴリ・会場（複数可）・キーワード・撮影/資料/SNS/配信の条件。'
+    + '条件が効いているとアイコンが光ります'],
+  ['★お気に入り', '同じ時間に重なる登録があると「⚠ 時間かぶり」が出ます'],
+];
+
+function openHelp() {
+  els.sheetBody.innerHTML = `<div class="detail__top">
+    <h2 class="detail__title" id="sheet-title">操作のしかた</h2>
+    <p class="detail__meta">スマホは指の操作、PC はクリックでも同じことができます</p>
+  </div>
+  <div class="detail__scroll detail">
+    <dl class="help">${HELP_ROWS.map(
+      ([what, how]) => `<dt>${esc(what)}</dt><dd>${esc(how)}</dd>`,
+    ).join('')}</dl>
+  </div>
+  <div class="sheet__footer">
+    <span class="sheet__spacer"></span>
+    <button type="button" class="btn btn--close" data-close aria-label="閉じる">✕</button>
+  </div>`;
+  els.sheet.hidden = false;
+  document.body.style.overflow = 'hidden';
+  if (!sheetPushed) {
+    history.pushState({ sheet: 'help' }, '');
+    sheetPushed = true;
+  }
+}
+
 function openAbout() {
   const m = state.meta ?? {};
   const stamp = m.sourceLastModified ? new Date(m.sourceLastModified).toLocaleString('ja-JP') : '不明';
@@ -1477,6 +1514,11 @@ function bind() {
   $('#menu-about').addEventListener('click', () => {
     setMenu(false);
     openAbout();
+  });
+
+  $('#menu-help').addEventListener('click', () => {
+    setMenu(false);
+    openHelp();
   });
 
   els.fav.addEventListener('click', () => {

@@ -1342,6 +1342,20 @@ body.is-archive .appbar__title::after {
   font-weight: 700;
 }
 .detail p { margin: 0 0 8px; font-size: 14px; white-space: pre-wrap; }
+.help { margin: 6px 0 0; }
+.help dt {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--accent);
+  margin-top: 14px;
+}
+.help dd {
+  margin: 3px 0 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--fg-muted);
+}
+
 .detail__policy { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 .detail__policy .mk { font-size: 11.5px; padding: 2px 7px; }
 .detail__policy-note {
