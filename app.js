@@ -433,9 +433,9 @@ function renderGrid(rows) {
   </div>`;
 }
 
-// The list is rendered in chunks so that a 200-hit search does not build the
-// whole DOM up front on a phone.
-const PAGE_SIZE = 30;
+// A day holds at most ~72 sessions and a search is capped at 80, so drawing
+// everything up front is fast and avoids the stutter of loading while scrolling.
+const PAGE_SIZE = 500;
 let lazy = { rows: [], terms: [], drawn: 0, lastSlot: null, observer: null };
 
 function chunkHtml(rows, terms, startSlot) {
