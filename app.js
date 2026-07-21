@@ -198,15 +198,11 @@ function renderYearMenu() {
 // Flag filters. Each entry tests one session; the UI shows both the "yes" and
 // the "no" side because either can decide whether a talk is worth attending.
 const FLAG_FILTERS = [
-  { key: 'photo+', label: '撮影OK', test: (s) => s.photoOk },
-  { key: 'photo-', label: '撮影NG', test: (s) => !s.photoOk },
-  { key: 'doc+', label: '資料あり', test: (s) => s.cedil || s.cedilUrl },
-  { key: 'doc-', label: '資料なし', test: (s) => !(s.cedil || s.cedilUrl) },
-  { key: 'sns+', label: 'SNS OK', test: (s) => s.snsOk },
-  { key: 'sns-', label: 'SNS NG', test: (s) => !s.snsOk },
-  { key: 'live+', label: '配信あり', test: (s) => s.liveStream },
-  { key: 'live-', label: '配信なし', test: (s) => !s.liveStream },
-  { key: 'ask+', label: 'ASK the Speaker', test: (s) => s.askSpeaker },
+  { key: 'photo', label: '撮影OK', test: (s) => s.photoOk },
+  { key: 'doc', label: '資料あり', test: (s) => s.cedil || s.cedilUrl },
+  { key: 'sns', label: 'SNS OK', test: (s) => s.snsOk },
+  { key: 'live', label: '配信あり', test: (s) => s.liveStream },
+  { key: 'ask', label: 'ASK the Speaker', test: (s) => s.askSpeaker },
 ];
 
 function renderFilters() {
@@ -223,12 +219,15 @@ function renderFilters() {
       )}</option>`,
     )
     .join('');
-  const roomChips = (state.meta.rooms ?? [])
+  const roomItems = (state.meta.rooms ?? [])
     .map(
-      (r) => `<button type="button" class="chip chip--room" data-room="${esc(r)}"
-        aria-pressed="${state.rooms.has(r)}">第${esc(r)}会場</button>`,
+      (r) => `<label class="dropdown__item"><input type="checkbox" data-room="${esc(r)}"
+        ${state.rooms.has(r) ? 'checked' : ''}> 第${esc(r)}会場</label>`,
     )
     .join('');
+  const roomSummary = state.rooms.size
+    ? `会場：第${[...state.rooms].sort((a, b) => Number(a) - Number(b)).join('・')}会場`
+    : '会場：すべて';
   const cloud = state.tagCloud
     .map(
       (t) => `<button type="button" class="tagcloud__item" data-tag="${esc(t.tag)}"
@@ -252,13 +251,13 @@ function renderFilters() {
       <div class="filters__label">条件</div>
       <div class="filters__chips">${flagChips}</div>
     </div>
-    <div class="filters__group">
-      <div class="filters__label">会場（複数選べます）</div>
-      <div class="filters__chips filters__chips--rooms">${roomChips}</div>
-    </div>
     <div class="filters__row">
       <select id="sel-cat" class="select" aria-label="カテゴリ">
         <option value="">カテゴリ：すべて</option>${catOptions}</select>
+      <details class="dropdown" id="room-dropdown">
+        <summary class="select">${esc(roomSummary)}</summary>
+        <div class="dropdown__menu">${roomItems}</div>
+      </details>
     </div>`;
 }
 
@@ -933,8 +932,23 @@ function bind() {
   }
 
   els.filters.addEventListener('change', (e) => {
-    if (e.target.id !== 'sel-cat') return;
-    state.cat = e.target.value;
+    if (e.target.id === 'sel-cat') {
+      state.cat = e.target.value;
+      render();
+      return;
+    }
+    const room = e.target.closest('[data-room]');
+    if (!room) return;
+    const v = room.dataset.room;
+    if (room.checked) state.rooms.add(v);
+    else state.rooms.delete(v);
+    // Update just the summary line, so the open dropdown keeps its place.
+    const summary = els.filters.querySelector('#room-dropdown > summary');
+    if (summary) {
+      summary.textContent = state.rooms.size
+        ? `会場：第${[...state.rooms].sort((a, b) => Number(a) - Number(b)).join('・')}会場`
+        : '会場：すべて';
+    }
     render();
   });
 
@@ -945,15 +959,6 @@ function bind() {
       if (state.flags.has(v)) state.flags.delete(v);
       else state.flags.add(v);
       flag.setAttribute('aria-pressed', String(state.flags.has(v)));
-      render();
-      return;
-    }
-    const room = e.target.closest('[data-room]');
-    if (room) {
-      const v = room.dataset.room;
-      if (state.rooms.has(v)) state.rooms.delete(v);
-      else state.rooms.add(v);
-      room.setAttribute('aria-pressed', String(state.rooms.has(v)));
       render();
       return;
     }

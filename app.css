@@ -501,6 +501,46 @@ body.bar-hidden .tabs { margin-top: 2px; }
   border-radius: 9px;
 }
 
+/* Multi-select dropdown (rooms): a real checkbox list, since a native
+   <select multiple> is unusable on a phone. */
+.dropdown { position: relative; flex: 1; min-width: 0; }
+.dropdown > summary {
+  list-style: none;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dropdown > summary::-webkit-details-marker { display: none; }
+.dropdown > summary::after { content: '▾'; float: right; opacity: 0.6; margin-left: 6px; }
+.dropdown__menu {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(100% + 4px);
+  z-index: 5;
+  max-height: 210px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  padding: 4px;
+}
+body.bar-top .dropdown__menu { bottom: auto; top: calc(100% + 4px); }
+.dropdown__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 9px;
+  border-radius: 7px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.dropdown__item:hover { background: var(--bg-sunken); }
+.dropdown__item input { width: 16px; height: 16px; accent-color: var(--accent); }
+
 /* Two fixed rows that scroll sideways: the sheet stays short. */
 .tagcloud {
   display: grid;
