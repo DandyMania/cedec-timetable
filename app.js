@@ -1519,6 +1519,82 @@ async function boot() {
   placeBar();
   wide.addEventListener('change', placeBar);
 
+  // Pull down at the top of the list to refetch the schedule. Installed to the
+  // home screen there is no browser chrome, so the built-in gesture is gone.
+  const pull = $('#pull');
+  const pullText = $('#pull-text');
+  const THRESHOLD = 78;
+  let pullFrom = null;
+  let pulled = 0;
+  let refreshing = false;
+
+  const setPull = (y, label) => {
+    pull.style.transform = `translateY(${y}px)`;
+    pull.classList.toggle('is-on', y > 4);
+    if (label) pullText.textContent = label;
+  };
+  const resetPull = () => {
+    pullFrom = null;
+    pulled = 0;
+    pull.style.transform = '';
+    pull.classList.remove('is-on', 'is-busy');
+    pullText.textContent = '引っ張って更新';
+  };
+
+  async function refreshData() {
+    refreshing = true;
+    pull.classList.add('is-busy');
+    setPull(THRESHOLD, '更新中…');
+    try {
+      const [sessions, meta] = await Promise.all([
+        fetch(`./data/${state.year}/sessions.json`, { cache: 'reload' }).then((r) => r.json()),
+        fetch(`./data/${state.year}/meta.json`, { cache: 'reload' }).then((r) => r.json()),
+      ]);
+      state.sessions = sessions;
+      state.meta = meta;
+      state.index = buildIndex(sessions);
+      buildTagCloud();
+      renderFilters();
+      state.now = new Date();
+      render();
+      setPull(THRESHOLD, '最新になったよ');
+    } catch {
+      setPull(THRESHOLD, '更新できなかった');
+    }
+    setTimeout(() => {
+      refreshing = false;
+      resetPull();
+    }, 700);
+  }
+
+  document.addEventListener(
+    'touchstart',
+    (e) => {
+      const inGrid = document.body.classList.contains('view-grid');
+      pullFrom =
+        !refreshing && !inGrid && window.scrollY <= 0 && e.touches.length === 1
+          ? e.touches[0].clientY
+          : null;
+    },
+    { passive: true },
+  );
+  document.addEventListener(
+    'touchmove',
+    (e) => {
+      if (pullFrom == null || window.scrollY > 0) return;
+      pulled = e.touches[0].clientY - pullFrom;
+      if (pulled <= 0) return;
+      setPull(Math.min(pulled * 0.45, THRESHOLD + 12), pulled > THRESHOLD ? '離すと更新' : '引っ張って更新');
+    },
+    { passive: true },
+  );
+  document.addEventListener('touchend', () => {
+    if (pullFrom != null && pulled > THRESHOLD) refreshData();
+    else if (!refreshing) resetPull();
+    pullFrom = null;
+    pulled = 0;
+  });
+
   // Keep the bottom bar above the on-screen keyboard.
   const vv = window.visualViewport;
   if (vv) {
