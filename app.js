@@ -474,7 +474,7 @@ function emptyMessage() {
 
 // Wall-clock grid: rooms across, time down. Useful on a tablet or when the
 // phone is turned sideways.
-const PX_PER_MIN = 2.4;
+const PX_PER_MIN = 3.1;
 
 /** "昼休み（13:00 - 13:40）" / "20分休憩（12:10 - 12:30）" */
 function breakLabel(b) {
@@ -534,9 +534,24 @@ function renderGrid(rows) {
           const ls = liveStateOf(s);
           return `<div class="gcell cat-edge-${esc(s.category || 'none')} ${
             ls === 'live' ? 'gcell--live' : ''
-          } ${ls === 'past' ? 'gcell--past' : ''} ${fav ? 'gcell--fav' : ''}"
-            style="top:${top}px;height:${h}px" data-id="${esc(s.id)}" role="button" tabindex="0">
+          } ${ls === 'past' ? 'gcell--past' : ''} ${fav ? 'gcell--fav' : ''} ${
+            h < 74 ? 'gcell--tight' : ''
+          }" style="top:${top}px;height:${h}px" data-id="${esc(s.id)}" role="button" tabindex="0">
+            <div class="gcell__meta">${
+              s.category && s.category !== 'カテゴリなし'
+                ? `<span class="cat cat-${esc(s.category)}">${esc(s.category)}</span>`
+                : ''
+            }${s.cedil || s.cedilUrl ? '<span class="gmk">資料</span>' : ''}${
+              s.streamState === 'ok' ? '<span class="gmk gmk--live">配信</span>' : ''
+            }</div>
             <div class="gcell__title">${esc(s.title)}</div>
+            <div class="gcell__co">${esc(
+              (s.speakers ?? [])
+                .map((x) => x.company || x.name)
+                .filter(Boolean)
+                .slice(0, 2)
+                .join(' / '),
+            )}</div>
           </div>`;
         })
         .join('');
@@ -1067,7 +1082,7 @@ function bind() {
   function stepTime(dir) {
     const board = els.list.querySelector('.grid');
     if (board) {
-      board.scrollBy({ top: dir * 30 * 2.4, behavior: 'smooth' });
+      board.scrollBy({ top: dir * 30 * PX_PER_MIN, behavior: 'smooth' });
       return;
     }
     const top = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 110;
