@@ -33,7 +33,6 @@ const els = {
   status: $('#status'),
   sheet: $('#sheet'),
   sheetBody: $('#sheet-body'),
-  footMeta: $('#foot-meta'),
   view: $('#btn-view'),
   viewList: $('#btn-view-list'),
   menu: $('#menu'),
@@ -1019,7 +1018,6 @@ async function boot() {
   const note = meta.archiveOnly
     ? `${state.year} 年のアーカイブ · ${meta.total} 件（タイトルと登壇者のみ）`
     : `セッション ${meta.total} 件 · データ ${stamp ? stamp.toLocaleString('ja-JP') : '不明'} 時点`;
-  els.footMeta.textContent = note;
   els.menuNote.textContent = note;
 
   const showOffline = () => {
