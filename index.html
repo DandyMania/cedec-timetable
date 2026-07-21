@@ -18,17 +18,37 @@
   <div class="appbar__row">
     <h1 class="appbar__title">CEDEC 2026 講演検索</h1>
     <div class="appbar__actions">
+      <div class="segmented" role="group" aria-label="表示の切り替え">
+        <button type="button" class="segmented__btn" id="btn-view-list"
+                aria-pressed="true" aria-label="リストで見る">☰</button>
+        <button type="button" class="segmented__btn" id="btn-view" aria-pressed="false"
+                aria-label="表（タイムテーブル）で見る">▦</button>
+      </div>
       <button type="button" class="iconbtn" id="btn-menu" aria-expanded="false"
               aria-label="メニュー">≡</button>
     </div>
   </div>
   <div class="menu" id="menu" hidden>
-    <button type="button" class="menu__item" id="btn-view" aria-pressed="false">
-      <span class="menu__icon">▦</span>表で見る（会場ごとのタイムテーブル）</button>
     <button type="button" class="menu__item" id="menu-filters">
       <span class="menu__icon">⛃</span>絞り込み・キーワード</button>
+    <div class="menu__sep">公式</div>
     <a class="menu__item" href="https://cedec.cesa.or.jp/2026/timetable/" target="_blank" rel="noopener">
       <span class="menu__icon">↗</span>公式タイムテーブル</a>
+    <a class="menu__item" href="https://cedec.cesa.or.jp/2026/" target="_blank" rel="noopener">
+      <span class="menu__icon">↗</span>CEDEC 2026 公式サイト</a>
+    <a class="menu__item" href="https://cedec.cesa.or.jp/2026/access/" target="_blank" rel="noopener">
+      <span class="menu__icon">↗</span>会場アクセス（パシフィコ横浜）</a>
+    <a class="menu__item" href="https://cedec.cesa.or.jp/2026/event/" target="_blank" rel="noopener">
+      <span class="menu__icon">↗</span>併催イベント</a>
+    <a class="menu__item" href="https://cedil.cesa.or.jp/" target="_blank" rel="noopener">
+      <span class="menu__icon">↗</span>CEDiL（講演資料）</a>
+    <div class="menu__sep">その他</div>
+    <a class="menu__item" href="https://kazunori-toybox.com/cedec_schedule/" target="_blank" rel="noopener">
+      <span class="menu__icon">↗</span>CEDEC非公式タイムテーブル</a>
+    <a class="menu__item" href="https://x.com/search?q=%23CEDEC2026&f=live" target="_blank" rel="noopener">
+      <span class="menu__icon">↗</span>#CEDEC2026 の投稿</a>
+    <a class="menu__item" href="https://github.com/DandyMania/cedec-timetable" target="_blank" rel="noopener">
+      <span class="menu__icon">↗</span>このページのソース</a>
     <div class="menu__note" id="menu-note"></div>
   </div>
   <div class="filterbar">

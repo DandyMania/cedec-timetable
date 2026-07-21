@@ -90,6 +90,25 @@ a { color: var(--accent); }
 
 .appbar__actions { display: flex; gap: 6px; align-items: center; }
 
+.segmented {
+  display: flex;
+  border: 1px solid var(--line);
+  background: var(--bg-elev);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.segmented__btn {
+  border: 0;
+  background: transparent;
+  color: var(--fg-faint);
+  font-family: inherit;
+  font-size: 14px;
+  height: 32px;
+  min-width: 40px;
+  cursor: pointer;
+}
+.segmented__btn[aria-pressed='true'] { background: var(--accent); color: var(--accent-fg); }
+
 .iconbtn {
   position: relative;
   border: 1px solid var(--line);
@@ -146,6 +165,19 @@ a { color: var(--accent); }
 }
 .menu__item:hover { background: var(--bg-sunken); }
 .menu__icon { width: 18px; text-align: center; opacity: 0.7; }
+.menu {
+  max-height: 72vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.menu__sep {
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  color: var(--fg-faint);
+  padding: 10px 10px 4px;
+  border-top: 1px solid var(--line);
+  margin-top: 4px;
+}
 .menu__note {
   font-size: 11px;
   color: var(--fg-faint);
@@ -373,21 +405,29 @@ a { color: var(--accent); }
   border-radius: 10px;
 }
 
+/* Two fixed rows that scroll sideways: the sheet stays short. */
 .tagcloud {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px 6px;
-  align-items: baseline;
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(2, auto);
+  justify-content: start;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  padding: 2px 0 6px;
+  scrollbar-width: thin;
 }
 .tagcloud__item {
   border: 1px solid var(--line);
   background: var(--bg-elev);
   color: var(--fg-muted);
   border-radius: 999px;
-  padding: 3px 10px;
+  padding: 4px 11px;
   cursor: pointer;
   font-family: inherit;
-  line-height: 1.5;
+  line-height: 1.4;
+  white-space: nowrap;
 }
 .tagcloud__item[aria-pressed='true'] {
   background: var(--accent);
@@ -753,6 +793,9 @@ body.kb-open .bottombar__row { display: none; }
 }
 .sheet__footer .btn { flex: 1 1 0; padding: 12px 8px; }
 .btn--close { flex: 0 0 54px !important; font-size: 16px; }
+.btn--star { flex: 0 0 58px !important; font-size: 19px; line-height: 1; }
+.btn--star.is-fav { background: var(--star); border-color: var(--star); color: #1a1405; }
+.tag--on { background: var(--accent); color: var(--accent-fg); border-color: transparent; }
 .btn {
   flex: 1 1 auto;
   text-align: center;

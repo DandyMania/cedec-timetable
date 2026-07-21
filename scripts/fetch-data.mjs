@@ -112,6 +112,8 @@ async function main() {
     const category = splitCode(s.category);
     const format = splitCode(s.format);
 
+    const notes = (Array.isArray(s.note) ? s.note : splitList(s.note)).map(clean).filter(Boolean);
+
     const speakers = (Array.isArray(s.speakers) ? s.speakers : []).map((sp) => ({
       name: clean(sp.name),
       company: clean(sp.company),
@@ -145,7 +147,12 @@ async function main() {
       photoOk: s.photo_ok === true || s.photo_ok === 'true',
       snsOk: s.sns_ok === true || s.sns_ok === 'true',
       cedil: s.CEDiL === 1 || s.CEDiL === true,
-      note: clean(s.note),
+      // note is a list of flags: streaming, archive, interpretation, Ask the Speaker...
+      notes,
+      liveStream: notes.some((n) => /配信\s*OK/.test(n)),
+      archive: notes.some((n) => n.includes('アーカイブ可')),
+      askSpeaker: notes.some((n) => n.includes('ASK the Speaker')),
+      interpreted: notes.some((n) => n.includes('通訳')),
       url: clean(s.URL),
     };
   });

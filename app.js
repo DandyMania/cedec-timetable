@@ -31,6 +31,7 @@ const els = {
   sheetBody: $('#sheet-body'),
   footMeta: $('#foot-meta'),
   view: $('#btn-view'),
+  viewList: $('#btn-view-list'),
   menu: $('#menu'),
   btnMenu: $('#btn-menu'),
   menuFilters: $('#menu-filters'),
@@ -525,6 +526,10 @@ function openSheet(id) {
   els.sheetBody.innerHTML = `<div class="detail__top">
     <div class="detail__head">
       ${s.category ? `<span class="cat cat-${esc(s.category)}">${esc(s.category)}</span>` : ''}
+      ${s.liveStream ? '<span class="tag tag--on">配信あり</span>' : ''}
+      ${s.archive ? '<span class="tag">アーカイブ</span>' : ''}
+      ${s.askSpeaker ? '<span class="tag">ASK the Speaker</span>' : ''}
+      ${s.interpreted ? '<span class="tag">通訳</span>' : ''}
       ${s.photoOk ? '<span class="tag">撮影OK</span>' : ''}
       ${s.snsOk ? '<span class="tag">SNS OK</span>' : ''}
       ${s.cedil ? '<span class="tag">資料あり予定</span>' : ''}
@@ -546,9 +551,9 @@ function openSheet(id) {
     ${speakers ? `<h3>登壇者</h3>${speakers}` : ''}
   </div>
   <div class="sheet__footer">
-    <button type="button" class="btn ${fav ? 'btn--primary' : ''}" data-star="${esc(s.id)}"
-      aria-pressed="${fav}">${fav ? '★ 登録済み' : '☆ マイプラン'}</button>
     ${s.url ? `<a class="btn" href="${esc(s.url)}" target="_blank" rel="noopener">公式ページ</a>` : ''}
+    <button type="button" class="btn btn--star ${fav ? 'is-fav' : ''}" data-star="${esc(s.id)}"
+      aria-pressed="${fav}" aria-label="マイプラン">${fav ? '★' : '☆'}</button>
     <button type="button" class="btn btn--close" data-close aria-label="閉じる">✕</button>
   </div>`;
   els.sheet.hidden = false;
@@ -575,11 +580,21 @@ function toggleFav(id) {
 // ---------------------------------------------------------------- events
 
 function setViewLabel() {
-  els.view.innerHTML =
-    state.view === 'grid'
-      ? '<span class="menu__icon">☰</span>リストで見る'
-      : '<span class="menu__icon">▦</span>表で見る（会場ごとのタイムテーブル）';
-  els.view.setAttribute('aria-pressed', String(state.view === 'grid'));
+  const grid = state.view === 'grid';
+  els.view.setAttribute('aria-pressed', String(grid));
+  els.viewList.setAttribute('aria-pressed', String(!grid));
+}
+
+function setView(next) {
+  if (state.view === next) return;
+  state.view = next;
+  setViewLabel();
+  try {
+    localStorage.setItem(STORE_VIEW, state.view);
+  } catch { /* ignore */ }
+  scrolledOnce = false;
+  window.scrollTo({ top: 0 });
+  render();
 }
 
 function bind() {
@@ -619,9 +634,10 @@ function bind() {
   };
   els.filtersFloat.addEventListener('click', toggleFilters);
 
-  // Tapping outside the filter sheet closes it.
+  // Tapping outside the filter sheet closes it. Ignore clicks whose target was
+  // already removed from the DOM by a re-render.
   document.addEventListener('click', (e) => {
-    if (els.filters.hidden) return;
+    if (els.filters.hidden || !e.target.isConnected) return;
     if (e.target.closest('#filters') || e.target.closest('#btn-filters-float')) return;
     els.filters.hidden = true;
     els.filtersFloat.setAttribute('aria-pressed', 'false');
@@ -638,7 +654,7 @@ function bind() {
   });
 
   els.filters.addEventListener('click', (e) => {
-    const tag = e.target.closest('[data-tag]');
+      const tag = e.target.closest('[data-tag]');
     const reset = e.target.closest('[data-reset]');
     if (e.target.closest('[data-close-filters]')) {
       els.filters.hidden = true;
@@ -647,16 +663,22 @@ function bind() {
       return;
     }
     if (tag) {
+      // Toggle in place: rebuilding the sheet would lose the scroll position
+      // and make picking several keywords in a row annoying.
       const v = tag.dataset.tag;
       if (state.tags.has(v)) state.tags.delete(v);
       else state.tags.add(v);
-    } else if (reset) {
+      tag.setAttribute('aria-pressed', String(state.tags.has(v)));
+      render();
+      return;
+    }
+    if (reset) {
       state.cat = '';
       state.room = '';
       state.tags.clear();
-    } else return;
-    renderFilters();
-    render();
+      renderFilters();
+      render();
+    }
   });
 
   $('#btn-now').addEventListener('click', jumpToNow);
@@ -691,17 +713,8 @@ function bind() {
     els.btnMenu.setAttribute('aria-expanded', 'false');
   });
 
-  els.view.addEventListener('click', () => {
-    state.view = state.view === 'grid' ? 'list' : 'grid';
-    setViewLabel();
-    els.menu.hidden = true;
-    els.btnMenu.setAttribute('aria-expanded', 'false');
-    try {
-      localStorage.setItem(STORE_VIEW, state.view);
-    } catch { /* ignore */ }
-    scrolledOnce = false;
-    render();
-  });
+  els.view.addEventListener('click', () => setView('grid'));
+  els.viewList.addEventListener('click', () => setView('list'));
 
   // Long-press a card to star it without aiming for the small ☆.
   let pressTimer = null;
