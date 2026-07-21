@@ -25,6 +25,7 @@ const state = {
   tagCloud: [],
   view: 'list',
   favDay: null,
+  searchDay: null,
   scrollMemory: {},
   year: CURRENT_YEAR,
   years: [],
@@ -148,7 +149,7 @@ function renderTabs() {
     const active = state.day === 'fav' ? state.favDay === d.day : state.day === d.day;
     // Stay usable while searching: the tabs still switch days, and in grid view
     // they pick which day's hits are laid out.
-    const selected = searching && !gridView() ? false : active;
+    const selected = searching && !gridView() ? state.searchDay === d.day : active;
     return `<button type="button" class="tab ${isToday ? 'tab--today' : ''}" role="tab"
       data-day="${d.day}" aria-selected="${selected}"
       >${Number(m)}/${Number(day)}<span class="tab__sub">${wd}</span></button>`;
@@ -449,7 +450,13 @@ function render() {
     if (intent.band) notes.push(intent.band.label);
     if (intent.level != null) notes.push(intent.level === 1 ? '入門寄り' : '上級寄り');
     if (intent.categories.length) notes.push(intent.categories.join('/'));
-    els.status.textContent = `全日程から ${rows.length}件${
+    if (state.searchDay != null) {
+      const dayRows = rows.filter((s) => s.day === state.searchDay);
+      if (dayRows.length || rows.length) rows = dayRows;
+      const d = (state.meta.days ?? []).find((x) => x.day === state.searchDay);
+      if (d) notes.push(dayLabel(d.date));
+    }
+    els.status.textContent = `${state.searchDay == null ? '全日程から ' : ''}${rows.length}件${
       notes.length ? ' · ' + notes.join(' · ') : ''
     }`;
     if (gridView() && state.day !== 'fav') {
@@ -1027,6 +1034,7 @@ function bind() {
   els.q.addEventListener('input', () => {
     state.query = els.q.value;
     els.clear.hidden = !state.query;
+    if (!state.query.trim()) state.searchDay = null;
     clearTimeout(timer);
     timer = setTimeout(render, 120);
   });
@@ -1068,7 +1076,9 @@ function bind() {
       ? { board: boardNow.scrollTop, left: boardNow.scrollLeft }
       : { page: window.scrollY, slot: currentTopSlot() };
 
-    // Inside my-plan a day tap filters the starred list instead of leaving it.
+    // While searching, a day tap narrows the hits to that day (tap again for
+    // every day). Inside my-plan it filters the starred list instead.
+    if (state.query.trim()) state.searchDay = state.searchDay === day ? null : day;
     if (state.day === 'fav') state.favDay = state.favDay === day ? null : day;
     else state.day = day;
     scrolledOnce = true;
