@@ -212,6 +212,17 @@ async function buildCurrent(year) {
     } catch (err) {
       console.warn(`  rooms unavailable (${err.message})`);
     }
+    if (!roomById.size) {
+      // Fall back to the rooms already on disk: losing them empties the
+      // wall-clock grid, which is worse than serving slightly stale rooms.
+      try {
+        const prev = JSON.parse(await readFile(path.join(DATA_DIR, year, 'sessions.json'), 'utf8'));
+        for (const s of prev) if (s.id && s.room) roomById.set(s.id, String(s.room));
+        console.warn(`  reused ${roomById.size} rooms from the previous build`);
+      } catch {
+        console.warn('  no previous rooms to fall back on');
+      }
+    }
   }
 
   const cedilByTitle = await fetchCedil(year);
