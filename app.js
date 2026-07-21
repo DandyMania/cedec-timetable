@@ -200,18 +200,19 @@ function renderYearMenu() {
 // Each chip cycles: off -> only "yes" -> only "no" -> off. Most sessions allow
 // photos, so hunting for the exceptions matters as much as the other way round.
 const FLAG_FILTERS = [
-  // For these three the feed only stores a boolean, so the negative side means
-  // "not marked as allowed" — shown as – rather than ✕, which would claim the
-  // official page said no.
-  { key: 'photo', label: '撮影', get: (s) => Boolean(s.photoOk), noMark: '–', noNote: '記載なし' },
+  // 撮影 / SNS: the official session page renders these as a lit or unlit icon
+  // under "写真撮影 / SNS投稿", so false really does mean not allowed.
+  { key: 'photo', label: '撮影', get: (s) => Boolean(s.photoOk), noMark: '✕', noNote: '撮影不可' },
+  { key: 'sns', label: 'SNS', get: (s) => Boolean(s.snsOk), noMark: '✕', noNote: 'SNS投稿不可' },
+  // 資料 / ASK: not shown on the official page at all, so the absence of the
+  // flag says nothing beyond "not stated".
   {
     key: 'doc',
     label: '資料',
     get: (s) => Boolean(s.cedil || s.cedilUrl),
-    noMark: '–',
-    noNote: '記載なし',
+    noMark: '：表記なし',
+    noNote: '公式に記載なし',
   },
-  { key: 'sns', label: 'SNS', get: (s) => Boolean(s.snsOk), noMark: '–', noNote: '記載なし' },
   // Streaming is the one flag with a real "not stated" case, so ○ and ✕ both
   // require an explicit note rather than treating silence as a no.
   {
@@ -220,9 +221,15 @@ const FLAG_FILTERS = [
     get: (s) => s.streamState === 'ok',
     excludes: (s) => s.streamState === 'ng',
     noMark: '✕',
-    noNote: 'NGと明記',
+    noNote: '公式に「配信NG」と明記',
   },
-  { key: 'ask', label: 'ASK', get: (s) => Boolean(s.askSpeaker), noMark: '–', noNote: '記載なし' },
+  {
+    key: 'ask',
+    label: 'ASK',
+    get: (s) => Boolean(s.askSpeaker),
+    noMark: '：表記なし',
+    noNote: '公式に記載なし',
+  },
 ];
 
 function renderFilters() {
