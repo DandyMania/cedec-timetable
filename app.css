@@ -654,7 +654,10 @@ body.bar-top .dropdown__menu { bottom: auto; top: calc(100% + 4px); }
   border-color: color-mix(in srgb, var(--star) 45%, var(--line));
 }
 /* two starred sessions at the same time: you can only attend one */
-.card--clash { border-color: var(--live); }
+.card--clash {
+  border-color: var(--live);
+  box-shadow: 0 0 0 1px var(--live) inset;
+}
 .tag--clash {
   background: var(--live);
   color: #fff;
@@ -1093,19 +1096,21 @@ body.view-grid .foot { display: none; }
   padding: 18px 0 28px;
 }
 
-/* bottom-left: the cards' star sits top-right, so the two never overlap */
+/* bottom-right: Japanese text ends short of the right edge, so buttons there
+   cover less than on the left where every line starts. The cards' star sits
+   top-right, so the two still do not collide. */
 .fabs {
   position: fixed;
-  left: 10px;
+  right: 10px;
   bottom: calc(var(--bottombar-h, 108px) + var(--kb, 0px) + 10px);
   z-index: 45;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: flex-end;
   gap: 6px;
   opacity: 0;
   pointer-events: none;
-  transform: translateX(-6px);
+  transform: translateX(6px);
   transition: opacity 0.22s ease, transform 0.22s ease;
 }
 .fabs.is-visible { opacity: 1; pointer-events: auto; transform: none; }

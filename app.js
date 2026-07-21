@@ -371,7 +371,7 @@ function sessionCard(s, terms, liveState, showDate) {
     <div class="card__head">${s.date ? `<span class="card__date">${dayLabel(s.date)}</span>` : ''}${time}${
       room ? ' · ' + room : ''
     }${cat ? ' · ' + cat : ''}${format ? ' · ' + format : ''} ${badge}${
-      clash ? '<span class="tag tag--clash">時間かぶり</span>' : ''
+      clash ? '<span class="tag tag--clash" title="同じ時間に他のお気に入りがあります">⚠ 時間かぶり</span>' : ''
     }${marks ? `<span class="marks">${marks}</span>` : ''}</div>
     <h2 class="card__title">${highlight(s.title, terms)}</h2>
     ${speakers ? `<p class="card__speakers">${speakers}</p>` : ''}
@@ -1322,7 +1322,7 @@ function bind() {
   document.addEventListener(
     'mousemove',
     (e) => {
-      if (e.clientX < 200 && e.clientY > window.innerHeight - 340) showFabs();
+      if (e.clientX > window.innerWidth - 200 && e.clientY > window.innerHeight - 340) showFabs();
     },
     { passive: true },
   );
@@ -1424,8 +1424,9 @@ function bind() {
   // Long-press a card to star it without aiming for the small ☆.
   let pressTimer = null;
   let pressScrollY = null;
-  // Time-based rather than a flag: a long press does not always emit a click,
-  // and a stale flag would swallow the *next* tap.
+  let pressFired = false;
+  // The suppression window is measured from touchend, so a slow release cannot
+  // outlast it and fire a second action on the same gesture.
   let suppressClickUntil = 0;
   const cancelPress = () => {
     clearTimeout(pressTimer);
@@ -1441,8 +1442,10 @@ function bind() {
       if (!card || e.target.closest('[data-star]') || e.target.closest('[data-event]')) return;
       const id = card.dataset.id;
       pressAt = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      pressFired = false;
       pressTimer = setTimeout(() => {
-        suppressClickUntil = performance.now() + 600;
+        pressFired = true;
+        pressTimer = null;
         navigator.vibrate?.(18);
         toggleFav(id);
       }, 500);
@@ -1460,7 +1463,13 @@ function bind() {
     },
     { passive: true },
   );
-  els.list.addEventListener('touchend', cancelPress);
+  // Measure the suppression window from the moment the finger lifts: a slow
+  // release would otherwise outlast it and let the click through as a second
+  // action on the same gesture.
+  els.list.addEventListener('touchend', () => {
+    if (pressFired) suppressClickUntil = performance.now() + 450;
+    cancelPress();
+  });
   els.list.addEventListener('touchcancel', cancelPress);
   // A real scroll aborts the press, but the browser also fires scroll events
   // for tiny rubber-band movements, so only give up once the page has actually
