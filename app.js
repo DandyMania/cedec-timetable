@@ -1051,11 +1051,20 @@ function closeSheet(fromPop) {
   if (!fromPop && history.state?.sheet) history.back();
 }
 
+let lastFavToggle = { id: null, at: -1e9 };
+
 /**
  * Toggle in place. A full re-render would reset the lazy list and yank the
  * scroll position out from under the user's thumb.
+ *
+ * Repeats on the same card within a moment are ignored: a long press followed
+ * by the browser's own click would otherwise set and immediately unset it.
  */
 function toggleFav(id) {
+  const now = performance.now();
+  if (lastFavToggle.id === id && now - lastFavToggle.at < 800) return;
+  lastFavToggle = { id, at: now };
+
   if (state.favs.has(id)) state.favs.delete(id);
   else state.favs.add(id);
   saveFavs();
