@@ -312,7 +312,9 @@ function sessionCard(s, terms, liveState, showDate) {
     s.category && s.category !== 'カテゴリなし'
       ? `<span class="cat cat-${esc(s.category)}">${esc(s.category)}</span>`
       : '';
-  const room = s.room ? `<span class="card__room">第${esc(s.room)}会場</span>` : '';
+  const room = s.room
+    ? `<span class="card__room" data-room="${esc(s.room)}会場">第${esc(s.room)}会場</span>`
+    : '';
   const time = s.start
     ? `<span class="card__time"><strong>${esc(s.start)}</strong>–${esc(s.end ?? '')}</span>`
     : '<span class="card__time">日時未定</span>';
@@ -657,6 +659,8 @@ function renderGrid(rows) {
                 .slice(0, 2)
                 .join(' / '),
             )}</div>
+            <button type="button" class="gcell__star" data-star="${esc(s.id)}"
+              aria-pressed="${fav}" aria-label="お気に入り">${fav ? '★' : '☆'}</button>
           </div>`;
         })
         .join('');
@@ -1034,7 +1038,10 @@ function toggleFav(id) {
     btn.classList.toggle('is-fav', fav);
     btn.closest('.card')?.classList.toggle('card--fav', fav);
   }
-  els.list.querySelector(`.gcell[data-id="${sel}"]`)?.classList.toggle('gcell--fav', fav);
+  const cell = els.list.querySelector(`.gcell[data-id="${sel}"]`);
+  cell?.classList.toggle('gcell--fav', fav);
+  const cellStar = cell?.querySelector('.gcell__star');
+  if (cellStar) cellStar.textContent = fav ? '★' : '☆';
   els.favCount.textContent = String(state.favs.size);
 
   // The my-plan list is defined by the stars, so it does need rebuilding.
@@ -1369,21 +1376,34 @@ function bind() {
     clearTimeout(pressTimer);
     pressTimer = null;
   };
+  let pressAt = null;
   els.list.addEventListener(
     'touchstart',
     (e) => {
+      // Works for list cards and for cells on the wall-clock board.
       const card = e.target.closest('[data-id]');
-      if (!card || e.target.closest('[data-star]')) return;
+      if (!card || e.target.closest('[data-star]') || e.target.closest('[data-event]')) return;
       const id = card.dataset.id;
+      pressAt = { x: e.touches[0].clientX, y: e.touches[0].clientY };
       pressTimer = setTimeout(() => {
         suppressClickUntil = performance.now() + 600;
         navigator.vibrate?.(18);
         toggleFav(id);
-      }, 550);
+      }, 500);
     },
     { passive: true },
   );
-  els.list.addEventListener('touchmove', cancelPress, { passive: true });
+  // A finger never holds perfectly still: only a real drag cancels the press.
+  els.list.addEventListener(
+    'touchmove',
+    (e) => {
+      if (!pressTimer || !pressAt) return;
+      const dx = e.touches[0].clientX - pressAt.x;
+      const dy = e.touches[0].clientY - pressAt.y;
+      if (Math.hypot(dx, dy) > 12) cancelPress();
+    },
+    { passive: true },
+  );
   els.list.addEventListener('touchend', cancelPress);
   els.list.addEventListener('touchcancel', cancelPress);
 

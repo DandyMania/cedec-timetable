@@ -985,7 +985,20 @@ body.view-grid .foot { display: none; }
   background: color-mix(in srgb, var(--star) 16%, var(--bg-elev));
   border-color: color-mix(in srgb, var(--star) 50%, var(--line));
 }
-.gcell--fav .gcell__title::before { content: '★'; color: var(--star); margin-right: 2px; }
+.gcell__star {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  border: 0;
+  background: transparent;
+  font-size: 16px;
+  line-height: 1;
+  padding: 5px 6px;
+  cursor: pointer;
+  color: var(--fg-faint);
+}
+.gcell__star[aria-pressed='true'] { color: var(--star); }
+.gcell--tight .gcell__star { padding: 2px 4px; font-size: 14px; }
 .gcell--live {
   border-color: var(--live);
   box-shadow: 0 0 0 1px var(--live) inset;
@@ -1376,7 +1389,14 @@ body.is-archive .appbar__title::after {
   font-size: 12px;
 }
 @media (max-width: 420px) {
-  .list--compact .card__room { display: none; }
+  /* keep the room, drop the word: "第3会場" -> "3" */
+  .list--compact .card__room { font-size: 0; }
+  .list--compact .card__room::before {
+    content: attr(data-room);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--fg-muted);
+  }
 }
 
 /* ---------- wide screens: use the space ---------- */
