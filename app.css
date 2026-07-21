@@ -1163,6 +1163,16 @@ body.is-archive .appbar__title::after {
   font-weight: 700;
 }
 .detail p { margin: 0 0 8px; font-size: 14px; white-space: pre-wrap; }
+.detail__policy { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.detail__policy .mk { font-size: 11.5px; padding: 2px 7px; }
+.detail__policy-note {
+  flex: 1 1 100%;
+  font-size: 11.5px;
+  color: var(--fg-faint);
+  line-height: 1.6;
+}
+.mk--ng { opacity: 1; background: var(--bg-sunken); color: var(--fg-faint); }
+
 .detail__notice {
   background: color-mix(in srgb, var(--star) 16%, transparent);
   border-radius: 8px;

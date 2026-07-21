@@ -205,8 +205,20 @@ function renderYearMenu() {
 const FLAG_FILTERS = [
   // 撮影 / SNS: the official session page renders these as a lit or unlit icon
   // under "写真撮影 / SNS投稿", so false really does mean not allowed.
-  { key: 'photo', label: '撮影', get: (s) => Boolean(s.photoOk), noMark: '✕', noNote: '撮影不可' },
-  { key: 'sns', label: 'SNS', get: (s) => Boolean(s.snsOk), noMark: '✕', noNote: 'SNS投稿不可' },
+  {
+    key: 'photo',
+    label: '撮影',
+    get: (s) => Boolean(s.photoOk),
+    noMark: '✕',
+    noNote: '公式ページで撮影アイコンが点いていないもの',
+  },
+  {
+    key: 'sns',
+    label: 'SNS',
+    get: (s) => Boolean(s.snsOk),
+    noMark: '✕',
+    noNote: '公式ページで SNS アイコンが点いていないもの',
+  },
   // 資料 / ASK: not shown on the official page at all, so the absence of the
   // flag says nothing beyond "not stated".
   {
@@ -830,8 +842,6 @@ function openSheet(id) {
       ${s.archive ? '<span class="tag">アーカイブ</span>' : ''}
       ${s.askSpeaker ? '<span class="tag">ASK the Speaker</span>' : ''}
       ${s.interpreted ? '<span class="tag">通訳</span>' : ''}
-      ${s.photoOk ? '<span class="tag">撮影OK</span>' : ''}
-      ${s.snsOk ? '<span class="tag">SNS OK</span>' : ''}
       ${s.cedil ? '<span class="tag">資料あり予定</span>' : ''}
     </div>
     <p class="detail__meta">
@@ -846,6 +856,17 @@ function openSheet(id) {
         ? `<p class="detail__notice">${esc(state.year)} 年のアーカイブです。
            説明文は公式ページ、資料は CEDiL のリンクから見られます。</p>`
         : ''
+    }
+    ${
+      state.meta?.archiveOnly
+        ? ''
+        : `<h3>写真撮影 / SNS投稿</h3>
+           <p class="detail__policy">
+             <span class="mk ${s.photoOk ? 'mk--ok' : 'mk--ng'}">撮影${s.photoOk ? '○' : '✕'}</span>
+             <span class="mk ${s.snsOk ? 'mk--ok' : 'mk--ng'}">SNS${s.snsOk ? '○' : '✕'}</span>
+             <span class="detail__policy-note">公式サイトの表示に合わせています。SNS投稿がOKの
+             セッションでも、全内容の文字起こしおよびそれに類する行為は禁止です。</span>
+           </p>`
     }
     ${s.description ? `<h3>セッションの内容</h3><p>${esc(s.description)}</p>` : ''}
     ${s.takeaway ? `<h3>受講して得られるもの</h3><p>${esc(s.takeaway)}</p>` : ''}
