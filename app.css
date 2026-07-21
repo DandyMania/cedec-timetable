@@ -439,7 +439,7 @@ body.bar-hidden .tabs { margin-top: 2px; }
   overflow-y: auto;
   overscroll-behavior: contain;
   /* plain translucency, no frosting: the text behind should stay legible */
-  background: color-mix(in srgb, var(--bg-elev) 82%, transparent);
+  background: color-mix(in srgb, var(--bg-elev) 94%, transparent);
   border-top: 1px solid var(--line);
   border-radius: 14px 14px 0 0;
   padding: 7px 12px 9px;
