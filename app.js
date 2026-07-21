@@ -62,6 +62,9 @@ const els = {
 
 const gridView = () => state.view === 'grid';
 
+/** True while the detail sheet owns a history entry of its own. */
+let sheetPushed = false;
+
 function esc(text) {
   return String(text ?? '')
     .replace(/&/g, '&amp;')
@@ -1008,7 +1011,10 @@ function openSheet(id) {
   document.body.style.overflow = 'hidden';
   els.sheet.querySelector('.sheet__panel').scrollTop = 0;
   // Let the phone's back gesture close the sheet instead of leaving the page.
-  if (!history.state?.sheet) history.pushState({ sheet: id }, '');
+  if (!sheetPushed) {
+    history.pushState({ sheet: id }, '');
+    sheetPushed = true;
+  }
 }
 
 function openAbout() {
@@ -1044,13 +1050,19 @@ function openAbout() {
   </div>`;
   els.sheet.hidden = false;
   document.body.style.overflow = 'hidden';
-  if (!history.state?.sheet) history.pushState({ sheet: 'about' }, '');
+  if (!sheetPushed) {
+    history.pushState({ sheet: 'about' }, '');
+    sheetPushed = true;
+  }
 }
 
 function closeSheet(fromPop) {
   els.sheet.hidden = true;
   document.body.style.overflow = '';
-  if (!fromPop && history.state?.sheet) history.back();
+  // Only unwind the entry this sheet pushed; never walk further back, or
+  // closing would navigate away from the page.
+  if (!fromPop && sheetPushed) history.back();
+  sheetPushed = false;
 }
 
 let lastFavToggle = { id: null, at: -1e9 };
@@ -1614,6 +1626,33 @@ function bind() {
     dragFrom = null;
     if (dy > 130) closeSheet();
   });
+
+  // Flick the body sideways to dismiss: the text only scrolls vertically, so
+  // a horizontal swipe is free to mean "close".
+  let sheetSwipe = null;
+  panel.addEventListener(
+    'touchstart',
+    (e) => {
+      sheetSwipe =
+        e.touches.length === 1
+          ? { x: e.touches[0].clientX, y: e.touches[0].clientY, top: getScrollTop() }
+          : null;
+    },
+    { passive: true },
+  );
+  panel.addEventListener('touchend', (e) => {
+    if (!sheetSwipe) return;
+    const dx = (e.changedTouches[0]?.clientX ?? sheetSwipe.x) - sheetSwipe.x;
+    const dy = (e.changedTouches[0]?.clientY ?? sheetSwipe.y) - sheetSwipe.y;
+    const startedAtTop = sheetSwipe.top <= 2;
+    sheetSwipe = null;
+    if (Math.abs(dx) > 80 && Math.abs(dx) > Math.abs(dy) * 1.5) closeSheet();
+    else if (startedAtTop && dy > 110 && Math.abs(dy) > Math.abs(dx) * 1.5) closeSheet();
+  });
+
+  function getScrollTop() {
+    return els.sheet.querySelector('.detail__scroll')?.scrollTop ?? 0;
+  }
 
 }
 
