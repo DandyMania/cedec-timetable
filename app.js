@@ -551,6 +551,35 @@ function jumpToNow() {
   target?.scrollIntoView({ block: 'center', behavior: 'smooth' });
 }
 
+/** Time label of the slot heading currently pinned at the top, if any. */
+function currentTopSlot() {
+  const top = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 110;
+  let found = null;
+  for (const slot of els.list.querySelectorAll('.slot')) {
+    if (slot.getBoundingClientRect().top <= top + 8) found = slot.dataset.slot;
+    else break;
+  }
+  return found;
+}
+
+/** Scroll to the same (or next available) time after a day switch. */
+function restoreSlot(time) {
+  if (!time) {
+    window.scrollTo({ top: 0 });
+    return;
+  }
+  const slots = [...els.list.querySelectorAll('.slot')];
+  const target = slots.find((s) => s.dataset.slot >= time) ?? slots[slots.length - 1];
+  if (!target) {
+    window.scrollTo({ top: 0 });
+    return;
+  }
+  const prev = document.documentElement.style.scrollBehavior;
+  document.documentElement.style.scrollBehavior = 'auto';
+  target.scrollIntoView({ block: 'start' });
+  document.documentElement.style.scrollBehavior = prev;
+}
+
 let scrolledOnce = false;
 function scrollToNow(searching) {
   if (searching || scrolledOnce) return;
@@ -614,12 +643,13 @@ function openSheet(id) {
     ${speakers ? `<h3>登壇者</h3>${speakers}` : ''}
   </div>
   <div class="sheet__footer">
-    ${s.url ? `<a class="btn" href="${esc(s.url)}" target="_blank" rel="noopener">公式</a>` : ''}
+    ${s.url ? `<a class="btn btn--sm" href="${esc(s.url)}" target="_blank" rel="noopener">公式</a>` : ''}
     ${
       s.cedilUrl
-        ? `<a class="btn" href="${esc(s.cedilUrl)}" target="_blank" rel="noopener">資料</a>`
+        ? `<a class="btn btn--sm" href="${esc(s.cedilUrl)}" target="_blank" rel="noopener">資料</a>`
         : ''
     }
+    <span class="sheet__spacer"></span>
     <button type="button" class="btn btn--star ${fav ? 'is-fav' : ''}" data-star="${esc(s.id)}"
       aria-pressed="${fav}" aria-label="マイプラン">${fav ? '★' : '☆'}</button>
     <button type="button" class="btn btn--close" data-close aria-label="閉じる">✕</button>
@@ -740,12 +770,17 @@ function bind() {
     const btn = e.target.closest('[data-day]');
     if (!btn) return;
     const day = Number(btn.dataset.day);
+    // Keep the reader at the same time of day when switching days.
+    const anchor = currentTopSlot();
+    const boardTop = els.list.querySelector('.grid')?.scrollTop ?? null;
     // Inside my-plan a day tap filters the starred list instead of leaving it.
     if (state.day === 'fav') state.favDay = state.favDay === day ? null : day;
     else state.day = day;
-    scrolledOnce = false;
-    window.scrollTo({ top: 0 });
+    scrolledOnce = true;
     render();
+    const board = els.list.querySelector('.grid');
+    if (board && boardTop != null) board.scrollTop = boardTop;
+    else restoreSlot(anchor);
   });
 
   const toggleFilters = () => {

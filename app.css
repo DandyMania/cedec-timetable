@@ -1008,7 +1008,14 @@ body.is-archive .appbar__title::after {
   background: var(--bg-elev);
   border-top: 1px solid var(--line);
 }
-.sheet__footer .btn { flex: 1 1 0; padding: 12px 8px; }
+.sheet__footer .btn { flex: 0 0 auto; padding: 12px 14px; }
+.sheet__spacer { flex: 1 1 auto; }
+.btn--sm {
+  padding: 9px 12px !important;
+  font-size: 12.5px;
+  background: transparent;
+  color: var(--fg-muted);
+}
 .btn--close { flex: 0 0 54px !important; font-size: 16px; }
 .btn--star { flex: 0 0 58px !important; font-size: 19px; line-height: 1; }
 .btn--star.is-fav { background: var(--star); border-color: var(--star); color: #1a1405; }
