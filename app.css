@@ -435,6 +435,12 @@ body.bar-hidden .tabs { margin-top: 2px; }
   border-color: var(--accent);
   color: var(--accent-fg);
 }
+/* the "exclude" state of a three-way chip */
+.chip--tri.is-no[aria-pressed='true'] {
+  background: var(--live);
+  border-color: var(--live);
+  color: #fff;
+}
 
 /* Filters slide up from the bottom: one-handed reach on a phone. */
 .filters {
@@ -443,8 +449,9 @@ body.bar-hidden .tabs { margin-top: 2px; }
   right: 0;
   bottom: calc(var(--bottombar-h, 108px) + var(--kb, 0px));
   z-index: 48;
-  overflow-y: auto;
-  overscroll-behavior: contain;
+  /* visible, so the room dropdown can overhang the panel instead of being
+     clipped; the panel itself stays short because its parts are compact */
+  overflow: visible;
   /* plain translucency, no frosting: the text behind should stay legible */
   background: color-mix(in srgb, var(--bg-elev) 94%, transparent);
   border-top: 1px solid var(--line);
@@ -1199,6 +1206,7 @@ body.is-archive .appbar__title::after {
 .list--compact .card__date,
 .list--compact .card__format,
 .list--compact .card__snippet,
+.list--compact .marks,
 .list--compact .card__speakers { display: none; }
 .list--compact .card__time strong { font-size: 12px; }
 .list--compact .card__time { color: var(--fg-muted); }

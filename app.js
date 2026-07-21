@@ -20,7 +20,7 @@ const state = {
   cat: '',
   rooms: new Set(),
   tags: new Set(),
-  flags: new Set(),
+  flags: new Map(),
   favs: new Set(),
   tagCloud: [],
   view: 'list',
@@ -197,19 +197,23 @@ function renderYearMenu() {
 
 // Flag filters. Each entry tests one session; the UI shows both the "yes" and
 // the "no" side because either can decide whether a talk is worth attending.
+// Each chip cycles: off -> only "yes" -> only "no" -> off. Most sessions allow
+// photos, so hunting for the exceptions matters as much as the other way round.
 const FLAG_FILTERS = [
-  { key: 'photo', label: '撮影OK', test: (s) => s.photoOk },
-  { key: 'doc', label: '資料あり', test: (s) => s.cedil || s.cedilUrl },
-  { key: 'sns', label: 'SNS OK', test: (s) => s.snsOk },
-  { key: 'live', label: '配信あり', test: (s) => s.liveStream },
-  { key: 'ask', label: 'ASK the Speaker', test: (s) => s.askSpeaker },
+  { key: 'photo', label: '撮影', get: (s) => Boolean(s.photoOk) },
+  { key: 'doc', label: '資料', get: (s) => Boolean(s.cedil || s.cedilUrl) },
+  { key: 'sns', label: 'SNS', get: (s) => Boolean(s.snsOk) },
+  { key: 'live', label: '配信', get: (s) => Boolean(s.liveStream) },
+  { key: 'ask', label: 'ASK the Speaker', get: (s) => Boolean(s.askSpeaker) },
 ];
 
 function renderFilters() {
-  const flagChips = FLAG_FILTERS.map(
-    (f) => `<button type="button" class="chip" data-flag="${f.key}"
-      aria-pressed="${state.flags.has(f.key)}">${f.label}</button>`,
-  ).join('');
+  const flagChips = FLAG_FILTERS.map((f) => {
+    const mode = state.flags.get(f.key);
+    const suffix = mode === '+' ? '○' : mode === '-' ? '✕' : '';
+    return `<button type="button" class="chip chip--tri ${mode === '-' ? 'is-no' : ''}"
+      data-flag="${f.key}" aria-pressed="${Boolean(mode)}">${f.label}${suffix}</button>`;
+  }).join('');
 
   const cats = state.meta.categories ?? [];
   const catOptions = cats
@@ -343,9 +347,10 @@ function applyFilters(list, intent) {
     if (state.cat && s.category !== state.cat) return false;
     if (state.rooms.size && !state.rooms.has(s.room)) return false;
     if (state.tags.size && !(s.keywords ?? []).some((k) => state.tags.has(k.trim()))) return false;
-    for (const key of state.flags) {
+    for (const [key, mode] of state.flags) {
       const f = FLAG_FILTERS.find((x) => x.key === key);
-      if (f && !f.test(s)) return false;
+      if (!f) continue;
+      if (mode === '+' ? !f.get(s) : f.get(s)) return false;
     }
     if (intent?.categories?.length && !intent.categories.includes(s.category)) return false;
     if (intent?.level != null && s.difficulty?.level !== intent.level) return false;
@@ -418,7 +423,12 @@ function render() {
     if (state.rooms.size) narrowed.push(`第${[...state.rooms].join('・')}会場`);
     if (state.flags.size) {
       narrowed.push(
-        [...state.flags].map((k) => FLAG_FILTERS.find((f) => f.key === k)?.label ?? k).join('・'),
+        [...state.flags]
+          .map(([k, mode]) => {
+            const label = FLAG_FILTERS.find((f) => f.key === k)?.label ?? k;
+            return `${label}${mode === '+' ? '○' : '✕'}`;
+          })
+          .join('・'),
       );
     }
     if (state.tags.size) narrowed.push([...state.tags].join('/'));
@@ -955,10 +965,14 @@ function bind() {
   els.filters.addEventListener('click', (e) => {
       const flag = e.target.closest('[data-flag]');
     if (flag) {
-      const v = flag.dataset.flag;
-      if (state.flags.has(v)) state.flags.delete(v);
-      else state.flags.add(v);
-      flag.setAttribute('aria-pressed', String(state.flags.has(v)));
+      const key = flag.dataset.flag;
+      const next = { undefined: '+', '+': '-', '-': undefined }[state.flags.get(key)];
+      if (next) state.flags.set(key, next);
+      else state.flags.delete(key);
+      const def = FLAG_FILTERS.find((f) => f.key === key);
+      flag.textContent = `${def.label}${next === '+' ? '○' : next === '-' ? '✕' : ''}`;
+      flag.setAttribute('aria-pressed', String(Boolean(next)));
+      flag.classList.toggle('is-no', next === '-');
       render();
       return;
     }
