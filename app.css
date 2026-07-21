@@ -722,17 +722,19 @@ body.view-grid .foot { display: none; }
 .grid__axis {
   position: sticky;
   left: 0;
-  z-index: 3;
+  z-index: 7;
   flex: 0 0 46px;
   background: var(--bg);
   border-right: 1px solid var(--line);
 }
+.grid__axis .grid__head { z-index: 8; background: var(--bg-sunken); }
 .grid__cols { display: flex; position: relative; }
 .grid__col { flex: 0 0 152px; border-right: 1px solid var(--line); }
 .grid__head {
   position: sticky;
   top: 0;
-  z-index: 2;
+  /* above the absolutely positioned cells, which would otherwise cover it */
+  z-index: 6;
   height: 30px;
   display: flex;
   align-items: center;
