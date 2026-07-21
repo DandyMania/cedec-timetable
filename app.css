@@ -1360,7 +1360,14 @@ body.is-archive .appbar__title::after {
 }
 .detail__speaker { border-top: 1px solid var(--line); padding-top: 10px; margin-top: 10px; }
 .detail__speaker-name { font-weight: 700; font-size: 14.5px; }
-.detail__speaker-company { font-size: 12.5px; color: var(--fg-muted); }
+.detail__speaker-company {
+  display: inline-block;
+  font-size: 12.5px;
+  color: var(--fg-muted);
+  text-decoration: none;
+}
+a.detail__speaker-company { color: var(--accent); }
+.detail__ext { font-size: 10px; opacity: 0.7; }
 .detail__speaker p { font-size: 13px; color: var(--fg-muted); margin-top: 6px; }
 .detail__actions { display: flex; gap: 8px; margin-top: 18px; flex-wrap: wrap; }
 

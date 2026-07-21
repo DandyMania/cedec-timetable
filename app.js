@@ -957,11 +957,18 @@ function scrollToNow(searching) {
 function openSheet(id) {
   const s = state.sessions.find((x) => x.id === id);
   if (!s) return;
+  // No company URLs exist in the feed, so link to a search rather than guess a
+  // domain and send people somewhere wrong.
+  const companyLink = (name) =>
+    `<a class="detail__speaker-company" href="https://www.google.com/search?q=${encodeURIComponent(
+      `${name} 公式`,
+    )}" target="_blank" rel="noopener">${esc(name)} <span class="detail__ext">↗</span></a>`;
+
   const speakers = (s.speakers ?? [])
     .map(
       (x) => `<div class="detail__speaker">
         <div class="detail__speaker-name">${esc(x.name)}</div>
-        <div class="detail__speaker-company">${esc(x.company)}</div>
+        ${x.company ? companyLink(x.company) : ''}
         ${x.profile ? `<p>${esc(x.profile)}</p>` : ''}
         ${x.message ? `<p>${esc(x.message)}</p>` : ''}
       </div>`,
