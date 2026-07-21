@@ -867,16 +867,18 @@ body.is-archive .appbar__title::after {
 }
 @keyframes sheet-in { from { transform: translateY(24px); opacity: 0.6; } }
 
+/* Drag handle: the only place a downward swipe dismisses the sheet. */
 .sheet__panel::before {
   content: '';
   position: absolute;
   top: 6px;
   left: 50%;
   transform: translateX(-50%);
-  width: 38px;
-  height: 4px;
-  border-radius: 2px;
-  background: var(--line);
+  width: 46px;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--fg-faint);
+  opacity: 0.5;
 }
 
 .sheet__body { display: flex; flex-direction: column; min-height: 0; flex: 1; }

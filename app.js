@@ -948,7 +948,10 @@ function bind() {
   panel.addEventListener(
     'touchstart',
     (e) => {
-      dragFrom = panel.scrollTop <= 0 ? e.touches[0].clientY : null;
+      // Only the header area is a drag handle. Swiping inside the body must
+      // scroll the text, never dismiss the sheet.
+      const onBody = e.target.closest('.detail__scroll') || e.target.closest('.sheet__footer');
+      dragFrom = onBody ? null : e.touches[0].clientY;
     },
     { passive: true },
   );
@@ -966,7 +969,7 @@ function bind() {
     const dy = (e.changedTouches[0]?.clientY ?? dragFrom) - dragFrom;
     panel.style.transform = '';
     dragFrom = null;
-    if (dy > 110) closeSheet();
+    if (dy > 130) closeSheet();
   });
 
 }
