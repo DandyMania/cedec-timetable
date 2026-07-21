@@ -16,6 +16,7 @@ const state = {
   favs: new Set(),
   tagCloud: [],
   view: 'list',
+  favDay: null,
   year: CURRENT_YEAR,
   years: [],
   now: new Date(),
@@ -135,8 +136,9 @@ function renderTabs() {
     const isToday = d.date === todayIso(state.now);
     const [, m, day] = d.date.split('-');
     const wd = ['日', '月', '火', '水', '木', '金', '土'][new Date(`${d.date}T00:00:00`).getDay()];
+    const active = state.day === 'fav' ? state.favDay === d.day : state.day === d.day;
     return `<button type="button" class="tab ${isToday ? 'tab--today' : ''}" role="tab"
-      data-day="${d.day}" aria-selected="${!searching && state.day === d.day}"
+      data-day="${d.day}" aria-selected="${!searching && active}"
       >${Number(m)}/${Number(day)}<span class="tab__sub">${wd}</span></button>`;
   });
   els.tabs.innerHTML = parts.join('');
@@ -328,7 +330,9 @@ function render() {
   } else {
     const base =
       state.day === 'fav'
-        ? state.sessions.filter((s) => state.favs.has(s.id))
+        ? state.sessions.filter(
+            (s) => state.favs.has(s.id) && (state.favDay == null || s.day === state.favDay),
+          )
         : state.sessions.filter((s) => s.day === state.day);
     rows = applyFilters(base, null);
     const narrowed = [];
@@ -717,8 +721,10 @@ function bind() {
   els.tabs.addEventListener('click', (e) => {
     const btn = e.target.closest('[data-day]');
     if (!btn) return;
-    const v = btn.dataset.day;
-    state.day = v === 'fav' ? 'fav' : Number(v);
+    const day = Number(btn.dataset.day);
+    // Inside my-plan a day tap filters the starred list instead of leaving it.
+    if (state.day === 'fav') state.favDay = state.favDay === day ? null : day;
+    else state.day = day;
     scrolledOnce = false;
     window.scrollTo({ top: 0 });
     render();
@@ -872,7 +878,14 @@ function bind() {
   });
 
   els.fav.addEventListener('click', () => {
-    state.day = state.day === 'fav' ? (state.meta.days?.[0]?.day ?? 1) : 'fav';
+    // Toggling my-plan keeps the day tabs usable: turning it on shows every
+    // starred session, tapping a day then narrows it to that day.
+    if (state.day === 'fav') {
+      const today = todayIso(state.now);
+      state.day = (state.meta.days ?? []).find((d) => d.date === today)?.day ?? 1;
+    } else {
+      state.day = 'fav';
+    }
     state.query = '';
     els.q.value = '';
     els.clear.hidden = true;
