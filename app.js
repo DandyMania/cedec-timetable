@@ -488,6 +488,7 @@ function render() {
   const count = $('#filters-count');
   if (count) count.textContent = els.status.textContent;
 
+  bindGridAxisLock(els.list.querySelector('.grid'));
   renderTabs();
   writeHash();
   scrollToNow(searching);
@@ -746,6 +747,53 @@ function restoreSlot(time) {
   document.documentElement.style.scrollBehavior = prev;
 }
 
+/**
+ * Lock the board to one axis per gesture. A diagonal swipe on a two-way
+ * scroller otherwise drifts vertically while you are panning across rooms.
+ * Vertical drags are left to the browser so they keep their momentum.
+ */
+function bindGridAxisLock(board) {
+  if (!board || board.dataset.axisLock) return;
+  board.dataset.axisLock = '1';
+  let startX = 0;
+  let startY = 0;
+  let fromLeft = 0;
+  let axis = null;
+
+  board.addEventListener(
+    'touchstart',
+    (e) => {
+      if (e.touches.length !== 1) return;
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      fromLeft = board.scrollLeft;
+      axis = null;
+    },
+    { passive: true },
+  );
+
+  board.addEventListener(
+    'touchmove',
+    (e) => {
+      if (e.touches.length !== 1) return;
+      const dx = e.touches[0].clientX - startX;
+      const dy = e.touches[0].clientY - startY;
+      if (!axis) {
+        if (Math.abs(dx) + Math.abs(dy) < 12) return;
+        axis = Math.abs(dx) > Math.abs(dy) * 1.2 ? 'x' : 'y';
+      }
+      if (axis !== 'x') return;
+      e.preventDefault();
+      board.scrollLeft = fromLeft - dx;
+    },
+    { passive: false },
+  );
+
+  board.addEventListener('touchend', () => {
+    axis = null;
+  });
+}
+
 let scrolledOnce = false;
 function scrollToNow(searching) {
   if (searching || scrolledOnce) return;
@@ -786,13 +834,13 @@ function openSheet(id) {
       ${s.snsOk ? '<span class="tag">SNS OK</span>' : ''}
       ${s.cedil ? '<span class="tag">資料あり予定</span>' : ''}
     </div>
-    <h2 class="detail__title" id="sheet-title">${esc(s.title)}</h2>
     <p class="detail__meta">
       ${s.date ? `${dayLabel(s.date)} ` : '日時未定 '}${esc(s.start ?? '')}${s.end ? '–' + esc(s.end) : ''}
       ${s.room ? ` · 第${esc(s.room)}会場` : ''} · ${esc(s.formatLabel ?? '')}
     </p>
   </div>
   <div class="detail__scroll detail">
+    <h2 class="detail__title" id="sheet-title">${esc(s.title)}</h2>
     ${
       state.meta?.archiveOnly
         ? `<p class="detail__notice">${esc(state.year)} 年のアーカイブです。
