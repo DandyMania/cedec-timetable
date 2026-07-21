@@ -355,7 +355,11 @@ function sessionCard(s, terms, liveState, showDate) {
     .map(
       (x) =>
         `<span class="sp"><span class="sp__name">${highlight(x.name, terms)}</span>${
-          x.company ? `<span class="sp__co">${highlight(x.company, terms)}</span>` : ''
+          x.company
+            ? `<a class="sp__co" href="https://www.google.com/search?q=${encodeURIComponent(
+                `${x.company} 公式`,
+              )}" target="_blank" rel="noopener">${highlight(x.company, terms)}</a>`
+            : ''
         }</span>`,
     )
     .join('');
@@ -1624,6 +1628,11 @@ function bind() {
 
   els.list.addEventListener('click', (e) => {
     if (performance.now() < suppressClickUntil) return;
+    // Links inside a card (company names) follow their own href.
+    if (e.target.closest('a[href]')) {
+      e.stopPropagation();
+      return;
+    }
     const star = e.target.closest('[data-star]');
     if (star) {
       e.stopPropagation();
