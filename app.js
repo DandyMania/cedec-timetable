@@ -1183,6 +1183,20 @@ function bind() {
     if (btn) goToDay(Number(btn.dataset.day));
   });
 
+  /** Jump straight to a day or to the favourites list, as one strip. */
+  function switchView(target) {
+    state.day = target;
+    if (target === 'fav') {
+      state.favDay = null;
+      state.query = '';
+      els.q.value = '';
+      els.clear.hidden = true;
+    }
+    scrolledOnce = false;
+    window.scrollTo({ top: 0 });
+    render();
+  }
+
   // Swipe sideways on the list to move between days. The board has its own
   // horizontal scroll, so it is excluded.
   let swipeFrom = null;
@@ -1197,18 +1211,20 @@ function bind() {
     { passive: true },
   );
   els.list.addEventListener('touchend', (e) => {
-    if (!swipeFrom || state.day === 'fav') return;
+    if (!swipeFrom) return;
     const dx = (e.changedTouches[0]?.clientX ?? swipeFrom.x) - swipeFrom.x;
     const dy = (e.changedTouches[0]?.clientY ?? swipeFrom.y) - swipeFrom.y;
     swipeFrom = null;
     if (Math.abs(dx) < 70 || Math.abs(dx) < Math.abs(dy) * 1.6) return;
-    const days = (state.meta.days ?? []).map((d) => d.day);
-    const current = state.query.trim() ? (state.searchDay ?? days[0]) : state.day;
-    const at = days.indexOf(current);
-    const next = days[at + (dx < 0 ? 1 : -1)];
+    // The days and the favourites list form one strip: 7/22 … 7/24 … ★
+    const strip = [...(state.meta.days ?? []).map((d) => d.day), 'fav'];
+    const current = state.query.trim() ? (state.searchDay ?? strip[0]) : state.day;
+    const at = strip.indexOf(current);
+    const next = strip[at + (dx < 0 ? 1 : -1)];
     if (next == null) return;
     cancelPress();
-    goToDay(next);
+    if (next === 'fav' || state.day === 'fav') switchView(next);
+    else goToDay(next);
   });
 
   const toggleFilters = () => {
@@ -1430,20 +1446,14 @@ function bind() {
   });
 
   els.fav.addEventListener('click', () => {
-    // Toggling my-plan keeps the day tabs usable: turning it on shows every
+    // Toggling favourites keeps the day tabs usable: turning it on shows every
     // starred session, tapping a day then narrows it to that day.
     if (state.day === 'fav') {
       const today = todayIso(state.now);
-      state.day = (state.meta.days ?? []).find((d) => d.date === today)?.day ?? 1;
+      switchView((state.meta.days ?? []).find((d) => d.date === today)?.day ?? 1);
     } else {
-      state.day = 'fav';
+      switchView('fav');
     }
-    state.query = '';
-    els.q.value = '';
-    els.clear.hidden = true;
-    scrolledOnce = false;
-    window.scrollTo({ top: 0 });
-    render();
   });
 
   document.addEventListener(
