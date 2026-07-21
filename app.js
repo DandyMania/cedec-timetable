@@ -468,15 +468,20 @@ function render() {
     const keep = new Set(filtered.map((s) => s.id));
     rows = picked.filter((p) => keep.has(p.s.id)).map((p) => p.s);
 
-    // Naming a company narrows the result instead of merely boosting it.
+    // Naming a company narrows the result instead of merely boosting it. The
+    // match is made against every session, not just the text hits: a nickname
+    // like エニカラ never appears in the speaker list of ANYCOLOR itself.
     const company = detectCompany(query);
     if (company) {
-      const named = rows.filter((s) => {
+      const belongs = (s) => {
         const hay = normalize((s.speakers ?? []).map((x) => `${x.company} ${x.name}`).join(' '));
         return company.some((c) => c.length >= 3 && hay.includes(c));
-      });
+      };
+      const named = state.sessions.filter(belongs);
       if (named.length) {
-        rows = named;
+        const keepIds = new Set(named.map((s) => s.id));
+        const ranked = rows.filter((s) => keepIds.has(s.id));
+        rows = ranked.length ? ranked : named;
         notes.push(company[0]);
       }
     }
