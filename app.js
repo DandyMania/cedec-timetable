@@ -249,7 +249,7 @@ function sessionCard(s, terms, liveState, showDate) {
   const marks = [
     `<span class="mk ${s.photoOk ? 'mk--ok' : 'mk--ng'}" title="${
       s.photoOk ? '撮影OK' : '撮影NG'
-    }">📷${s.photoOk ? '○' : '✕'}</span>`,
+    }">撮影${s.photoOk ? '○' : '✕'}</span>`,
     `<span class="mk ${hasDoc ? 'mk--ok' : 'mk--ng'}" title="${
       hasDoc ? '講演資料あり' : '講演資料なし'
     }">資料${hasDoc ? '○' : '✕'}</span>`,
