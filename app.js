@@ -182,8 +182,12 @@ function renderFilters() {
   // Order matters: the sheet slides up from the bottom, so the controls that
   // should be easiest to reach go last.
   els.filters.innerHTML = `
-    <div class="filters__group">
+    <div class="filters__group filters__foot">
       <div class="filters__label">キーワード</div>
+      <button type="button" class="iconbtn iconbtn--sm" data-reset
+              aria-label="絞り込みを解除" title="絞り込みを解除">🗑</button>
+    </div>
+    <div class="filters__group filters__group--tight">
       <div class="tagcloud">${cloud}</div>
     </div>
     <div class="filters__row">
@@ -195,9 +199,6 @@ function renderFilters() {
         <span class="select__label">会場</span>
         <select id="sel-room"><option value="">すべて</option>${roomOptions}</select>
       </label>
-    </div>
-    <div class="filters__group filters__foot">
-      <button type="button" class="chip" data-reset>絞り込みを解除</button>
     </div>`;
 }
 

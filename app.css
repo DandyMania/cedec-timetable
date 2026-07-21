@@ -392,8 +392,15 @@ a { color: var(--accent); }
 }
 .filters__chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .filters__row { display: flex; gap: 8px; margin-top: 8px; }
-.filters__foot { display: flex; gap: 8px; justify-content: space-between; }
-.chip--close { font-weight: 600; }
+.filters__foot {
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+  align-items: center;
+}
+.filters__foot .filters__label { margin-bottom: 0; }
+.filters__group--tight { margin-top: 4px; }
+.iconbtn--sm { min-width: 32px; height: 28px; font-size: 13px; padding: 0 8px; }
 
 .select { flex: 1; min-width: 0; }
 .select__label {
