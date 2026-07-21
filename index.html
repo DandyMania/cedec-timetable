@@ -69,7 +69,12 @@
       <span class="menu__icon">ⓘ</span>このページについて</button>
     <div class="menu__note" id="menu-note"></div>
   </div>
-  <nav class="tabs" id="tabs" aria-label="表示する日"></nav>
+  <div class="tabrow">
+    <nav class="tabs" id="tabs" aria-label="表示する日"></nav>
+    <button type="button" class="tab tab--fav" id="btn-fav-bottom" aria-pressed="false"
+            aria-label="お気に入り" title="お気に入り（★を付けた講演）">★<span
+            class="tab__sub" id="fav-count-bottom">0</span></button>
+  </div>
   <div class="offline" id="offline" hidden>オフラインで表示中（保存済みのデータ）</div>
 </header>
 
@@ -101,9 +106,6 @@
       <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true">
         <path d="M3 5h18l-7 8v6l-4 2v-8L3 5z" fill="currentColor"/>
       </svg></button>
-    <button type="button" class="bottombar__btn" id="btn-fav-bottom" aria-pressed="false"
-            aria-label="お気に入り" title="お気に入り（★を付けた講演）">★<span
-            class="bottombar__badge" id="fav-count-bottom">0</span></button>
   </div>
   <div class="filterbar" hidden><div id="status" role="status"></div></div>
 </div>
