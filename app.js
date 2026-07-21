@@ -1,4 +1,11 @@
-import { buildIndex, search, highlightTerms, detectIntent, normalize, TIME_BANDS } from './search.js';
+import {
+  buildIndex,
+  search,
+  highlightTerms,
+  detectIntent,
+  detectCompany,
+  normalize,
+} from './search.js';
 
 const $ = (sel) => document.querySelector(sel);
 
@@ -316,6 +323,19 @@ function render() {
     const filtered = applyFilters(picked.map((p) => p.s), intent);
     const keep = new Set(filtered.map((s) => s.id));
     rows = picked.filter((p) => keep.has(p.s.id)).map((p) => p.s);
+
+    // Naming a company narrows the result instead of merely boosting it.
+    const company = detectCompany(query);
+    if (company) {
+      const named = rows.filter((s) => {
+        const hay = normalize((s.speakers ?? []).map((x) => `${x.company} ${x.name}`).join(' '));
+        return company.some((c) => c.length >= 3 && hay.includes(c));
+      });
+      if (named.length) {
+        rows = named;
+        notes.push(company[0]);
+      }
+    }
 
     if (intent.day) notes.push(`${intent.day}日目`);
     if (intent.band) notes.push(intent.band.label);
@@ -821,6 +841,15 @@ function bind() {
     const open = els.filters.hidden;
     els.filters.hidden = !open;
     els.filtersFloat.setAttribute('aria-pressed', String(open));
+    // On a wide screen the panel hangs under the button that opened it.
+    if (open && window.matchMedia('(min-width: 1000px)').matches) {
+      const btn = els.filtersFloat.getBoundingClientRect();
+      const width = els.filters.offsetWidth || 460;
+      const left = Math.min(Math.max(8, btn.right - width), window.innerWidth - width - 8);
+      els.filters.style.setProperty('--filters-left', `${Math.round(left)}px`);
+    } else {
+      els.filters.style.removeProperty('--filters-left');
+    }
   };
   els.filtersFloat.addEventListener('click', toggleFilters);
 

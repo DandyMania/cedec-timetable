@@ -380,4 +380,20 @@ export function detectIntent(query, categories) {
   return intent;
 }
 
+/**
+ * If the query names a company, return every spelling of it. The caller can
+ * then require a speaker match, so "サイゲのAIの話" does not return other
+ * studios' AI talks.
+ */
+export function detectCompany(query) {
+  const q = normalize(query);
+  for (const group of COMPANY_SEED) {
+    for (const word of group) {
+      const n = normalize(word);
+      if (n.length >= 3 && q.includes(n)) return group.map(normalize).filter(Boolean);
+    }
+  }
+  return null;
+}
+
 export { TIME_BANDS };
