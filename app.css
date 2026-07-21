@@ -114,10 +114,15 @@ a { color: var(--accent); }
 
 .appbar__title {
   margin: 0;
+  flex: 1;
+  min-width: 0;
   font-size: 15px;
   font-weight: 700;
   letter-spacing: 0.04em;
   color: var(--fg-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .appbar__actions { display: flex; gap: 6px; align-items: center; }
@@ -170,7 +175,7 @@ a { color: var(--accent); }
 
 .menu {
   position: absolute;
-  right: 12px;
+  left: 12px;
   top: calc(env(safe-area-inset-top) + 48px);
   z-index: 40;
   width: min(300px, calc(100vw - 24px));

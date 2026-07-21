@@ -1171,7 +1171,21 @@ async function boot() {
   // every edit invisible. Offline support still gets verified on the deployed URL.
   const isLocal = ['localhost', '127.0.0.1'].includes(location.hostname);
   if ('serviceWorker' in navigator && location.protocol !== 'file:' && (!isLocal || location.search.includes('sw'))) {
-    navigator.serviceWorker.register('./sw.js').catch(() => { /* offline support is optional */ });
+    navigator.serviceWorker
+      .register('./sw.js')
+      .then((reg) => {
+        // When a new build lands, swap to it right away instead of serving the
+        // previous cache until the next visit.
+        reg.addEventListener('updatefound', () => {
+          const fresh = reg.installing;
+          fresh?.addEventListener('statechange', () => {
+            if (fresh.state === 'activated' && navigator.serviceWorker.controller) {
+              location.reload();
+            }
+          });
+        });
+      })
+      .catch(() => { /* offline support is optional */ });
   }
 }
 
