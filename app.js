@@ -26,6 +26,7 @@ const state = {
   view: 'list',
   favDay: null,
   searchDay: null,
+  clashes: new Set(),
   scrollMemory: {},
   year: CURRENT_YEAR,
   years: [],
@@ -359,7 +360,10 @@ function sessionCard(s, terms, liveState, showDate) {
     .replace(/^[・･\-‐-―\s]+/, '')
     .slice(0, 88);
   const fav = state.favs.has(s.id);
-  return `<div class="card cat-edge-${esc(s.category || 'none')} ${liveState === 'live' ? 'card--live' : ''} ${
+  const clash = fav && state.clashes?.has(s.id);
+  return `<div class="card ${clash ? 'card--clash' : ''} cat-edge-${esc(s.category || 'none')} ${
+    liveState === 'live' ? 'card--live' : ''
+  } ${
     liveState === 'next' ? 'card--next' : ''
   } ${liveState === 'past' ? 'card--past' : ''} ${
     fav ? 'card--fav' : ''
@@ -367,14 +371,37 @@ function sessionCard(s, terms, liveState, showDate) {
     <div class="card__head">${s.date ? `<span class="card__date">${dayLabel(s.date)}</span>` : ''}${time}${
       room ? ' · ' + room : ''
     }${cat ? ' · ' + cat : ''}${format ? ' · ' + format : ''} ${badge}${
-      marks ? `<span class="marks">${marks}</span>` : ''
-    }</div>
+      clash ? '<span class="tag tag--clash">時間かぶり</span>' : ''
+    }${marks ? `<span class="marks">${marks}</span>` : ''}</div>
     <h2 class="card__title">${highlight(s.title, terms)}</h2>
     ${speakers ? `<p class="card__speakers">${speakers}</p>` : ''}
     ${gist ? `<p class="card__snippet">${highlight(gist, terms)}…</p>` : ''}
     <button type="button" class="card__star" data-star="${esc(s.id)}"
       aria-pressed="${fav}" aria-label="お気に入りに追加">${fav ? '★' : '☆'}</button>
   </div>`;
+}
+
+/**
+ * Ids of starred sessions whose times overlap another starred session.
+ * You cannot be in two rooms at once, so this is worth flagging.
+ */
+function findClashes() {
+  const starred = state.sessions.filter(
+    (s) => state.favs.has(s.id) && s.day != null && s.startMin != null && s.endMin != null,
+  );
+  const clashing = new Set();
+  for (let i = 0; i < starred.length; i++) {
+    for (let j = i + 1; j < starred.length; j++) {
+      const a = starred[i];
+      const b = starred[j];
+      if (a.day !== b.day) continue;
+      if (a.startMin < b.endMin && b.startMin < a.endMin) {
+        clashing.add(a.id);
+        clashing.add(b.id);
+      }
+    }
+  }
+  return clashing;
 }
 
 function liveStateOf(s) {
@@ -410,6 +437,7 @@ function applyFilters(list, intent) {
 }
 
 function render() {
+  state.clashes = findClashes();
   const query = state.query.trim();
   const searching = query.length > 0;
   const terms = searching ? highlightTerms(query) : [];
@@ -501,6 +529,10 @@ function render() {
       );
     }
     if (state.tags.size) narrowed.push([...state.tags].join('/'));
+    if (state.day === 'fav' && state.clashes.size) {
+      const shown = rows.filter((s) => state.clashes.has(s.id)).length;
+      if (shown) narrowed.unshift(`⚠ ${shown}件が時間かぶり`);
+    }
     els.status.textContent = `${rows.length}件${narrowed.length ? ' · ' + narrowed.join(' · ') : ''}`;
     if (gridView() && state.day !== 'fav') {
       // The board already places the evening events on the clock.

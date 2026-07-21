@@ -653,6 +653,14 @@ body.bar-top .dropdown__menu { bottom: auto; top: calc(100% + 4px); }
   background: color-mix(in srgb, var(--star) 13%, var(--bg-elev));
   border-color: color-mix(in srgb, var(--star) 45%, var(--line));
 }
+/* two starred sessions at the same time: you can only attend one */
+.card--clash { border-color: var(--live); }
+.tag--clash {
+  background: var(--live);
+  color: #fff;
+  border-color: transparent;
+  font-weight: 800;
+}
 
 .card__head {
   display: flex;
