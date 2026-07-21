@@ -222,7 +222,7 @@ const FLAG_FILTERS = [
     noMark: '✕',
     noNote: 'NGと明記',
   },
-  { key: 'ask', label: 'ASK the Speaker', get: (s) => Boolean(s.askSpeaker) },
+  { key: 'ask', label: 'ASK', get: (s) => Boolean(s.askSpeaker), noMark: '–', noNote: '記載なし' },
 ];
 
 function renderFilters() {
@@ -306,7 +306,8 @@ function sessionCard(s, terms, liveState, showDate) {
     s.photoOk ? mark('撮影') : '',
     s.cedil || s.cedilUrl ? mark('資料') : '',
     s.snsOk ? mark('SNS') : '',
-    s.liveStream ? '<span class="mk mk--live" title="配信あり">配信</span>' : '',
+    s.askSpeaker ? '<span class="mk mk--ask" title="ASK the Speaker あり">ASK</span>' : '',
+    s.streamState === 'ok' ? '<span class="mk mk--live" title="配信あり">配信</span>' : '',
   ]
     .filter(Boolean)
     .join('');
@@ -554,8 +555,8 @@ function renderGrid(rows) {
                 ? `<span class="cat cat-${esc(s.category)}">${esc(s.category)}</span>`
                 : ''
             }${s.cedil || s.cedilUrl ? '<span class="gmk">資料</span>' : ''}${
-              s.streamState === 'ok' ? '<span class="gmk gmk--live">配信</span>' : ''
-            }</div>
+              s.askSpeaker ? '<span class="gmk">ASK</span>' : ''
+            }${s.streamState === 'ok' ? '<span class="gmk gmk--live">配信</span>' : ''}</div>
             <div class="gcell__title">${esc(s.title)}</div>
             <div class="gcell__co">${esc(
               (s.speakers ?? [])
