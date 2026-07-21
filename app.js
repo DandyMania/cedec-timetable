@@ -200,9 +200,18 @@ function renderYearMenu() {
 // Each chip cycles: off -> only "yes" -> only "no" -> off. Most sessions allow
 // photos, so hunting for the exceptions matters as much as the other way round.
 const FLAG_FILTERS = [
-  { key: 'photo', label: '撮影', get: (s) => Boolean(s.photoOk) },
-  { key: 'doc', label: '資料', get: (s) => Boolean(s.cedil || s.cedilUrl) },
-  { key: 'sns', label: 'SNS', get: (s) => Boolean(s.snsOk) },
+  // For these three the feed only stores a boolean, so the negative side means
+  // "not marked as allowed" — shown as – rather than ✕, which would claim the
+  // official page said no.
+  { key: 'photo', label: '撮影', get: (s) => Boolean(s.photoOk), noMark: '–', noNote: '記載なし' },
+  {
+    key: 'doc',
+    label: '資料',
+    get: (s) => Boolean(s.cedil || s.cedilUrl),
+    noMark: '–',
+    noNote: '記載なし',
+  },
+  { key: 'sns', label: 'SNS', get: (s) => Boolean(s.snsOk), noMark: '–', noNote: '記載なし' },
   // Streaming is the one flag with a real "not stated" case, so ○ and ✕ both
   // require an explicit note rather than treating silence as a no.
   {
@@ -210,6 +219,8 @@ const FLAG_FILTERS = [
     label: '配信',
     get: (s) => s.streamState === 'ok',
     excludes: (s) => s.streamState === 'ng',
+    noMark: '✕',
+    noNote: 'NGと明記',
   },
   { key: 'ask', label: 'ASK the Speaker', get: (s) => Boolean(s.askSpeaker) },
 ];
@@ -217,9 +228,10 @@ const FLAG_FILTERS = [
 function renderFilters() {
   const flagChips = FLAG_FILTERS.map((f) => {
     const mode = state.flags.get(f.key);
-    const suffix = mode === '+' ? '○' : mode === '-' ? '✕' : '';
+    const suffix = mode === '+' ? '○' : mode === '-' ? (f.noMark ?? '✕') : '';
+    const note = mode === '-' ? ` title="${f.label}: ${f.noNote ?? ''}"` : '';
     return `<button type="button" class="chip chip--tri ${mode === '-' ? 'is-no' : ''}"
-      data-flag="${f.key}" aria-pressed="${Boolean(mode)}">${f.label}${suffix}</button>`;
+      data-flag="${f.key}" aria-pressed="${Boolean(mode)}"${note}>${f.label}${suffix}</button>`;
   }).join('');
 
   const cats = state.meta.categories ?? [];
@@ -433,8 +445,8 @@ function render() {
       narrowed.push(
         [...state.flags]
           .map(([k, mode]) => {
-            const label = FLAG_FILTERS.find((f) => f.key === k)?.label ?? k;
-            return `${label}${mode === '+' ? '○' : '✕'}`;
+            const f = FLAG_FILTERS.find((x) => x.key === k);
+            return `${f?.label ?? k}${mode === '+' ? '○' : (f?.noMark ?? '✕')}`;
           })
           .join('・'),
       );
@@ -993,7 +1005,11 @@ function bind() {
       if (next) state.flags.set(key, next);
       else state.flags.delete(key);
       const def = FLAG_FILTERS.find((f) => f.key === key);
-      flag.textContent = `${def.label}${next === '+' ? '○' : next === '-' ? '✕' : ''}`;
+      flag.textContent = `${def.label}${
+        next === '+' ? '○' : next === '-' ? (def.noMark ?? '✕') : ''
+      }`;
+      if (next === '-') flag.title = `${def.label}: ${def.noNote ?? ''}`;
+      else flag.removeAttribute('title');
       flag.setAttribute('aria-pressed', String(Boolean(next)));
       flag.classList.toggle('is-no', next === '-');
       render();
