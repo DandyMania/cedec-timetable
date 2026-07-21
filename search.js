@@ -297,13 +297,13 @@ export function search(query, index) {
     if (score <= 0) continue;
 
     // Reward documents that cover more of what the user typed.
+    const coverage = groups.length ? coveredGroups.size / groups.length : 1;
     if (coreTerms.length > 1) {
-      const coverage = coveredGroups.size / groups.length;
       if (coverage < 0.34) score *= 0.35;
       else score *= 0.6 + coverage * 0.8;
     }
 
-    results.push({ index: i, score, hits });
+    results.push({ index: i, score, hits, coverage });
   }
 
   results.sort((a, b) => b.score - a.score);

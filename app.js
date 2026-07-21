@@ -316,7 +316,12 @@ function render() {
     const hits = intent.rest ? search(intent.rest, state.index) : null;
     let picked;
     if (hits) {
-      picked = hits.map((h) => ({ s: state.sessions[h.index], score: h.score }));
+      // Prefer results that contain every word typed; fall back to the ranked
+      // list when nothing matches all of them.
+      const full = hits.filter((h) => h.coverage >= 0.999);
+      const used = full.length ? full : hits;
+      if (full.length && full.length < hits.length) notes.push('すべての語を含む');
+      picked = used.map((h) => ({ s: state.sessions[h.index], score: h.score }));
     } else {
       picked = state.sessions.map((s) => ({ s, score: 0 }));
     }
