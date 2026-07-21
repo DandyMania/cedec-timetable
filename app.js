@@ -166,14 +166,19 @@ function buildTagCloud() {
 function renderYearMenu() {
   const box = $('#menu-years');
   if (!box) return;
-  box.innerHTML = state.years
-    .map((y) => {
-      const active = y.year === state.year;
-      const href = y.year === CURRENT_YEAR ? './' : `./?year=${y.year}`;
-      return `<a class="menu__year ${active ? 'is-active' : ''}" href="${href}">${y.year}
-        <span class="menu__year-n">${y.total ?? ''}</span></a>`;
-    })
+  const options = state.years
+    .map(
+      (y) =>
+        `<option value="${y.year}" ${y.year === state.year ? 'selected' : ''}>CEDEC ${y.year}${
+          y.archiveOnly ? '（アーカイブ）' : ''
+        } · ${y.total ?? '-'}件</option>`,
+    )
     .join('');
+  box.innerHTML = `<select class="select" id="sel-year" aria-label="開催年">${options}</select>`;
+  $('#sel-year').addEventListener('change', (e) => {
+    const y = e.target.value;
+    location.href = y === CURRENT_YEAR ? './' : `./?year=${y}`;
+  });
 }
 
 function renderFilters() {
@@ -763,6 +768,19 @@ function bind() {
       render();
     }
   });
+
+  // The side buttons fade in while scrolling and get out of the way after.
+  const fabs = document.querySelector('.fabs');
+  let fabTimer = null;
+  const showFabs = () => {
+    fabs.classList.add('is-visible');
+    clearTimeout(fabTimer);
+    fabTimer = setTimeout(() => fabs.classList.remove('is-visible'), 1600);
+  };
+  document.addEventListener('scroll', showFabs, { capture: true, passive: true });
+  document.addEventListener('touchstart', showFabs, { passive: true });
+  fabs.addEventListener('pointerenter', showFabs);
+  showFabs();
 
   $('#btn-now').addEventListener('click', jumpToNow);
 
