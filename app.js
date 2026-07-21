@@ -875,7 +875,9 @@ function bind() {
 
   // Long-press a card to star it without aiming for the small ☆.
   let pressTimer = null;
-  let pressFired = false;
+  // Time-based rather than a flag: a long press does not always emit a click,
+  // and a stale flag would swallow the *next* tap.
+  let suppressClickUntil = 0;
   const cancelPress = () => {
     clearTimeout(pressTimer);
     pressTimer = null;
@@ -886,12 +888,11 @@ function bind() {
       const card = e.target.closest('[data-id]');
       if (!card || e.target.closest('[data-star]')) return;
       const id = card.dataset.id;
-      pressFired = false;
       pressTimer = setTimeout(() => {
-        pressFired = true;
+        suppressClickUntil = performance.now() + 600;
         navigator.vibrate?.(18);
         toggleFav(id);
-      }, 460);
+      }, 550);
     },
     { passive: true },
   );
@@ -907,10 +908,7 @@ function bind() {
   });
 
   els.list.addEventListener('click', (e) => {
-    if (pressFired) {
-      pressFired = false;
-      return;
-    }
+    if (performance.now() < suppressClickUntil) return;
     const star = e.target.closest('[data-star]');
     if (star) {
       e.stopPropagation();
