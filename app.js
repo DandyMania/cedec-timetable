@@ -356,7 +356,7 @@ function render() {
   const nowBtn = $('#btn-now');
   const canJump = viewingToday() && !searching && state.day !== 'fav';
   nowBtn.hidden = !canJump;
-  nowBtn.textContent = state.view === 'grid' ? '今の時間へ' : '今やってる講演へ';
+  nowBtn.textContent = '今';
 }
 
 function emptyMessage() {
