@@ -36,6 +36,7 @@ const state = {
 const STORE_FAV = 'cedec2026.favs';
 const STORE_VIEW = 'cedec2026.view';
 const STORE_THEME = 'cedec2026.theme';
+const STORE_SEEN = 'cedec2026.seen';
 
 const els = {
   list: $('#list'),
@@ -1057,7 +1058,7 @@ const HELP_ROWS = [
 function openHelp() {
   els.sheetBody.innerHTML = `<div class="detail__top">
     <h2 class="detail__title" id="sheet-title">操作のしかた</h2>
-    <p class="detail__meta">スマホは指の操作、PC はクリックでも同じことができます</p>
+    <p class="detail__meta">あとから ≡ メニューの「操作のしかた」でいつでも開けます</p>
   </div>
   <div class="detail__scroll detail">
     <dl class="help">${HELP_ROWS.map(
@@ -1916,6 +1917,15 @@ async function boot() {
     ? `${state.year} 年のアーカイブ · ${meta.total} 件（タイトルと登壇者のみ）`
     : `セッション ${meta.total} 件 · データ ${stamp ? stamp.toLocaleString('ja-JP') : '不明'} 時点`;
   els.menuNote.textContent = note;
+
+  // First visit: show the gestures once, so swipe and long press are not
+  // hidden features nobody discovers.
+  try {
+    if (!localStorage.getItem(STORE_SEEN)) {
+      localStorage.setItem(STORE_SEEN, '1');
+      setTimeout(openHelp, 400);
+    }
+  } catch { /* ignore */ }
 
   const showOffline = () => {
     els.offline.hidden = navigator.onLine;
