@@ -18,8 +18,9 @@ const state = {
   day: 1,
   query: '',
   cat: '',
-  room: '',
+  rooms: new Set(),
   tags: new Set(),
+  flags: new Set(),
   favs: new Set(),
   tagCloud: [],
   view: 'list',
@@ -118,7 +119,7 @@ function readHash() {
   if (h.has('d')) state.day = h.get('d') === 'fav' ? 'fav' : Number(h.get('d')) || 1;
   if (h.has('q')) state.query = h.get('q');
   if (h.has('c')) state.cat = h.get('c');
-  if (h.has('r')) state.room = h.get('r');
+  if (h.has('r')) state.rooms = new Set(h.get('r').split(',').filter(Boolean));
   if (h.has('t')) state.tags = new Set(h.get('t').split(',').filter(Boolean));
   return null;
 }
@@ -128,7 +129,7 @@ function writeHash() {
   h.set('d', String(state.day));
   if (state.query) h.set('q', state.query);
   if (state.cat) h.set('c', state.cat);
-  if (state.room) h.set('r', state.room);
+  if (state.rooms.size) h.set('r', [...state.rooms].join(','));
   if (state.tags.size) h.set('t', [...state.tags].join(','));
   const next = `#${h.toString()}`;
   // Keep history.state intact: the detail sheet stores its open flag there.
@@ -194,7 +195,26 @@ function renderYearMenu() {
   });
 }
 
+// Flag filters. Each entry tests one session; the UI shows both the "yes" and
+// the "no" side because either can decide whether a talk is worth attending.
+const FLAG_FILTERS = [
+  { key: 'photo+', label: '撮影OK', test: (s) => s.photoOk },
+  { key: 'photo-', label: '撮影NG', test: (s) => !s.photoOk },
+  { key: 'doc+', label: '資料あり', test: (s) => s.cedil || s.cedilUrl },
+  { key: 'doc-', label: '資料なし', test: (s) => !(s.cedil || s.cedilUrl) },
+  { key: 'sns+', label: 'SNS OK', test: (s) => s.snsOk },
+  { key: 'sns-', label: 'SNS NG', test: (s) => !s.snsOk },
+  { key: 'live+', label: '配信あり', test: (s) => s.liveStream },
+  { key: 'live-', label: '配信なし', test: (s) => !s.liveStream },
+  { key: 'ask+', label: 'ASK the Speaker', test: (s) => s.askSpeaker },
+];
+
 function renderFilters() {
+  const flagChips = FLAG_FILTERS.map(
+    (f) => `<button type="button" class="chip" data-flag="${f.key}"
+      aria-pressed="${state.flags.has(f.key)}">${f.label}</button>`,
+  ).join('');
+
   const cats = state.meta.categories ?? [];
   const catOptions = cats
     .map(
@@ -203,8 +223,11 @@ function renderFilters() {
       )}</option>`,
     )
     .join('');
-  const roomOptions = (state.meta.rooms ?? [])
-    .map((r) => `<option value="${esc(r)}" ${state.room === r ? 'selected' : ''}>第${esc(r)}会場</option>`)
+  const roomChips = (state.meta.rooms ?? [])
+    .map(
+      (r) => `<button type="button" class="chip chip--room" data-room="${esc(r)}"
+        aria-pressed="${state.rooms.has(r)}">第${esc(r)}会場</button>`,
+    )
     .join('');
   const cloud = state.tagCloud
     .map(
@@ -225,11 +248,17 @@ function renderFilters() {
     <div class="filters__group filters__group--tight">
       <div class="tagcloud">${cloud}</div>
     </div>
+    <div class="filters__group">
+      <div class="filters__label">条件</div>
+      <div class="filters__chips">${flagChips}</div>
+    </div>
+    <div class="filters__group">
+      <div class="filters__label">会場（複数選べます）</div>
+      <div class="filters__chips filters__chips--rooms">${roomChips}</div>
+    </div>
     <div class="filters__row">
       <select id="sel-cat" class="select" aria-label="カテゴリ">
         <option value="">カテゴリ：すべて</option>${catOptions}</select>
-      <select id="sel-room" class="select" aria-label="会場">
-        <option value="">会場：すべて</option>${roomOptions}</select>
     </div>`;
 }
 
@@ -313,8 +342,12 @@ function liveStateOf(s) {
 function applyFilters(list, intent) {
   return list.filter((s) => {
     if (state.cat && s.category !== state.cat) return false;
-    if (state.room && s.room !== state.room) return false;
+    if (state.rooms.size && !state.rooms.has(s.room)) return false;
     if (state.tags.size && !(s.keywords ?? []).some((k) => state.tags.has(k.trim()))) return false;
+    for (const key of state.flags) {
+      const f = FLAG_FILTERS.find((x) => x.key === key);
+      if (f && !f.test(s)) return false;
+    }
     if (intent?.categories?.length && !intent.categories.includes(s.category)) return false;
     if (intent?.level != null && s.difficulty?.level !== intent.level) return false;
     if (intent?.day != null && s.day !== intent.day) return false;
@@ -383,7 +416,12 @@ function render() {
     rows = applyFilters(base, null);
     const narrowed = [];
     if (state.cat) narrowed.push(state.cat);
-    if (state.room) narrowed.push(`第${state.room}会場`);
+    if (state.rooms.size) narrowed.push(`第${[...state.rooms].join('・')}会場`);
+    if (state.flags.size) {
+      narrowed.push(
+        [...state.flags].map((k) => FLAG_FILTERS.find((f) => f.key === k)?.label ?? k).join('・'),
+      );
+    }
     if (state.tags.size) narrowed.push([...state.tags].join('/'));
     els.status.textContent = `${rows.length}件${narrowed.length ? ' · ' + narrowed.join(' · ') : ''}`;
     if (gridView() && state.day !== 'fav') {
@@ -895,14 +933,31 @@ function bind() {
   }
 
   els.filters.addEventListener('change', (e) => {
-    if (e.target.id === 'sel-cat') state.cat = e.target.value;
-    else if (e.target.id === 'sel-room') state.room = e.target.value;
-    else return;
+    if (e.target.id !== 'sel-cat') return;
+    state.cat = e.target.value;
     render();
   });
 
   els.filters.addEventListener('click', (e) => {
-      const tag = e.target.closest('[data-tag]');
+      const flag = e.target.closest('[data-flag]');
+    if (flag) {
+      const v = flag.dataset.flag;
+      if (state.flags.has(v)) state.flags.delete(v);
+      else state.flags.add(v);
+      flag.setAttribute('aria-pressed', String(state.flags.has(v)));
+      render();
+      return;
+    }
+    const room = e.target.closest('[data-room]');
+    if (room) {
+      const v = room.dataset.room;
+      if (state.rooms.has(v)) state.rooms.delete(v);
+      else state.rooms.add(v);
+      room.setAttribute('aria-pressed', String(state.rooms.has(v)));
+      render();
+      return;
+    }
+    const tag = e.target.closest('[data-tag]');
     const reset = e.target.closest('[data-reset]');
     if (e.target.closest('[data-close-filters]')) {
       els.filters.hidden = true;
@@ -922,8 +977,9 @@ function bind() {
     }
     if (reset) {
       state.cat = '';
-      state.room = '';
+      state.rooms.clear();
       state.tags.clear();
+      state.flags.clear();
       renderFilters();
       render();
     }
@@ -953,7 +1009,8 @@ function bind() {
       const canFold =
         els.filters.hidden &&
         !document.body.classList.contains('kb-open') &&
-        !document.body.classList.contains('view-grid');
+        !document.body.classList.contains('view-grid') &&
+        !document.body.classList.contains('bar-top');
       if (canFold) document.body.classList.toggle('bar-hidden', dy > 0 && y > 120);
       else document.body.classList.remove('bar-hidden');
     },
