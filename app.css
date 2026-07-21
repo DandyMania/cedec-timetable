@@ -32,6 +32,34 @@
   }
 }
 
+/* Explicit override when the viewer picks light or dark instead of "system". */
+:root[data-theme='light'] {
+  --bg: #ffffff; --bg-elev: #f5f6f8; --bg-sunken: #eceef2;
+  --fg: #12151a; --fg-muted: #5b6472; --fg-faint: #8b95a5;
+  --line: #dfe3ea; --accent: #1f6feb; --accent-fg: #ffffff;
+  --live: #d13c3c; --star: #e2a92b; color-scheme: light;
+}
+:root[data-theme='dark'] {
+  --bg: #0e1116; --bg-elev: #171c23; --bg-sunken: #1e242d;
+  --fg: #e6eaf0; --fg-muted: #9aa5b4; --fg-faint: #6f7b8c;
+  --line: #262d38; --accent: #4c8dff; --accent-fg: #08101f;
+  --live: #ff6b6b; --star: #ffc53d; color-scheme: dark;
+}
+:root[data-theme='light'] .cat-ENG, :root[data-theme='light'] .cat-edge-ENG { --cat: #2f6fd0; }
+:root[data-theme='light'] .cat-PRD, :root[data-theme='light'] .cat-edge-PRD { --cat: #1e9c7a; }
+:root[data-theme='light'] .cat-VA,  :root[data-theme='light'] .cat-edge-VA  { --cat: #c4478d; }
+:root[data-theme='light'] .cat-GD,  :root[data-theme='light'] .cat-edge-GD  { --cat: #cc6a12; }
+:root[data-theme='light'] .cat-BP,  :root[data-theme='light'] .cat-edge-BP  { --cat: #7a5cd0; }
+:root[data-theme='light'] .cat-SND, :root[data-theme='light'] .cat-edge-SND { --cat: #c8391f; }
+:root[data-theme='light'] .cat-AC,  :root[data-theme='light'] .cat-edge-AC  { --cat: #3f7a96; }
+:root[data-theme='dark'] .cat-ENG, :root[data-theme='dark'] .cat-edge-ENG { --cat: #7fb0ff; }
+:root[data-theme='dark'] .cat-PRD, :root[data-theme='dark'] .cat-edge-PRD { --cat: #5fd7b4; }
+:root[data-theme='dark'] .cat-VA,  :root[data-theme='dark'] .cat-edge-VA  { --cat: #ff8fc4; }
+:root[data-theme='dark'] .cat-GD,  :root[data-theme='dark'] .cat-edge-GD  { --cat: #ffae63; }
+:root[data-theme='dark'] .cat-BP,  :root[data-theme='dark'] .cat-edge-BP  { --cat: #b09cff; }
+:root[data-theme='dark'] .cat-SND, :root[data-theme='dark'] .cat-edge-SND { --cat: #ff8f78; }
+:root[data-theme='dark'] .cat-AC,  :root[data-theme='dark'] .cat-edge-AC  { --cat: #8fc0dd; }
+
 * { box-sizing: border-box; }
 
 /* display rules on flex containers would otherwise beat the hidden attribute */
@@ -111,6 +139,8 @@ a { color: var(--accent); }
   cursor: pointer;
 }
 .segmented__btn[aria-pressed='true'] { background: var(--accent); color: var(--accent-fg); }
+.segmented--wide { width: 100%; border-radius: 10px; }
+.segmented--wide .segmented__btn { flex: 1; font-size: 12.5px; font-weight: 600; }
 
 .iconbtn {
   position: relative;
@@ -257,7 +287,7 @@ a { color: var(--accent); }
   gap: 7px;
   /* extra bottom padding keeps the row above the home indicator, where a
      thumb can actually reach it */
-  padding: 8px 10px calc(16px + env(safe-area-inset-bottom));
+  padding: 8px 10px calc(28px + env(safe-area-inset-bottom));
   background: color-mix(in srgb, var(--bg) 94%, transparent);
   backdrop-filter: saturate(180%) blur(12px);
   border-top: 1px solid var(--line);

@@ -23,6 +23,7 @@ const state = {
 
 const STORE_FAV = 'cedec2026.favs';
 const STORE_VIEW = 'cedec2026.view';
+const STORE_THEME = 'cedec2026.theme';
 
 const els = {
   list: $('#list'),
@@ -974,8 +975,28 @@ function bind() {
 
 // ---------------------------------------------------------------- boot
 
+/** '' = follow the device, otherwise 'light' | 'dark'. */
+function applyTheme(theme) {
+  if (theme) document.documentElement.dataset.theme = theme;
+  else delete document.documentElement.dataset.theme;
+  for (const btn of document.querySelectorAll('[data-theme-set]')) {
+    btn.setAttribute('aria-pressed', String(btn.dataset.themeSet === theme));
+  }
+  try {
+    localStorage.setItem(STORE_THEME, theme);
+  } catch { /* ignore */ }
+}
+
 async function boot() {
   loadFavs();
+  let savedTheme = '';
+  try {
+    savedTheme = localStorage.getItem(STORE_THEME) ?? '';
+  } catch { /* ignore */ }
+  applyTheme(savedTheme);
+  for (const btn of document.querySelectorAll('[data-theme-set]')) {
+    btn.addEventListener('click', () => applyTheme(btn.dataset.themeSet));
+  }
   try {
     const savedView = localStorage.getItem(STORE_VIEW);
     if (savedView === 'grid') state.view = 'grid';
