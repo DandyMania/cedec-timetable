@@ -542,6 +542,7 @@ a { color: var(--accent); }
   margin-right: 5px;
   font-weight: 700;
 }
+.card__format { color: var(--fg-faint); }
 
 .card__snippet {
   margin: 6px 0 0;

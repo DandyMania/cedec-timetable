@@ -202,9 +202,13 @@ function renderFilters() {
 }
 
 function sessionCard(s, terms, liveState, showDate) {
-  const cat = s.category ? `<span class="cat cat-${esc(s.category)}">${esc(s.category)}</span>` : '';
+  const cat =
+    s.category && s.category !== 'カテゴリなし'
+      ? `<span class="cat cat-${esc(s.category)}">${esc(s.category)}</span>`
+      : '';
   const room = s.room ? `第${esc(s.room)}会場` : '';
   const time = s.start ? `<strong>${esc(s.start)}</strong>–${esc(s.end ?? '')}` : '日時未定';
+  const format = s.format ? `<span class="card__format">${esc(s.format)}</span>` : '';
   const badge =
     liveState === 'live'
       ? '<span class="tag tag--live">開催中</span>'
@@ -229,9 +233,9 @@ function sessionCard(s, terms, liveState, showDate) {
   return `<div class="card cat-edge-${esc(s.category || 'none')} ${liveState === 'live' ? 'card--live' : ''} ${
     liveState === 'past' ? 'card--past' : ''
   } ${fav ? 'card--fav' : ''}" data-id="${esc(s.id)}" role="button" tabindex="0">
-    <div class="card__head">${showDate && s.date ? `<span class="card__date">${dayLabel(s.date)}</span>` : ''}${time}${
+    <div class="card__head">${s.date ? `<span class="card__date">${dayLabel(s.date)}</span>` : ''}${time}${
       room ? ' · ' + room : ''
-    }${cat ? ' · ' + cat : ''} ${badge}</div>
+    }${cat ? ' · ' + cat : ''}${format ? ' · ' + format : ''} ${badge}</div>
     <h2 class="card__title">${highlight(s.title, terms)}</h2>
     ${speakers ? `<p class="card__speakers">${speakers}</p>` : ''}
     ${gist ? `<p class="card__snippet">${highlight(gist, terms)}…</p>` : ''}
