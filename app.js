@@ -314,7 +314,9 @@ function render() {
       els.list.innerHTML = rows.length ? renderRows(rows, terms, true) : emptyMessage();
     }
   }
-  els.list.classList.toggle('list--grid', state.view === 'grid' && !searching && state.day !== 'fav');
+  const gridMode = state.view === 'grid' && !searching && state.day !== 'fav';
+  els.list.classList.toggle('list--grid', gridMode);
+  document.body.classList.toggle('view-grid', gridMode);
 
   renderTabs();
   writeHash();
@@ -564,6 +566,39 @@ function openSheet(id) {
   if (!history.state?.sheet) history.pushState({ sheet: id }, '');
 }
 
+function openAbout() {
+  const m = state.meta ?? {};
+  const stamp = m.sourceLastModified ? new Date(m.sourceLastModified).toLocaleString('ja-JP') : '不明';
+  els.sheetBody.innerHTML = `<div class="detail__top">
+    <h2 class="detail__title" id="sheet-title">このページについて</h2>
+    <p class="detail__meta">セッション ${m.total ?? '-'} 件 · データ ${stamp} 時点</p>
+  </div>
+  <div class="detail__scroll detail">
+    <p>CEDEC 2026 のセッションをスマホで探すための<strong>非公式</strong>のビューアです。
+    CESA / CEDEC 運営委員会とは関係ありません。</p>
+    <h3>データの出どころ</h3>
+    <p>セッション情報は <a href="https://cedec.cesa.or.jp/2026/" target="_blank" rel="noopener">CEDEC 2026 公式</a>
+    が配布しているデータを取り込んでいます。2 時間おきに取り直しています。</p>
+    <p>会場（部屋番号）は公式データに含まれないため、
+    <a href="https://kazunori-toybox.com/cedec_schedule/" target="_blank" rel="noopener">CEDEC非公式タイムテーブル</a>
+    のデータを利用しています。</p>
+    <h3>使い方</h3>
+    <p>・検索は話し言葉でOK。略称（サイゲ / バンナム など）も引けます
+・カードを長押し、または ☆ でマイプランに登録できます
+・一度開けばオフラインでも表示できます
+・ホーム画面に追加するとアプリのように開けます</p>
+    <h3>注意</h3>
+    <p>最新かつ正確な情報は必ず公式サイトを確認してください。</p>
+  </div>
+  <div class="sheet__footer">
+    <a class="btn" href="https://github.com/DandyMania/cedec-timetable" target="_blank" rel="noopener">ソース</a>
+    <button type="button" class="btn btn--close" data-close aria-label="閉じる">✕</button>
+  </div>`;
+  els.sheet.hidden = false;
+  document.body.style.overflow = 'hidden';
+  if (!history.state?.sheet) history.pushState({ sheet: 'about' }, '');
+}
+
 function closeSheet(fromPop) {
   els.sheet.hidden = true;
   document.body.style.overflow = '';
@@ -688,6 +723,12 @@ function bind() {
     const open = els.menu.hidden;
     els.menu.hidden = !open;
     els.btnMenu.setAttribute('aria-expanded', String(open));
+  });
+
+  $('#menu-about').addEventListener('click', () => {
+    els.menu.hidden = true;
+    els.btnMenu.setAttribute('aria-expanded', 'false');
+    openAbout();
   });
 
   els.menuFilters.addEventListener('click', () => {

@@ -326,9 +326,18 @@ a { color: var(--accent); }
   padding-bottom: 8px;
 }
 
+.filterbar__meta {
+  font-size: 11px;
+  color: var(--fg-faint);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .filterbar__status {
   font-size: 12px;
-  color: var(--fg-faint);
+  font-weight: 600;
+  color: var(--fg-muted);
   flex: 1;
   text-align: right;
   min-width: 0;
@@ -610,7 +619,17 @@ body.kb-open .bottombar__row { display: none; }
 
 /* ---------- wall-clock grid ---------- */
 
-.list--grid { padding-left: 0; padding-right: 0; }
+/* In grid mode the board itself scrolls, so the horizontal bar stays on screen
+   instead of hiding at the bottom of a long page. */
+.list--grid { padding: 0; }
+.list--grid .grid {
+  height: calc(100dvh - var(--appbar-h, 108px) - var(--bottombar-h, 108px) - 10px);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+body.view-grid { padding-bottom: 0; }
+body.view-grid .foot { display: none; }
+.list--grid .grid__head { top: 0; }
 
 .grid {
   display: flex;

@@ -49,9 +49,12 @@
       <span class="menu__icon">↗</span>#CEDEC2026 の投稿</a>
     <a class="menu__item" href="https://github.com/DandyMania/cedec-timetable" target="_blank" rel="noopener">
       <span class="menu__icon">↗</span>このページのソース</a>
+    <button type="button" class="menu__item" id="menu-about">
+      <span class="menu__icon">ⓘ</span>このページについて</button>
     <div class="menu__note" id="menu-note"></div>
   </div>
   <div class="filterbar">
+    <div class="filterbar__meta" id="foot-meta"></div>
     <div class="filterbar__status" id="status" role="status"></div>
   </div>
   <div class="offline" id="offline" hidden>オフラインで表示中（保存済みのデータ）</div>
@@ -80,16 +83,6 @@
   </nav>
 </div>
 
-<footer class="foot">
-  <p id="foot-meta"></p>
-  <p class="foot__note">
-    非公式のビューアです。セッション情報は
-    <a href="https://cedec.cesa.or.jp/2026/" target="_blank" rel="noopener">CEDEC 2026 公式</a>
-    が配布するデータを取り込んでいます。会場（部屋番号）は
-    <a href="https://kazunori-toybox.com/cedec_schedule/" target="_blank" rel="noopener">CEDEC非公式タイムテーブル</a>
-    のデータを利用しています。
-  </p>
-</footer>
 
 <div class="sheet" id="sheet" hidden>
   <div class="sheet__backdrop" data-close></div>
