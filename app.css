@@ -357,6 +357,30 @@ body.bar-hidden .tabs { margin-top: 2px; }
 }
 .bottombar__badge { font-size: 11px; font-weight: 700; margin-left: 2px; vertical-align: 1px; }
 .bottombar__btn svg { display: block; margin: auto; }
+.bottombar__btn { position: relative; }
+/* filter button lights up and shows how many conditions are on */
+.bottombar__btn.is-active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-fg);
+}
+.bottombar__btn.is-active::after {
+  content: attr(data-count);
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  min-width: 17px;
+  height: 17px;
+  border-radius: 999px;
+  background: var(--live);
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 800;
+  line-height: 17px;
+  text-align: center;
+  padding: 0 4px;
+  box-shadow: 0 0 0 2px var(--bg);
+}
 
 /* days and favourites share one row: the swipe gesture walks the same strip */
 .tabrow {

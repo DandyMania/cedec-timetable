@@ -554,6 +554,16 @@ function render() {
   const count = $('#filters-count');
   if (count) count.textContent = els.status.textContent;
 
+  // Make it obvious at a glance that something is being filtered out.
+  const activeFilters =
+    (state.cat ? 1 : 0) + state.rooms.size + state.tags.size + state.flags.size;
+  els.filtersFloat.classList.toggle('is-active', activeFilters > 0);
+  els.filtersFloat.dataset.count = activeFilters > 0 ? String(activeFilters) : '';
+  els.filtersFloat.setAttribute(
+    'aria-label',
+    activeFilters > 0 ? `絞り込み（${activeFilters}件の条件が有効）` : '絞り込み',
+  );
+
   bindGridAxisLock(els.list.querySelector('.grid'));
   renderTabs();
   writeHash();
