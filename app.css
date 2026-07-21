@@ -710,7 +710,8 @@ body.view-grid .foot { display: none; }
 .list--grid .grid__head { top: 0; }
 
 .grid {
-  display: flex;
+  /* block, not flex: the header row sits above the board, not beside it */
+  display: block;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   padding-bottom: 4px;
@@ -725,22 +726,37 @@ body.view-grid .foot { display: none; }
   border-radius: 5px;
   border: 2px solid var(--bg-sunken);
 }
+.grid__headrow {
+  position: sticky;
+  top: 0;
+  z-index: 6;
+  display: flex;
+  min-width: min-content;
+  background: var(--bg-sunken);
+  border-bottom: 1px solid var(--line);
+}
+.grid__corner {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  flex: 0 0 46px;
+  background: var(--bg-sunken);
+  border-right: 1px solid var(--line);
+}
+.grid__panes { display: flex; min-width: min-content; }
 .grid__axis {
   position: sticky;
   left: 0;
-  z-index: 7;
+  z-index: 5;
   flex: 0 0 46px;
   background: var(--bg);
   border-right: 1px solid var(--line);
-}
-.grid__axis .grid__head { z-index: 8; background: var(--bg-sunken); }
-.grid__cols { display: flex; position: relative; }
-.grid__col { flex: 0 0 152px; border-right: 1px solid var(--line); }
-.grid__head {
   position: sticky;
-  top: 0;
-  /* above the absolutely positioned cells, which would otherwise cover it */
-  z-index: 6;
+}
+.grid__cols { display: flex; position: relative; }
+.grid__col { flex: 0 0 auto; border-right: 1px solid var(--line); }
+.grid__head {
+  flex: 0 0 auto;
   height: 30px;
   display: flex;
   align-items: center;
@@ -748,8 +764,7 @@ body.view-grid .foot { display: none; }
   font-size: 11.5px;
   font-weight: 700;
   color: var(--fg-muted);
-  background: var(--bg-sunken);
-  border-bottom: 1px solid var(--line);
+  border-right: 1px solid var(--line);
 }
 .grid__body { position: relative; }
 .grid__tick {
@@ -1143,21 +1158,25 @@ body.is-archive .appbar__title::after {
   .list:not(.list--grid) .empty { grid-column: 1 / -1; }
 }
 @media (min-width: 1000px) {
-  /* the search row is moved into the header by app.js at this width */
+  /* the search row is moved into the title row by app.js at this width;
+     below 1000px it goes back to the bottom of the screen */
   .appbar .bottombar {
     position: static;
+    flex: 1;
+    min-width: 0;
     max-width: none;
-    padding: 0 0 8px;
+    padding: 0;
     transform: none !important;
     opacity: 1 !important;
     transition: none;
   }
   .appbar .bottombar .search { box-shadow: none; }
+  .appbar .bottombar .search__input { height: 36px; font-size: 14px; }
+  .appbar .bottombar__btn { height: 36px; min-width: 42px; box-shadow: none; }
   .appbar .bottombar__row { gap: 8px; }
+  .appbar__title { flex: 0 0 auto; margin-right: 4px; }
   body.bar-top { padding-bottom: 24px; }
   .filters { bottom: 14px; max-width: 1180px; }
   /* the wall-clock board uses the whole window: more rooms visible at once */
   .list--grid { max-width: none; margin-inline: 0; }
-  .list--grid .grid__cols { flex: 1; }
-  .list--grid .grid__col { flex: 1 1 0; min-width: 118px; }
 }

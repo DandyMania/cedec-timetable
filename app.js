@@ -17,6 +17,7 @@ const state = {
   tagCloud: [],
   view: 'list',
   favDay: null,
+  scrollMemory: {},
   year: CURRENT_YEAR,
   years: [],
   now: new Date(),
@@ -386,6 +387,14 @@ function renderGrid(rows) {
   if (!dated.length) return emptyMessage();
 
   const rooms = [...new Set(dated.map((s) => s.room))].sort((a, b) => Number(a) - Number(b));
+
+  // One explicit column width shared by the header row and the board, so the
+  // two can never drift apart. Wide screens fit every room; phones scroll.
+  const boardWidth = els.list.clientWidth || window.innerWidth;
+  const colWidth =
+    boardWidth >= 1000
+      ? Math.max(100, Math.floor((boardWidth - 47) / rooms.length))
+      : 150;
   const from = Math.floor(Math.min(...dated.map((s) => s.startMin)) / 30) * 30;
   const to = Math.ceil(Math.max(...dated.map((s) => s.endMin ?? s.startMin + 60)) / 30) * 30;
   const height = (to - from) * PX_PER_MIN;
@@ -409,7 +418,7 @@ function renderGrid(rows) {
   const breaks = (state.meta.breaks ?? [])
     .filter((b) => b.day === state.day && b.from >= from && b.to <= to)
     .map(
-      (b) => `<div class="grid__break" style="top:${(b.from - from) * PX_PER_MIN + 30}px;
+      (b) => `<div class="grid__break" style="top:${(b.from - from) * PX_PER_MIN}px;
         height:${(b.to - b.from) * PX_PER_MIN}px"><span>${esc(breakLabel(b))}</span></div>`,
     )
     .join('');
@@ -431,24 +440,31 @@ function renderGrid(rows) {
           </div>`;
         })
         .join('');
-      return `<div class="grid__col">
-        <div class="grid__head">第${esc(room)}会場</div>
+      return `<div class="grid__col" style="width:${colWidth}px">
         <div class="grid__body" style="height:${height}px">${cells}</div>
       </div>`;
     })
     .join('');
 
+  // The header row is a direct child of the scroller so that `position: sticky`
+  // pins it reliably while the board scrolls in both directions. Both rows use
+  // the same explicit column width, so they can never drift apart.
+  const heads = rooms
+    .map((room) => `<div class="grid__head" style="width:${colWidth}px">第${esc(room)}会場</div>`)
+    .join('');
+
   return `<div class="grid">
-    <div class="grid__axis">
-      <div class="grid__head"></div>
-      <div class="grid__body" style="height:${height}px">${ticks.join('')}</div>
+    <div class="grid__headrow">
+      <div class="grid__corner"></div>
+      ${heads}
     </div>
-    <div class="grid__cols">${columns}${breaks}
-      ${
-        showNow
-          ? `<div class="grid__now" style="top:${(nowMin - from) * PX_PER_MIN + 30}px"></div>`
-          : ''
-      }
+    <div class="grid__panes">
+      <div class="grid__axis" style="height:${height}px">${ticks.join('')}</div>
+      <div class="grid__cols">${columns}${breaks}
+        ${
+          showNow ? `<div class="grid__now" style="top:${(nowMin - from) * PX_PER_MIN}px"></div>` : ''
+        }
+      </div>
     </div>
   </div>`;
 }
@@ -772,17 +788,33 @@ function bind() {
     const btn = e.target.closest('[data-day]');
     if (!btn) return;
     const day = Number(btn.dataset.day);
-    // Keep the reader at the same time of day when switching days.
-    const anchor = currentTopSlot();
-    const boardTop = els.list.querySelector('.grid')?.scrollTop ?? null;
+    // Remember where the reader was on the day they are leaving, and restore
+    // that spot when they come back to it.
+    const boardNow = els.list.querySelector('.grid');
+    const prevKey = String(state.day);
+    state.scrollMemory[prevKey] = boardNow
+      ? { board: boardNow.scrollTop, left: boardNow.scrollLeft }
+      : { page: window.scrollY, slot: currentTopSlot() };
+
     // Inside my-plan a day tap filters the starred list instead of leaving it.
     if (state.day === 'fav') state.favDay = state.favDay === day ? null : day;
     else state.day = day;
     scrolledOnce = true;
     render();
+
+    const saved = state.scrollMemory[String(state.day)];
     const board = els.list.querySelector('.grid');
-    if (board && boardTop != null) board.scrollTop = boardTop;
-    else restoreSlot(anchor);
+    if (board) {
+      board.scrollTop = saved?.board ?? boardNow?.scrollTop ?? 0;
+      board.scrollLeft = saved?.left ?? boardNow?.scrollLeft ?? 0;
+    } else if (saved?.page != null) {
+      const prev = document.documentElement.style.scrollBehavior;
+      document.documentElement.style.scrollBehavior = 'auto';
+      window.scrollTo({ top: saved.page });
+      document.documentElement.style.scrollBehavior = prev;
+    } else {
+      restoreSlot(currentTopSlot());
+    }
   });
 
   const toggleFilters = () => {
@@ -875,6 +907,14 @@ function bind() {
   );
   document.addEventListener('touchstart', showFabs, { passive: true });
   fabs.addEventListener('pointerenter', showFabs);
+  // Moving the mouse into the lower corner brings the buttons back.
+  document.addEventListener(
+    'mousemove',
+    (e) => {
+      if (e.clientX > window.innerWidth - 200 && e.clientY > window.innerHeight - 340) showFabs();
+    },
+    { passive: true },
+  );
   showFabs();
 
   $('#btn-now').addEventListener('click', jumpToNow);
@@ -1148,8 +1188,11 @@ async function boot() {
   // chrome; on a phone it stays within thumb reach at the bottom.
   const wide = window.matchMedia('(min-width: 1000px)');
   const placeBar = () => {
+    const row = appbar.querySelector('.appbar__row');
     if (wide.matches) {
-      if (bottombar.parentElement !== appbar) appbar.appendChild(bottombar);
+      if (bottombar.parentElement !== row) {
+        row.insertBefore(bottombar, row.querySelector('.appbar__actions'));
+      }
     } else if (bottombar.parentElement !== document.body) {
       document.body.insertBefore(bottombar, document.querySelector('.fabs'));
     }
