@@ -628,6 +628,12 @@ body.bar-top .dropdown__menu { bottom: auto; top: calc(100% + 4px); }
   position: relative;
 }
 .card:active { transform: scale(0.995); }
+/* a long press must not start a text selection or the iOS callout */
+.card, .gcell {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
 .card--live {
   border-color: var(--live);
   box-shadow: 0 0 0 2px var(--live) inset, 0 0 14px color-mix(in srgb, var(--live) 45%, transparent);

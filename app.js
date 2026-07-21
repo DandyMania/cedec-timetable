@@ -1154,14 +1154,30 @@ function bind() {
   };
   els.filtersFloat.addEventListener('click', toggleFilters);
 
-  // Tapping outside the filter sheet closes it. Ignore clicks whose target was
-  // already removed from the DOM by a re-render.
-  document.addEventListener('click', (e) => {
-    if (els.filters.hidden || !e.target.isConnected) return;
-    if (e.target.closest('#filters') || e.target.closest('#btn-filters-float')) return;
+  const closeFilters = () => {
     els.filters.hidden = true;
     els.filtersFloat.setAttribute('aria-pressed', 'false');
-  });
+  };
+
+  // Tapping outside the filter sheet closes it — and does nothing else. Without
+  // capturing here, the same tap would also open the card underneath.
+  document.addEventListener(
+    'click',
+    (e) => {
+      if (els.filters.hidden || !e.target.isConnected) return;
+      if (e.target.closest('#filters') || e.target.closest('#btn-filters-float')) return;
+      // The day tabs and the view switcher stay live: close the sheet and let
+      // the tap through, since both change what the sheet is filtering.
+      if (e.target.closest('.tabs') || e.target.closest('.segmented')) {
+        closeFilters();
+        return;
+      }
+      e.stopPropagation();
+      e.preventDefault();
+      closeFilters();
+    },
+    true,
+  );
 
   // Only used when the browser has no visualViewport: there the keyboard state
   // is tracked by how much of the viewport it covers (see trackKeyboard).
@@ -1357,11 +1373,17 @@ function bind() {
     render();
   });
 
-  document.addEventListener('click', (e) => {
-    if (els.menu.hidden) return;
-    if (e.target.closest('#menu') || e.target.closest('#btn-menu')) return;
-    setMenu(false);
-  });
+  document.addEventListener(
+    'click',
+    (e) => {
+      if (els.menu.hidden || !e.target.isConnected) return;
+      if (e.target.closest('#menu') || e.target.closest('#btn-menu')) return;
+      e.stopPropagation();
+      e.preventDefault();
+      setMenu(false);
+    },
+    true,
+  );
 
   els.view.addEventListener('click', () => setView('grid'));
   els.viewList.addEventListener('click', () => setView('list'));
@@ -1406,6 +1428,8 @@ function bind() {
   );
   els.list.addEventListener('touchend', cancelPress);
   els.list.addEventListener('touchcancel', cancelPress);
+  // Scrolling the page must abort a pending long press.
+  window.addEventListener('scroll', cancelPress, { passive: true, capture: true });
 
   els.list.addEventListener('contextmenu', (e) => {
     const card = e.target.closest('[data-id]');
