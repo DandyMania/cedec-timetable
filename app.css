@@ -1508,6 +1508,15 @@ a.detail__speaker-company { color: var(--accent); }
   gap: 5px;
 }
 .btn--watch span { font-size: 10px; }
+.btn--yt {
+  flex: 0 0 46px !important;
+  padding: 8px 0 !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #ff0033 !important;
+}
+
 
 /* Sits next to ★ and ✕ so the three things you press live under the thumb. */
 .btn--qr {
@@ -1519,6 +1528,17 @@ a.detail__speaker-company { color: var(--accent); }
   color: var(--fg);
 }
 .btn--star.is-fav { background: var(--star); border-color: var(--star); color: #1a1405; }
+
+/* Six controls share one row on a phone, and the ✕ must never be the one
+   pushed off the edge. */
+@media (max-width: 430px) {
+  .sheet__footer { gap: 6px; padding-left: 12px; padding-right: 12px; }
+  .sheet__footer .btn { padding-left: 10px; padding-right: 10px; }
+  .btn--close { flex: 0 0 44px !important; }
+  .btn--star { flex: 0 0 46px !important; }
+  .btn--qr { flex: 0 0 44px !important; }
+  .btn--yt { flex: 0 0 42px !important; }
+}
 .tag--on { background: var(--accent); color: var(--accent-fg); border-color: transparent; }
 .btn {
   flex: 1 1 auto;

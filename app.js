@@ -1035,6 +1035,12 @@ const QR_ICON = `<svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="tr
   <path d="M14 14h3v3h-3zM18 18h3v3h-3zM18.5 14h2.5v2h-2.5zM14 18.5h2v2.5h-2z"/>
 </svg>`;
 
+const YT_ICON = `<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="currentColor">
+  <path d="M22.5 7.2a2.7 2.7 0 0 0-1.9-1.9C18.9 4.8 12 4.8 12 4.8s-6.9 0-8.6.5A2.7 2.7 0 0 0 1.5 7.2
+           C1 9 1 12 1 12s0 3 .5 4.8a2.7 2.7 0 0 0 1.9 1.9c1.7.5 8.6.5 8.6.5s6.9 0 8.6-.5a2.7 2.7 0 0 0
+           1.9-1.9C23 15 23 12 23 12s0-3-.5-4.8zM9.8 15.3V8.7l5.7 3.3-5.7 3.3z"/>
+</svg>`;
+
 function openSheet(id) {
   const s = state.sessions.find((x) => x.id === id);
   if (!s) return;
@@ -1062,6 +1068,16 @@ function openSheet(id) {
     state.meta?.archiveOnly || s.streamState === 'ng'
       ? ''
       : `https://cedec.cesa.or.jp/${state.year}/timetable/view/${encodeURIComponent(s.id)}`;
+  // The same stream is public on the official channel, titled with the date and
+  // the room ("CEDEC2026 基調講演 中継 【7/22(水) 第1会場】"). Searching the channel
+  // for those two beats guessing a video id, and on a phone it hands off to the
+  // YouTube app — where picture-in-picture works.
+  const ytUrl =
+    viewUrl && s.date && s.room
+      ? `https://www.youtube.com/@cedecyoutube5093/search?query=${encodeURIComponent(
+          `${Number(s.date.split('-')[1])}/${Number(s.date.split('-')[2])} 第${s.room}会場`,
+        )}`
+      : '';
   els.sheetBody.innerHTML = `<div class="detail__top">
     <div class="detail__head">
       ${s.category ? `<span class="cat cat-${esc(s.category)}">${esc(s.category)}</span>` : ''}
@@ -1110,6 +1126,13 @@ function openSheet(id) {
       viewUrl
         ? `<a class="btn btn--sm btn--watch" href="${esc(viewUrl)}" target="_blank" rel="noopener"
              title="公式の視聴ページ（CEDECのログインが必要）"><span aria-hidden="true">▶</span>視聴</a>`
+        : ''
+    }
+    ${
+      ytUrl
+        ? `<a class="btn btn--sm btn--yt" href="${esc(ytUrl)}" target="_blank" rel="noopener"
+             aria-label="YouTube でこの会場の配信を探す"
+             title="公式YouTubeでこの日・この会場の配信を探す（アプリが開けばPiPが使える）">${YT_ICON}</a>`
         : ''
     }
     ${
