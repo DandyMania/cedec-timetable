@@ -10,6 +10,7 @@
   --accent-fg: #ffffff;
   --live: #d13c3c;
   --star: #e2a92b;
+  --warn: #d9821a;
   --radius: 14px;
   --appbar-h: auto;
   color-scheme: light;
@@ -28,6 +29,7 @@
     --accent-fg: #08101f;
     --live: #ff6b6b;
     --star: #ffc53d;
+    --warn: #ffa940;
     color-scheme: dark;
   }
 }
@@ -37,13 +39,13 @@
   --bg: #ffffff; --bg-elev: #f5f6f8; --bg-sunken: #eceef2;
   --fg: #12151a; --fg-muted: #5b6472; --fg-faint: #8b95a5;
   --line: #dfe3ea; --accent: #1f6feb; --accent-fg: #ffffff;
-  --live: #d13c3c; --star: #e2a92b; color-scheme: light;
+  --live: #d13c3c; --star: #e2a92b; --warn: #d9821a; color-scheme: light;
 }
 :root[data-theme='dark'] {
   --bg: #0e1116; --bg-elev: #171c23; --bg-sunken: #1e242d;
   --fg: #e6eaf0; --fg-muted: #9aa5b4; --fg-faint: #6f7b8c;
   --line: #262d38; --accent: #4c8dff; --accent-fg: #08101f;
-  --live: #ff6b6b; --star: #ffc53d; color-scheme: dark;
+  --live: #ff6b6b; --star: #ffc53d; --warn: #ffa940; color-scheme: dark;
 }
 :root[data-theme='light'] .cat-ENG, :root[data-theme='light'] .cat-edge-ENG { --cat: #2f6fd0; }
 :root[data-theme='light'] .cat-PRD, :root[data-theme='light'] .cat-edge-PRD { --cat: #1e9c7a; }
@@ -721,17 +723,14 @@ body.bar-top .dropdown__menu { bottom: auto; top: calc(100% + 4px); }
   background: color-mix(in srgb, var(--star) 13%, var(--bg-elev));
   border-color: color-mix(in srgb, var(--star) 45%, var(--line));
 }
-/* two starred sessions at the same time: you can only attend one */
+/* Two starred sessions at the same time: amber, so it never reads as the red
+   "happening now" highlight. */
 .card--clash {
-  border-color: var(--live);
-  box-shadow: 0 0 0 1px var(--live) inset;
+  border-color: var(--warn);
+  box-shadow: 0 0 0 1px var(--warn) inset;
 }
-.tag--clash {
-  background: var(--live);
-  color: #fff;
-  border-color: transparent;
-  font-weight: 800;
-}
+/* live wins the border when a clashing session is also on right now */
+.card--clash.card--live { border-color: var(--live); }
 
 .card__head {
   display: flex;
@@ -863,6 +862,13 @@ body.kb-open .bottombar__row { display: none; }
 .tag--cat { border-color: transparent; }
 .tag--live { background: var(--live); color: #fff; border-color: transparent; }
 .tag--next { background: var(--accent); color: var(--accent-fg); border-color: transparent; }
+/* amber, so a schedule clash never reads as the red "happening now" state */
+.tag--clash {
+  background: var(--warn);
+  color: #1c1206;
+  border-color: transparent;
+  font-weight: 800;
+}
 
 /* category colors: one hue per track, used for the text label and the card edge */
 .cat-ENG { --cat: #2f6fd0; }
