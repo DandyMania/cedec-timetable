@@ -30,7 +30,7 @@ const state = {
   scrollMemory: {},
   year: CURRENT_YEAR,
   years: [],
-  now: new Date(),
+  now: null, // set from nowJst() at boot
 };
 
 const STORE_FAV = 'cedec2026.favs';
@@ -111,6 +111,16 @@ function highlight(text, terms) {
     out = out.replace(re, (m) => `<span class="mark">${m}</span>`);
   }
   return out;
+}
+
+/**
+ * "Now" in Japan Standard Time, whatever the device is set to. The schedule is
+ * published in JST, so a traveller's phone on another timezone (or one with a
+ * wrong setting) must not shift which session counts as happening now.
+ */
+function nowJst() {
+  const d = new Date();
+  return new Date(d.getTime() + (d.getTimezoneOffset() + 540) * 60000);
 }
 
 function minutesNow(date) {
@@ -469,6 +479,9 @@ function applyFilters(list, intent) {
 }
 
 function render() {
+  // Refresh the clock on every draw so a page left open overnight still knows
+  // which day and which session is current.
+  state.now = nowJst();
   state.clashes = findClashes();
   const query = state.query.trim();
   const searching = query.length > 0;
@@ -870,7 +883,7 @@ function viewingToday() {
 
 /** Jump to the current moment: the red line in grid view, the live card in list view. */
 function jumpToNow() {
-  state.now = new Date();
+  state.now = nowJst();
   if (state.view === 'grid' && state.day !== 'fav' && !state.query.trim()) {
     render();
     const line = els.list.querySelector('.grid__now');
@@ -1853,6 +1866,7 @@ async function boot() {
     .catch(() => null);
 
   // Default to today when the conference is running.
+  state.now = nowJst();
   const today = todayIso(state.now);
   const match = (meta.days ?? []).find((d) => d.date === today);
   if (match) state.day = match.day;
@@ -1932,7 +1946,7 @@ async function boot() {
       state.index = buildIndex(sessions);
       buildTagCloud();
       renderFilters();
-      state.now = new Date();
+      state.now = nowJst();
       render();
       setPull(THRESHOLD, '最新になったよ');
     } catch {
