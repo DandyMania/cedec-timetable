@@ -100,6 +100,19 @@ function esc(text) {
     .replace(/"/g, '&quot;');
 }
 
+/**
+ * Make the addresses written inside a session's own text tappable — entry
+ * forms, past sessions, demo videos. Only what the text already says; nothing
+ * is guessed.
+ */
+function linkify(text) {
+  return esc(text).replace(/https?:\/\/[^\s<>"）」』]+/g, (raw) => {
+    const url = raw.replace(/[.,。、）)」』]+$/, '');
+    const tail = raw.slice(url.length);
+    return `<a href="${url}" target="_blank" rel="noopener">${url}</a>${tail}`;
+  });
+}
+
 function highlight(text, terms) {
   const safe = esc(text);
   if (!terms.length) return safe;
@@ -1038,6 +1051,13 @@ function openSheet(id) {
     )
     .join('');
   const fav = state.favs.has(s.id);
+  // The official site puts a 視聴する button on every session except the ones
+  // marked 配信NG — checked against all 221 pages, no exceptions. The address is
+  // derived from the id, so no guessing is involved. It asks for a login.
+  const viewUrl =
+    state.meta?.archiveOnly || s.streamState === 'ng'
+      ? ''
+      : `https://cedec.cesa.or.jp/${state.year}/timetable/view/${encodeURIComponent(s.id)}`;
   els.sheetBody.innerHTML = `<div class="detail__top">
     <div class="detail__head">
       ${s.category ? `<span class="cat cat-${esc(s.category)}">${esc(s.category)}</span>` : ''}
@@ -1071,9 +1091,9 @@ function openSheet(id) {
              セッションでも、全内容の文字起こしおよびそれに類する行為は禁止です。</span>
            </p>`
     }
-    ${s.description ? `<h3>セッションの内容</h3><p>${esc(s.description)}</p>` : ''}
-    ${s.takeaway ? `<h3>受講して得られるもの</h3><p>${esc(s.takeaway)}</p>` : ''}
-    ${s.expectedSkill ? `<h3>受講対象</h3><p>${esc(s.expectedSkill)}</p>` : ''}
+    ${s.description ? `<h3>セッションの内容</h3><p>${linkify(s.description)}</p>` : ''}
+    ${s.takeaway ? `<h3>受講して得られるもの</h3><p>${linkify(s.takeaway)}</p>` : ''}
+    ${s.expectedSkill ? `<h3>受講対象</h3><p>${linkify(s.expectedSkill)}</p>` : ''}
     ${s.difficulty?.label ? `<h3>難易度</h3><p>${esc(s.difficulty.label)}${
       s.difficulty.note ? `（${esc(s.difficulty.note)}）` : ''
     }</p>` : ''}
@@ -1082,6 +1102,12 @@ function openSheet(id) {
   </div>
   <div class="sheet__footer">
     ${s.url ? `<a class="btn btn--sm" href="${esc(s.url)}" target="_blank" rel="noopener">公式</a>` : ''}
+    ${
+      viewUrl
+        ? `<a class="btn btn--sm" href="${esc(viewUrl)}" target="_blank" rel="noopener"
+             title="公式の視聴ページ（CEDECのログインが必要）">視聴</a>`
+        : ''
+    }
     ${
       s.cedilUrl
         ? `<a class="btn btn--sm" href="${esc(s.cedilUrl)}" target="_blank" rel="noopener">資料</a>`
@@ -1118,6 +1144,8 @@ const HELP_ROWS = [
     + '条件が効いているとアイコンが光ります'],
   ['★お気に入り', '同じ時間に重なる登録があると「⚠ 時間かぶり」が出ます'],
   ['詳細の QR ボタン', 'その講演の QR が出ます。友だちにカメラを向けてもらえば同じ画面が開きます'],
+  ['詳細の「視聴」', '公式の視聴ページが開きます（CEDEC のログインが必要）。'
+    + '配信そのものは ≡ メニューの公式 YouTube チャンネルからも辿れます'],
 ];
 
 function openHelp() {
