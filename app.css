@@ -641,7 +641,8 @@ body.bar-top .dropdown__menu { bottom: auto; top: calc(100% + 4px); }
 
 /* ---------- list ---------- */
 
-.list { padding: 10px 12px 40px; }
+/* min-height keeps the swipe area usable even when the list is empty */
+.list { padding: 10px 12px 40px; min-height: 70vh; }
 
 .slot {
   position: sticky;
