@@ -63,6 +63,29 @@ const els = {
 
 const gridView = () => state.view === 'grid';
 
+// "個人" or "フリーランス" is not a company: searching for it leads nowhere, so
+// those speakers get a search on their own name instead.
+const GENERIC_AFFILIATION = [
+  '個人',
+  '個人事業主',
+  'フリーランス',
+  'freelance',
+  '無所属',
+  'independent',
+  'indie',
+];
+const isGenericAffiliation = (company) => {
+  const c = normalize(company).replace(/[（(].*$/, '').trim();
+  return GENERIC_AFFILIATION.some((g) => c === normalize(g) || c.startsWith(normalize(g)));
+};
+
+/** Where a speaker's affiliation should link to. */
+function speakerSearchUrl(speaker) {
+  const generic = !speaker.company || isGenericAffiliation(speaker.company);
+  const q = generic ? `${speaker.name} ゲーム 開発` : `${speaker.company} 公式`;
+  return `https://www.google.com/search?q=${encodeURIComponent(q)}`;
+}
+
 /** True while the detail sheet owns a history entry of its own. */
 let sheetPushed = false;
 
@@ -356,9 +379,8 @@ function sessionCard(s, terms, liveState, showDate) {
       (x) =>
         `<span class="sp"><span class="sp__name">${highlight(x.name, terms)}</span>${
           x.company
-            ? `<a class="sp__co" href="https://www.google.com/search?q=${encodeURIComponent(
-                `${x.company} 公式`,
-              )}" target="_blank" rel="noopener">${highlight(x.company, terms)}</a>`
+            ? `<a class="sp__co" href="${speakerSearchUrl(x)}" target="_blank"
+                 rel="noopener">${highlight(x.company, terms)}</a>`
             : ''
         }</span>`,
     )
@@ -969,16 +991,15 @@ function openSheet(id) {
   if (!s) return;
   // No company URLs exist in the feed, so link to a search rather than guess a
   // domain and send people somewhere wrong.
-  const companyLink = (name) =>
-    `<a class="detail__speaker-company" href="https://www.google.com/search?q=${encodeURIComponent(
-      `${name} 公式`,
-    )}" target="_blank" rel="noopener">${esc(name)} <span class="detail__ext">↗</span></a>`;
+  const companyLink = (sp) =>
+    `<a class="detail__speaker-company" href="${speakerSearchUrl(sp)}" target="_blank"
+       rel="noopener">${esc(sp.company)} <span class="detail__ext">↗</span></a>`;
 
   const speakers = (s.speakers ?? [])
     .map(
       (x) => `<div class="detail__speaker">
         <div class="detail__speaker-name">${esc(x.name)}</div>
-        ${x.company ? companyLink(x.company) : ''}
+        ${x.company ? companyLink(x) : ''}
         ${x.profile ? `<p>${esc(x.profile)}</p>` : ''}
         ${x.message ? `<p>${esc(x.message)}</p>` : ''}
       </div>`,
