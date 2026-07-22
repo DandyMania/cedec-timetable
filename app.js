@@ -1887,7 +1887,12 @@ async function boot() {
   const bottombar = document.querySelector('.bottombar');
   const syncBars = () => {
     const root = document.documentElement.style;
-    root.setProperty('--appbar-h', `${appbar.offsetHeight}px`);
+    const h = appbar.offsetHeight;
+    root.setProperty('--appbar-h', `${h}px`);
+    // The page reserves space for the expanded bar, so folding does not reflow.
+    if (!document.body.classList.contains('bar-hidden')) {
+      root.setProperty('--appbar-full-h', `${h}px`);
+    }
     root.setProperty('--bottombar-h', `${bottombar.offsetHeight}px`);
   };
   syncBars();

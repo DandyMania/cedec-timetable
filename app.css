@@ -91,7 +91,9 @@ html, body {
 }
 
 body {
-  /* room for the fixed bottom bar */
+  /* room for the fixed bars. The top uses the *expanded* height so folding
+     never reflows the page. */
+  padding-top: var(--appbar-full-h, 115px);
   padding-bottom: calc(var(--bottombar-h, 108px) + 12px);
 }
 
@@ -99,9 +101,13 @@ a { color: var(--accent); }
 
 /* ---------- app bar ---------- */
 
+/* fixed, not sticky: folding a sticky bar changes the document height and the
+   page appears to jump under the finger */
 .appbar {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 20;
   background: color-mix(in srgb, var(--bg) 72%, transparent);
   border-bottom: 1px solid color-mix(in srgb, var(--line) 60%, transparent);
