@@ -1362,6 +1362,29 @@ body.is-archive .appbar__title::after {
   font-weight: 700;
 }
 .detail p { margin: 0 0 8px; font-size: 14px; white-space: pre-wrap; }
+/* share block: QR plus the plain URL */
+.qr {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 8px 0 4px;
+}
+.qr__img {
+  width: 180px;
+  height: 180px;
+  border-radius: 10px;
+  background: #fff;
+  padding: 6px;
+  flex: 0 0 auto;
+}
+.qr__side { min-width: 0; }
+.qr__url {
+  font-size: 12px !important;
+  color: var(--fg-muted);
+  word-break: break-all;
+  margin-bottom: 8px !important;
+}
+
 .help { margin: 6px 0 0; }
 .help dt {
   font-size: 13px;

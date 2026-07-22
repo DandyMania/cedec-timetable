@@ -13,6 +13,7 @@ const SHELL_ASSETS = [
   './search.js',
   './manifest.webmanifest',
   './icon.svg',
+  './qr.png',
 ];
 
 // Only the current year is precached; archive years load on demand and are

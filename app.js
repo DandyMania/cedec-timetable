@@ -1089,6 +1089,15 @@ function openAbout() {
     <p class="detail__meta">セッション ${m.total ?? '-'} 件 · データ ${stamp} 時点</p>
   </div>
   <div class="detail__scroll detail">
+    <h3>このページを渡す</h3>
+    <div class="qr">
+      <img class="qr__img" src="./qr.png" width="180" height="180"
+           alt="https://dandymania.github.io/cedec-timetable/ の QR コード">
+      <div class="qr__side">
+        <p class="qr__url">https://dandymania.github.io/<br>cedec-timetable/</p>
+        <button type="button" class="btn btn--sm" id="btn-copy-url">URL をコピー</button>
+      </div>
+    </div>
     <p>CEDEC 2026 のセッションを探すための<strong>非公式</strong>のビューアです。
     CESA / CEDEC 運営委員会とは関係ありません。</p>
     <h3>データの出どころ</h3>
@@ -1118,6 +1127,20 @@ function openAbout() {
     history.pushState({ sheet: 'about' }, '');
     sheetPushed = true;
   }
+
+  const copy = $('#btn-copy-url');
+  copy?.addEventListener('click', async () => {
+    const url = 'https://dandymania.github.io/cedec-timetable/';
+    try {
+      await navigator.clipboard.writeText(url);
+      copy.textContent = 'コピーしました';
+    } catch {
+      copy.textContent = url;
+    }
+    setTimeout(() => {
+      copy.textContent = 'URL をコピー';
+    }, 1600);
+  });
 }
 
 function closeSheet(fromPop) {
