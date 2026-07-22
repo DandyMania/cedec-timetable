@@ -319,9 +319,11 @@ a { color: var(--accent); }
 body.menu-open { overflow: hidden; }
 
 .bottombar { transition: transform 0.2s ease, opacity 0.2s ease; }
-body.bar-hidden .bottombar {
-  transform: translateY(calc(100% + 8px));
-  opacity: 0;
+/* !important so the wide-screen rule that pins the bar in place cannot leak
+   into the folded state on a phone. */
+body.bar-hidden:not(.bar-top) .bottombar {
+  transform: translateY(160px) !important;
+  opacity: 0 !important;
 }
 
 /* Reading downwards: fold the title row away and keep only the day tabs. */

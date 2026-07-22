@@ -1421,12 +1421,14 @@ function bind() {
   // The side buttons fade in while scrolling and get out of the way after.
   const fabs = document.querySelector('.fabs');
   let fabTimer = null;
-  const showFabs = () => {
+  function showFabs() {
     fabs.classList.add('is-visible');
     clearTimeout(fabTimer);
     fabTimer = setTimeout(() => fabs.classList.remove('is-visible'), 900);
-  };
-  document.addEventListener('scroll', showFabs, { capture: true, passive: true });
+  }
+  // Only the board's own scrolling shows them directly; the page scroll is
+  // handled below, where the direction is known.
+  els.list.addEventListener('scroll', showFabs, { capture: true, passive: true });
 
   // Hide the bottom bar while scrolling down, bring it back on the way up.
   let lastY = window.scrollY;
@@ -1444,8 +1446,23 @@ function bind() {
         !document.body.classList.contains('kb-open') &&
         !document.body.classList.contains('view-grid') &&
         !document.body.classList.contains('bar-top');
-      if (canFold) document.body.classList.toggle('bar-hidden', dy > 0 && y > 120);
-      else document.body.classList.remove('bar-hidden');
+      const folding = canFold && dy > 0 && y > 120;
+      document.body.classList.toggle('bar-hidden', folding);
+      // Set inline: a stylesheet rule here has proved fragile against the
+      // wide-screen overrides that also touch this element.
+      const bar = document.querySelector('.bottombar');
+      if (bar && !document.body.classList.contains('bar-top')) {
+        bar.style.transform = folding ? 'translateY(160px)' : '';
+        bar.style.opacity = folding ? '0' : '';
+      }
+      // Reading downwards: get the round buttons out of the way too. They come
+      // back the moment the reader scrolls up.
+      if (folding) {
+        clearTimeout(fabTimer);
+        fabs.classList.remove('is-visible');
+      } else if (dy < 0) {
+        showFabs();
+      }
     },
     { passive: true },
   );
