@@ -715,15 +715,6 @@ body.bar-top .dropdown__menu { bottom: auto; top: calc(100% + 4px); }
   font-weight: 800;
   margin-left: 6px;
 }
-.card--live .card__head::after {
-  content: '開催中';
-  background: var(--live);
-  color: #fff;
-  border-radius: 5px;
-  padding: 1px 7px;
-  font-weight: 800;
-  margin-left: 4px;
-}
 .card--next { border-color: color-mix(in srgb, var(--accent) 65%, var(--line)); }
 .card--past { opacity: 0.5; }
 .card--fav {
