@@ -1835,7 +1835,9 @@ async function boot() {
   }
   try {
     const savedView = localStorage.getItem(STORE_VIEW);
-    if (savedView === 'grid') state.view = 'grid';
+    if (savedView === 'grid' || savedView === 'compact' || savedView === 'list') {
+      state.view = savedView;
+    }
   } catch { /* ignore */ }
   setViewLabel();
 
