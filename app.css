@@ -693,8 +693,27 @@ body.bar-top .dropdown__menu { bottom: auto; top: calc(100% + 4px); }
   user-select: none;
 }
 .card--live {
+  background: color-mix(in srgb, var(--live) 14%, var(--bg-elev));
   border-color: var(--live);
   box-shadow: 0 0 0 2px var(--live) inset, 0 0 14px color-mix(in srgb, var(--live) 45%, transparent);
+}
+.card--live.card--fav { background: color-mix(in srgb, var(--live) 16%, var(--bg-elev)); }
+
+/* the time block happening right now */
+.slot--now {
+  color: var(--live);
+  background: color-mix(in srgb, var(--live) 14%, var(--bg));
+  border-color: color-mix(in srgb, var(--live) 45%, var(--line));
+}
+.slot--now::before { background: var(--live); }
+.slot__badge {
+  background: var(--live);
+  color: #fff;
+  border-radius: 5px;
+  padding: 1px 7px;
+  font-size: 11px;
+  font-weight: 800;
+  margin-left: 6px;
 }
 .card--live .card__head::after {
   content: '開催中';

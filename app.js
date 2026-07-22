@@ -785,7 +785,12 @@ function chunkHtml(rows, terms, startSlot) {
           (b) => b.day === s.day && b.end === slot,
         );
         if (gap) out.push(`<div class="restbar">${esc(breakLabel(gap))}</div>`);
-        out.push(`<div class="slot" data-slot="${esc(slot)}">${esc(slot)}</div>`);
+        const now = liveStateOf(s) === 'live';
+        out.push(
+          `<div class="slot ${now ? 'slot--now' : ''}" data-slot="${esc(slot)}">${esc(slot)}${
+            now ? '<span class="slot__badge">いま</span>' : ''
+          }</div>`,
+        );
       }
     }
     out.push(sessionCard(s, terms, liveStateOf(s), !lazy.slots));
