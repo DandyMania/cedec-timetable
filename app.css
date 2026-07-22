@@ -335,7 +335,18 @@ body.bar-hidden .appbar__row {
   opacity: 0;
   margin-bottom: -2px;
 }
-body.bar-hidden .tabs { margin-top: 2px; }
+/* reading downwards: fold the day tabs away too, they come back on the way up */
+.tabrow {
+  overflow: hidden;
+  transition: max-height 0.2s ease, opacity 0.2s ease, margin 0.2s ease, padding 0.2s ease;
+  max-height: 60px;
+}
+body.bar-hidden .tabrow {
+  max-height: 0;
+  opacity: 0;
+  margin-top: 0;
+  padding-bottom: 0;
+}
 
 .bottombar__btn {
   flex: 0 0 auto;
