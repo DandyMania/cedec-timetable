@@ -1,7 +1,7 @@
 // Offline support. The venue Wi-Fi is unreliable, so the app must open from
 // cache first and refresh in the background when a network happens to be there.
 
-const VERSION = 'v1';
+const VERSION = 'v2';
 const SHELL = `cedec2026-shell-${VERSION}`;
 const DATA = `cedec2026-data-${VERSION}`;
 
@@ -11,6 +11,7 @@ const SHELL_ASSETS = [
   './app.css',
   './app.js',
   './search.js',
+  './vendor/qrcode.js',
   './manifest.webmanifest',
   './icon.svg',
   './qr.png',

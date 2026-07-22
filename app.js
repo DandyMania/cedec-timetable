@@ -156,11 +156,20 @@ function saveFavs() {
 function readHash() {
   const h = new URLSearchParams(location.hash.slice(1));
   if (h.has('d')) state.day = h.get('d') === 'fav' ? 'fav' : Number(h.get('d')) || 1;
+  // During the conference a reload always lands on today: an address left over
+  // from yesterday is never what you want while standing in the venue.
+  const today = (state.meta?.days ?? []).find((d) => d.date === todayIso(state.now));
+  if (today && state.day !== 'fav') state.day = today.day;
   if (h.has('q')) state.query = h.get('q');
   if (h.has('c')) state.cat = h.get('c');
   if (h.has('r')) state.rooms = new Set(h.get('r').split(',').filter(Boolean));
   if (h.has('t')) state.tags = new Set(h.get('t').split(',').filter(Boolean));
-  return null;
+  // A shared session link beats the day rules above: open that session, and
+  // show the day it is actually on.
+  const wanted = h.get('s');
+  const target = wanted ? state.sessions.find((x) => x.id === wanted) : null;
+  if (target) state.day = target.day;
+  return target?.id ?? null;
 }
 
 function writeHash() {
@@ -1062,6 +1071,7 @@ function openSheet(id) {
     ${speakers ? `<h3>登壇者</h3>${speakers}` : ''}
   </div>
   <div class="sheet__footer">
+    <button type="button" class="btn btn--sm" data-share="${esc(s.id)}">共有</button>
     ${s.url ? `<a class="btn btn--sm" href="${esc(s.url)}" target="_blank" rel="noopener">公式</a>` : ''}
     ${
       s.cedilUrl
@@ -1179,6 +1189,69 @@ function openAbout() {
     setTimeout(() => {
       copy.textContent = 'URL をコピー';
     }, 1600);
+  });
+}
+
+function sessionLink(s) {
+  return `${location.origin}${location.pathname}#s=${encodeURIComponent(s.id)}`;
+}
+
+/**
+ * Show a QR for one session. At the venue the fastest hand-off is a code the
+ * other person points a camera at, so the QR is the screen itself — the OS
+ * share sheet and the clipboard sit under it as alternatives.
+ */
+function openShare(id) {
+  const s = state.sessions.find((x) => x.id === id);
+  if (!s) return;
+  const link = sessionLink(s);
+  let svg = '';
+  try {
+    const qr = qrcode(0, 'M');
+    qr.addData(link);
+    qr.make();
+    svg = qr.createSvgTag({ cellSize: 4, margin: 2, scalable: true });
+  } catch { /* fall back to the URL alone */ }
+  const when = `${s.date ? dayLabel(s.date) : ''} ${s.start ?? ''}${s.end ? `–${s.end}` : ''}`;
+
+  els.sheetBody.innerHTML = `<div class="detail__top">
+    <h2 class="detail__title" id="sheet-title">この講演を渡す</h2>
+    <p class="detail__meta">${esc(when.trim())}${s.room ? ` · 第${esc(s.room)}会場` : ''}</p>
+  </div>
+  <div class="detail__scroll detail">
+    <p class="share__title">${esc(s.title)}</p>
+    ${svg ? `<div class="share__qr">${svg}</div>` : ''}
+    <p class="qr__url">${esc(link)}</p>
+    <div class="share__acts">
+      <button type="button" class="btn btn--sm" data-share-copy>URL をコピー</button>
+      ${navigator.share ? '<button type="button" class="btn btn--sm" data-share-os>他のアプリで送る</button>' : ''}
+    </div>
+    <p class="detail__policy-note">カメラを向けるとこの講演の詳細が開きます。</p>
+  </div>
+  <div class="sheet__footer">
+    <button type="button" class="btn btn--sm" data-share-back="${esc(s.id)}">← 戻る</button>
+    <span class="sheet__spacer"></span>
+    <button type="button" class="btn btn--close" data-close aria-label="閉じる">✕</button>
+  </div>`;
+  els.sheet.hidden = false;
+  document.body.style.overflow = 'hidden';
+  els.sheet.querySelector('.sheet__panel').scrollTop = 0;
+  if (!sheetPushed) {
+    history.pushState({ sheet: id }, '');
+    sheetPushed = true;
+  }
+
+  els.sheetBody.querySelector('[data-share-copy]')?.addEventListener('click', async (e) => {
+    try {
+      await navigator.clipboard.writeText(link);
+      e.currentTarget.textContent = 'コピーしました';
+    } catch {
+      e.currentTarget.textContent = 'コピーできなかった';
+    }
+  });
+  els.sheetBody.querySelector('[data-share-os]')?.addEventListener('click', () => {
+    navigator.share({ title: s.title, text: `${s.title}\n${when.trim()}`, url: link })
+      .catch(() => { /* the user dismissed it */ });
   });
 }
 
@@ -1737,6 +1810,16 @@ function bind() {
   });
 
   els.sheet.addEventListener('click', (e) => {
+    const share = e.target.closest('[data-share]');
+    if (share) {
+      openShare(share.dataset.share);
+      return;
+    }
+    const back = e.target.closest('[data-share-back]');
+    if (back) {
+      openSheet(back.dataset.shareBack);
+      return;
+    }
     if (e.target.closest('[data-close]')) closeSheet();
     const star = e.target.closest('[data-star]');
     if (star) toggleFav(star.dataset.star);
@@ -1873,13 +1956,14 @@ async function boot() {
   const match = (meta.days ?? []).find((d) => d.date === today);
   if (match) state.day = match.day;
 
-  readHash();
+  const shared = readHash();
   els.q.value = state.query;
   els.clear.hidden = !state.query;
 
   renderFilters();
   bind();
   render();
+  if (shared) openSheet(shared);
 
   // Sticky time headings need to know how tall the app bar currently is, and
   // the page needs to reserve room for the bottom bar.
@@ -2022,9 +2106,10 @@ async function boot() {
   els.menuNote.textContent = note;
 
   // First visit: show the gestures once, so swipe and long press are not
-  // hidden features nobody discovers.
+  // hidden features nobody discovers. Someone arriving from a shared link came
+  // for that session, so the tutorial waits for their next visit.
   try {
-    if (!localStorage.getItem(STORE_SEEN)) {
+    if (!shared && !localStorage.getItem(STORE_SEEN)) {
       localStorage.setItem(STORE_SEEN, '1');
       setTimeout(openHelp, 400);
     }

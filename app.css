@@ -1407,6 +1407,25 @@ body.is-archive .appbar__title::after {
   margin-bottom: 8px !important;
 }
 
+.share__title {
+  font-weight: 800;
+  margin: 2px 0 12px !important;
+}
+.share__qr {
+  width: min(260px, 68vw);
+  margin: 0 auto 12px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 10px;
+}
+.share__qr svg { display: block; width: 100%; height: auto; }
+.share__acts {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
 .help { margin: 6px 0 0; }
 .help dt {
   font-size: 13px;
