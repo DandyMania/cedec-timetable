@@ -412,10 +412,14 @@ function sessionCard(s, terms, liveState, showDate) {
   const speakers = (s.speakers ?? [])
     .map(
       (x) =>
+        // The company name is plain text and only the ↗ is tappable: the name
+        // ran the full width of the line, so a thumb aimed at the card kept
+        // landing on it.
         `<span class="sp"><span class="sp__name">${highlight(x.name, terms)}</span>${
           x.company
-            ? `<a class="sp__co" href="${speakerSearchUrl(x)}" target="_blank"
-                 rel="noopener">${highlight(x.company, terms)}</a>`
+            ? `<span class="sp__co">${highlight(x.company, terms)}<a class="sp__go"
+                 href="${speakerSearchUrl(x)}" target="_blank" rel="noopener"
+                 title="${esc(x.company)} を検索" aria-label="${esc(x.company)} を検索">↗</a></span>`
             : ''
         }</span>`,
     )
