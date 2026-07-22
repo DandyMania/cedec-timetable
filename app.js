@@ -33,6 +33,9 @@ const state = {
   now: null, // set from nowJst() at boot
 };
 
+// The address we were opened at, kept before writeHash() rewrites it.
+const entryUrl = location.href;
+
 const STORE_FAV = 'cedec2026.favs';
 const STORE_VIEW = 'cedec2026.view';
 const STORE_THEME = 'cedec2026.theme';
@@ -1114,6 +1117,7 @@ const HELP_ROWS = [
   ['▼ 絞り込み', 'カテゴリ・会場（複数可）・キーワード・撮影/資料/SNS/配信の条件。'
     + '条件が効いているとアイコンが光ります'],
   ['★お気に入り', '同じ時間に重なる登録があると「⚠ 時間かぶり」が出ます'],
+  ['詳細の QR ボタン', 'その講演の QR が出ます。友だちにカメラを向けてもらえば同じ画面が開きます'],
 ];
 
 function openHelp() {
@@ -2145,9 +2149,14 @@ async function boot() {
         reg.addEventListener('updatefound', () => {
           const fresh = reg.installing;
           fresh?.addEventListener('statechange', () => {
-            if (fresh.state === 'activated' && navigator.serviceWorker.controller) {
-              location.reload();
-            }
+            if (fresh.state !== 'activated' || !navigator.serviceWorker.controller) return;
+            // A device still holding the previous build opens a shared link with
+            // code that cannot read it, and the address gets rewritten before
+            // the swap lands. Reloading onto the address we arrived at gets the
+            // session back. Later updates just reload where the reader is.
+            const freshStart = performance.now() < 10000;
+            if (freshStart && entryUrl !== location.href) location.replace(entryUrl);
+            else location.reload();
           });
         });
       })
