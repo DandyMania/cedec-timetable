@@ -1519,10 +1519,13 @@ a.detail__speaker-company { color: var(--accent); }
 }
 .list--compact .card__time-end { display: none; }
 .list--compact .card__title { padding-right: 26px; }
+/* In one-line mode the clash is obvious from the identical times, so the
+   badge only steals room from the title. */
 .list--compact .card__date,
 .list--compact .card__format,
 .list--compact .card__snippet,
 .list--compact .marks,
+.list--compact .tag--clash,
 .list--compact .card__speakers { display: none; }
 .list--compact .card__time strong { font-size: 12px; }
 .list--compact .card__time { color: var(--fg-muted); }
