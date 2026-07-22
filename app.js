@@ -1939,6 +1939,13 @@ async function boot() {
     pull.classList.add('is-busy');
     setPull(THRESHOLD, '更新中…');
     try {
+      // Also look for a new build: otherwise a fix to the page itself would
+      // stay invisible behind the cached copy until the next cold start.
+      try {
+        const reg = await navigator.serviceWorker?.getRegistration();
+        await reg?.update();
+      } catch { /* offline or unsupported */ }
+
       const [sessions, meta] = await Promise.all([
         fetch(`./data/${state.year}/sessions.json`, { cache: 'reload' }).then((r) => r.json()),
         fetch(`./data/${state.year}/meta.json`, { cache: 'reload' }).then((r) => r.json()),
