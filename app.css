@@ -1488,6 +1488,15 @@ a.detail__speaker-company { color: var(--accent); }
 }
 .btn--close { flex: 0 0 54px !important; font-size: 16px; }
 .btn--star { flex: 0 0 58px !important; font-size: 19px; line-height: 1; }
+/* Sits next to ★ and ✕ so the three things you press live under the thumb. */
+.btn--qr {
+  flex: 0 0 54px !important;
+  padding: 9px 0 !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--fg);
+}
 .btn--star.is-fav { background: var(--star); border-color: var(--star); color: #1a1405; }
 .tag--on { background: var(--accent); color: var(--accent-fg); border-color: transparent; }
 .btn {

@@ -1008,6 +1008,13 @@ function scrollToNow(searching) {
 
 // ---------------------------------------------------------------- detail
 
+// A QR glyph rather than a generic share arrow: the button really does put a
+// code on screen for someone else's camera.
+const QR_ICON = `<svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true" fill="currentColor">
+  <path d="M3 3h7v7H3V3zm2 2v3h3V5H5zM14 3h7v7h-7V3zm2 2v3h3V5h-3zM3 14h7v7H3v-7zm2 2v3h3v-3H5z"/>
+  <path d="M14 14h3v3h-3zM18 18h3v3h-3zM18.5 14h2.5v2h-2.5zM14 18.5h2v2.5h-2z"/>
+</svg>`;
+
 function openSheet(id) {
   const s = state.sessions.find((x) => x.id === id);
   if (!s) return;
@@ -1071,7 +1078,6 @@ function openSheet(id) {
     ${speakers ? `<h3>登壇者</h3>${speakers}` : ''}
   </div>
   <div class="sheet__footer">
-    <button type="button" class="btn btn--sm" data-share="${esc(s.id)}">共有</button>
     ${s.url ? `<a class="btn btn--sm" href="${esc(s.url)}" target="_blank" rel="noopener">公式</a>` : ''}
     ${
       s.cedilUrl
@@ -1079,6 +1085,8 @@ function openSheet(id) {
         : ''
     }
     <span class="sheet__spacer"></span>
+    <button type="button" class="btn btn--qr" data-share="${esc(s.id)}"
+      aria-label="この講演をQRで渡す" title="QRで渡す">${QR_ICON}</button>
     <button type="button" class="btn btn--star ${fav ? 'is-fav' : ''}" data-star="${esc(s.id)}"
       aria-pressed="${fav}" aria-label="お気に入り">${fav ? '★' : '☆'}</button>
     <button type="button" class="btn btn--close" data-close aria-label="閉じる">✕</button>
@@ -1193,7 +1201,10 @@ function openAbout() {
 }
 
 function sessionLink(s) {
-  return `${location.origin}${location.pathname}#s=${encodeURIComponent(s.id)}`;
+  // Archive years load only when ?year= asks for them, so a link to one has to
+  // carry the year or it would open the current year and find nothing.
+  const year = state.year === CURRENT_YEAR ? '' : `?year=${encodeURIComponent(state.year)}`;
+  return `${location.origin}${location.pathname}${year}#s=${encodeURIComponent(s.id)}`;
 }
 
 /**
