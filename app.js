@@ -1104,8 +1104,8 @@ function openSheet(id) {
     ${s.url ? `<a class="btn btn--sm" href="${esc(s.url)}" target="_blank" rel="noopener">公式</a>` : ''}
     ${
       viewUrl
-        ? `<a class="btn btn--sm" href="${esc(viewUrl)}" target="_blank" rel="noopener"
-             title="公式の視聴ページ（CEDECのログインが必要）">視聴</a>`
+        ? `<a class="btn btn--sm btn--watch" href="${esc(viewUrl)}" target="_blank" rel="noopener"
+             title="公式の視聴ページ（CEDECのログインが必要）"><span aria-hidden="true">▶</span>視聴</a>`
         : ''
     }
     ${

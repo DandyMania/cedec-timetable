@@ -1488,6 +1488,20 @@ a.detail__speaker-company { color: var(--accent); }
 }
 .btn--close { flex: 0 0 54px !important; font-size: 16px; }
 .btn--star { flex: 0 0 58px !important; font-size: 19px; line-height: 1; }
+/* Filled, unlike the outline buttons beside it: while a session is streaming
+   this is the one people are looking for. */
+.btn--watch {
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+  color: var(--accent-fg) !important;
+  font-weight: 800;
+  flex: 0 0 auto !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.btn--watch span { font-size: 10px; }
+
 /* Sits next to ★ and ✕ so the three things you press live under the thumb. */
 .btn--qr {
   flex: 0 0 54px !important;
