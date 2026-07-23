@@ -2192,6 +2192,29 @@ async function boot() {
   window.addEventListener('offline', showOffline);
   showOffline();
 
+  // The clock only advances inside render(), which runs on interaction. So a
+  // page left open goes stale: the red "now" line, the 開催中 badge and the
+  // grey-out all freeze. Re-render when the tab comes back to the foreground —
+  // the common "put the phone away, look again later" case — preserving the
+  // scroll position so nothing jumps.
+  const refreshNow = () => {
+    if (document.visibilityState !== 'visible') return;
+    const board = els.list.querySelector('.grid');
+    // Anchor to the time heading at the top of the list, like the day tabs do,
+    // so a small change in row heights does not nudge the position.
+    const keep = board ? { board: board.scrollTop, left: board.scrollLeft } : { slot: currentTopSlot() };
+    render();
+    const next = els.list.querySelector('.grid');
+    if (next && keep.board != null) {
+      next.scrollTop = keep.board;
+      next.scrollLeft = keep.left;
+    } else if (keep.slot) {
+      restoreSlot(keep.slot);
+    }
+  };
+  document.addEventListener('visibilitychange', refreshNow);
+  window.addEventListener('pageshow', refreshNow);
+
   // Skip the worker while developing on localhost: a stale shell cache makes
   // every edit invisible. Offline support still gets verified on the deployed URL.
   const isLocal = ['localhost', '127.0.0.1'].includes(location.hostname);
