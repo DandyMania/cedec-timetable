@@ -1014,8 +1014,15 @@ function bindGridAxisLock(board) {
       const dx = e.touches[0].clientX - startX;
       const dy = e.touches[0].clientY - startY;
       if (!axis) {
-        if (Math.abs(dx) + Math.abs(dy) < 12) return;
-        axis = Math.abs(dx) > Math.abs(dy) * 1.2 ? 'x' : 'y';
+        const adx = Math.abs(dx);
+        const ady = Math.abs(dy);
+        // Wait for a clear lead before locking. No bias toward either axis: the
+        // old rule needed a horizontal drag to beat vertical by 20%, so a
+        // slightly diagonal sideways swipe got stuck scrolling the page. Commit
+        // to whichever axis leads by a few px; stay unlocked while ambiguous.
+        if (adx < 10 && ady < 10) return;
+        if (Math.abs(adx - ady) < 4) return;
+        axis = adx > ady ? 'x' : 'y';
       }
       if (axis !== 'x') return;
       e.preventDefault();
