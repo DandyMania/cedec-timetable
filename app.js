@@ -773,13 +773,16 @@ function renderGrid(rows) {
               s.askSpeaker ? '<span class="gmk">ASK</span>' : ''
             }</div>
             <div class="gcell__title">${esc(s.title)}</div>
-            <div class="gcell__co">${esc(
-              (s.speakers ?? [])
-                .map((x) => x.company || x.name)
-                .filter(Boolean)
-                .slice(0, 2)
-                .join(' / '),
-            )}</div>
+            ${(() => {
+              // The list view shows speaker and company; the grid used to drop
+              // the name whenever a company existed. Show both, name first.
+              const people = s.speakers ?? [];
+              const names = people.map((x) => x.name).filter(Boolean).slice(0, 2).join('・');
+              const cos = people.map((x) => x.company).filter(Boolean).slice(0, 2).join(' / ');
+              return `${names ? `<div class="gcell__sp">${esc(names)}</div>` : ''}${
+                cos ? `<div class="gcell__co">${esc(cos)}</div>` : ''
+              }`;
+            })()}
             <button type="button" class="gcell__star" data-star="${esc(s.id)}"
               aria-pressed="${fav}" aria-label="お気に入り">${fav ? '★' : '☆'}</button>
           </div>`;
