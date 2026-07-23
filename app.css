@@ -1119,6 +1119,11 @@ body.view-grid .foot { display: none; }
   font-weight: 600;
   line-height: 1.35;
   overflow: hidden;
+  /* Cap the title so a long one (the keynotes) can't fill the fixed-height
+     cell and shove the company name out of the bottom. */
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
 }
 .gcell__meta {
   display: flex;
@@ -1131,8 +1136,10 @@ body.view-grid .foot { display: none; }
   margin-bottom: 1px;
 }
 .gcell__co {
-  font-size: 9.5px;
-  color: var(--fg-faint);
+  font-size: 10.5px;
+  /* Faint grey read as "no company shown" on a phone; muted clears AA. */
+  color: var(--fg-muted);
+  font-weight: 600;
   line-height: 1.35;
   margin-top: 2px;
   overflow: hidden;
