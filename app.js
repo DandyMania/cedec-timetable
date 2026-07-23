@@ -475,9 +475,22 @@ function findClashes() {
   return clashing;
 }
 
+/** True once every conference day is behind us (or this is an archive year). */
+function eventOver() {
+  if (state.meta?.archiveOnly) return true;
+  const dates = (state.meta?.days ?? []).map((d) => d.date).filter(Boolean);
+  if (!dates.length) return false;
+  const lastDay = dates.reduce((a, b) => (a > b ? a : b));
+  return todayIso(state.now) > lastDay;
+}
+
 function liveStateOf(s) {
   const today = todayIso(state.now);
   if (!s.date || s.startMin == null) return '';
+  // Grey-out and the "now" states contrast against a live event. After the
+  // last day there is no "now" to compare with, so show everything at full
+  // strength instead of a board that is entirely greyed.
+  if (eventOver()) return '';
   if (s.date < today) return 'past';
   if (s.date !== today) return '';
   const nowMin = minutesNow(state.now);
