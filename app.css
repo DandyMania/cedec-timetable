@@ -1628,6 +1628,9 @@ a.detail__speaker-company { color: var(--accent); }
 .list--compact .card__snippet,
 .list--compact .marks,
 .list--compact .tag--clash,
+/* A whole upcoming time block reads as "まもなく" at once, which is just noise
+   in the dense view; keep 開催中 (live) but drop まもなく here. */
+.list--compact .tag--next,
 .list--compact .card__speakers { display: none; }
 .list--compact .card__time strong { font-size: 12px; }
 .list--compact .card__time { color: var(--fg-muted); }
