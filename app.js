@@ -228,7 +228,10 @@ function renderTabs() {
     const isToday = d.date === todayIso(state.now);
     const [, m, day] = d.date.split('-');
     const wd = ['日', '月', '火', '水', '木', '金', '土'][new Date(`${d.date}T00:00:00`).getDay()];
-    const active = state.day === 'fav' ? state.favDay === d.day : state.day === d.day;
+    // In the favourites timetable a day is always in focus, so highlight the
+    // one being shown even before the user taps a tab.
+    const favActive = gridView() && favGridDay() != null ? favGridDay() === d.day : state.favDay === d.day;
+    const active = state.day === 'fav' ? favActive : state.day === d.day;
     // Stay usable while searching: the tabs still switch days, and in grid view
     // they pick which day's hits are laid out.
     const selected = searching && !gridView() ? state.searchDay === d.day : active;
@@ -621,10 +624,15 @@ function render() {
             言葉を減らすか、別の言い方を試してみて<br>例:「AI 効率化」「新人 育成」「描画 最適化」</div></div>`;
     }
   } else {
+    // A favourites timetable shows one day at a time (a grid needs one axis).
+    const favGrid = state.day === 'fav' && gridView();
+    const gday = favGrid ? favGridDay() : null;
     const base =
       state.day === 'fav'
         ? state.sessions.filter(
-            (s) => state.favs.has(s.id) && (state.favDay == null || s.day === state.favDay),
+            (s) =>
+              state.favs.has(s.id) &&
+              (favGrid ? s.day === gday : state.favDay == null || s.day === state.favDay),
           )
         : state.sessions.filter((s) => s.day === state.day);
     rows = applyFilters(base, null);
@@ -654,11 +662,15 @@ function render() {
     if (gridView() && state.day !== 'fav') {
       // The board already places the evening events on the clock.
       els.list.innerHTML = rows.length ? renderGrid(rows) : emptyMessage();
+    } else if (favGrid) {
+      // Favourites as a timetable: only starred sessions of the chosen day,
+      // and no evening events (those aren't part of "my plan").
+      els.list.innerHTML = rows.length ? renderGrid(rows, gday, false) : emptyMessage();
     } else {
       els.list.innerHTML = (rows.length ? renderRows(rows, terms, true) : emptyMessage()) + eveningHtml;
     }
   }
-  const gridMode = state.view === 'grid' && state.day !== 'fav';
+  const gridMode = state.view === 'grid' && (state.day !== 'fav' || favGridDay() != null);
   els.list.classList.toggle('list--grid', gridMode);
   els.list.classList.toggle('list--compact', state.view === 'compact');
   document.body.classList.toggle('view-grid', gridMode);
@@ -710,10 +722,30 @@ function renderEvents(day) {
   </div>`;
 }
 
+/**
+ * The single day a favourites timetable should show. Favourites span all days,
+ * but a grid needs one time axis, so: the day the user picked, else today if it
+ * has any favourites, else the earliest day that does.
+ */
+function favGridDay() {
+  if (state.favDay != null) return state.favDay;
+  const favDays = new Set(
+    state.sessions.filter((s) => state.favs.has(s.id)).map((s) => s.day),
+  );
+  const todayNum = (state.meta.days ?? []).find((d) => d.date === todayIso(state.now))?.day;
+  if (todayNum != null && favDays.has(todayNum)) return todayNum;
+  return [...favDays].sort((a, b) => a - b)[0] ?? null;
+}
+
 function emptyMessage() {
-  if (state.day === 'fav')
+  if (state.day === 'fav') {
+    // Distinguish "nothing starred at all" from "nothing starred on this day".
+    if (state.sessions.some((s) => state.favs.has(s.id)))
+      return `<div class="empty">この日のお気に入りは無いよ<div class="empty__hint">
+        上の日付を切り替えてね</div></div>`;
     return `<div class="empty">お気に入りは空っぽ<div class="empty__hint">
       カードの右下の ☆ を押すと、ここに集まるよ</div></div>`;
+  }
   return `<div class="empty">条件に合うセッションが無い<div class="empty__hint">
     絞り込みを解除してみて</div></div>`;
 }
@@ -728,7 +760,7 @@ function breakLabel(b) {
   return `${head}（${b.start} - ${b.end}）`;
 }
 
-function renderGrid(rows) {
+function renderGrid(rows, day = state.day, withEvents = true) {
   const dated = rows.filter((s) => s.startMin != null && s.room);
   if (!dated.length) return emptyMessage();
 
@@ -741,8 +773,8 @@ function renderGrid(rows) {
     return m ? Number(m[1]) * 60 + Number(m[2]) : null;
   };
   const events =
-    state.year === CURRENT_YEAR
-      ? (state.events?.events ?? []).filter((e) => e.day === state.day && toMin(e.start) != null)
+    withEvents && state.year === CURRENT_YEAR
+      ? (state.events?.events ?? []).filter((e) => e.day === day && toMin(e.start) != null)
       : [];
 
   // One explicit column width shared by the header row and the board, so the
@@ -770,12 +802,12 @@ function renderGrid(rows) {
   const today = todayIso(state.now);
   const nowMin = minutesNow(state.now);
   const showNow =
-    (state.meta.days ?? []).some((d) => d.date === today && d.day === state.day) &&
+    (state.meta.days ?? []).some((d) => d.date === today && d.day === day) &&
     nowMin >= from &&
     nowMin <= to;
 
   const breaks = (state.meta.breaks ?? [])
-    .filter((b) => b.day === state.day && b.from >= from && b.to <= to)
+    .filter((b) => b.day === day && b.from >= from && b.to <= to)
     .map(
       (b) => `<div class="grid__break" style="top:${(b.from - from) * PX_PER_MIN}px;
         height:${(b.to - b.from) * PX_PER_MIN}px"><span>${esc(breakLabel(b))}</span></div>`,
