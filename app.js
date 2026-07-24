@@ -82,10 +82,17 @@ const isGenericAffiliation = (company) => {
   return GENERIC_AFFILIATION.some((g) => c === normalize(g) || c.startsWith(normalize(g)));
 };
 
-/** Where a speaker's affiliation should link to. */
+/** Where a speaker's affiliation should link to (the company site). */
 function speakerSearchUrl(speaker) {
   const generic = !speaker.company || isGenericAffiliation(speaker.company);
   const q = generic ? `${speaker.name} ゲーム 開発` : `${speaker.company} 公式`;
+  return `https://www.google.com/search?q=${encodeURIComponent(q)}`;
+}
+
+/** Search for the person: name plus company pins down the individual. */
+function speakerNameSearchUrl(speaker) {
+  const generic = !speaker.company || isGenericAffiliation(speaker.company);
+  const q = generic ? `${speaker.name} ゲーム 開発` : `${speaker.name} ${speaker.company}`;
   return `https://www.google.com/search?q=${encodeURIComponent(q)}`;
 }
 
@@ -1096,7 +1103,8 @@ function openSheet(id) {
   const speakers = (s.speakers ?? [])
     .map(
       (x) => `<div class="detail__speaker">
-        <div class="detail__speaker-name">${esc(x.name)}</div>
+        <a class="detail__speaker-name" href="${speakerNameSearchUrl(x)}" target="_blank"
+           rel="noopener">${esc(x.name)} <span class="detail__ext">↗</span></a>
         ${x.company ? companyLink(x) : ''}
         ${x.profile ? `<p>${esc(x.profile)}</p>` : ''}
         ${x.message ? `<p>${esc(x.message)}</p>` : ''}

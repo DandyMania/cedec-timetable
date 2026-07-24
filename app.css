@@ -1495,6 +1495,8 @@ body.is-archive .appbar__title::after {
 }
 .detail__speaker { border-top: 1px solid var(--line); padding-top: 10px; margin-top: 10px; }
 .detail__speaker-name { font-weight: 700; font-size: 14.5px; }
+/* The name stays its normal colour — the ↗ signals it searches, not the hue. */
+a.detail__speaker-name { display: inline-block; color: var(--fg); text-decoration: none; }
 .detail__speaker-company {
   display: inline-block;
   font-size: 12.5px;
