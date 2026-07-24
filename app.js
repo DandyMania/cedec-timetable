@@ -113,6 +113,18 @@ function linkify(text) {
   });
 }
 
+// Room → floor, read from the official floor map (cedec.cesa.or.jp/2026/map/).
+// It is not in any data feed, so it is baked in here. 2026 only: past years
+// used a different room layout, so showing a floor there would be wrong.
+const ROOM_FLOOR = {
+  1: '1F', 2: '1F', 3: '1F',
+  4: '3F', 5: '3F', 6: '3F', 11: '3F', 12: '3F', 13: '3F',
+  7: '4F', 8: '4F', 9: '4F', 10: '4F',
+};
+function floorOf(room) {
+  return state.year === CURRENT_YEAR ? (ROOM_FLOOR[Number(room)] ?? '') : '';
+}
+
 function highlight(text, terms) {
   const safe = esc(text);
   if (!terms.length) return safe;
@@ -376,7 +388,11 @@ function sessionCard(s, terms, liveState, showDate) {
       ? `<span class="cat cat-${esc(s.category)}">${esc(s.category)}</span>`
       : '';
   const room = s.room
-    ? `<span class="card__room" data-room="${esc(s.room)}会場">第${esc(s.room)}会場</span>`
+    ? `<span class="card__room" data-room="${esc(s.room)}会場${
+        floorOf(s.room) ? ` ${floorOf(s.room)}` : ''
+      }">第${esc(s.room)}会場${
+        floorOf(s.room) ? `<span class="room__floor">${floorOf(s.room)}</span>` : ''
+      }</span>`
     : '';
   const time = s.start
     ? `<span class="card__time"><strong>${esc(s.start)}</strong><span class="card__time-end">–${esc(
@@ -829,7 +845,11 @@ function renderGrid(rows) {
   // pins it reliably while the board scrolls in both directions. Both rows use
   // the same explicit column width, so they can never drift apart.
   const heads = rooms
-    .map((room) => `<div class="grid__head" style="width:${colWidth}px">第${esc(room)}会場</div>`)
+    .map(
+      (room) => `<div class="grid__head" style="width:${colWidth}px">第${esc(room)}会場${
+        floorOf(room) ? `<span class="room__floor">${floorOf(room)}</span>` : ''
+      }</div>`,
+    )
     .join('');
 
   return `<div class="grid">
@@ -1113,7 +1133,7 @@ function openSheet(id) {
     </div>
     <p class="detail__meta">
       ${s.date ? `${dayLabel(s.date)} ` : '日時未定 '}${esc(s.start ?? '')}${s.end ? '–' + esc(s.end) : ''}
-      ${s.room ? ` · 第${esc(s.room)}会場` : ''} · ${esc(s.formatLabel ?? '')}
+      ${s.room ? ` · 第${esc(s.room)}会場${floorOf(s.room) ? ` ${floorOf(s.room)}` : ''}` : ''} · ${esc(s.formatLabel ?? '')}
     </p>
   </div>
   <div class="detail__scroll detail">
@@ -1310,7 +1330,7 @@ function openShare(id) {
 
   els.sheetBody.innerHTML = `<div class="detail__top">
     <h2 class="detail__title" id="sheet-title">この講演を渡す</h2>
-    <p class="detail__meta">${esc(when.trim())}${s.room ? ` · 第${esc(s.room)}会場` : ''}</p>
+    <p class="detail__meta">${esc(when.trim())}${s.room ? ` · 第${esc(s.room)}会場${floorOf(s.room) ? ` ${floorOf(s.room)}` : ''}` : ''}</p>
   </div>
   <div class="detail__scroll detail">
     <p class="share__title">${esc(s.title)}</p>
