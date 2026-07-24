@@ -1053,7 +1053,8 @@ function bindGridAxisLock(board) {
   board.dataset.axisLock = '1';
   let startX = 0;
   let startY = 0;
-  let fromLeft = 0;
+  let lockX = 0;
+  let lockLeft = 0;
   let axis = null;
 
   board.addEventListener(
@@ -1062,7 +1063,6 @@ function bindGridAxisLock(board) {
       if (e.touches.length !== 1) return;
       startX = e.touches[0].clientX;
       startY = e.touches[0].clientY;
-      fromLeft = board.scrollLeft;
       axis = null;
     },
     { passive: true },
@@ -1072,11 +1072,11 @@ function bindGridAxisLock(board) {
     'touchmove',
     (e) => {
       if (e.touches.length !== 1) return;
-      const dx = e.touches[0].clientX - startX;
-      const dy = e.touches[0].clientY - startY;
+      const x = e.touches[0].clientX;
+      const y = e.touches[0].clientY;
       if (!axis) {
-        const adx = Math.abs(dx);
-        const ady = Math.abs(dy);
+        const adx = Math.abs(x - startX);
+        const ady = Math.abs(y - startY);
         // Wait for a clear lead before locking. No bias toward either axis: the
         // old rule needed a horizontal drag to beat vertical by 20%, so a
         // slightly diagonal sideways swipe got stuck scrolling the page. Commit
@@ -1084,10 +1084,15 @@ function bindGridAxisLock(board) {
         if (adx < 10 && ady < 10) return;
         if (Math.abs(adx - ady) < 4) return;
         axis = adx > ady ? 'x' : 'y';
+        // Re-baseline at the lock point. During the ambiguous phase the browser
+        // scrolls the board natively; anchoring to touchstart would snap that
+        // drift back on the first manual frame — that jump is the "catch".
+        lockX = x;
+        lockLeft = board.scrollLeft;
       }
       if (axis !== 'x') return;
       e.preventDefault();
-      board.scrollLeft = fromLeft - dx;
+      board.scrollLeft = lockLeft - (x - lockX);
     },
     { passive: false },
   );

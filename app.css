@@ -946,7 +946,6 @@ body.view-grid .foot { display: none; }
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   padding-bottom: 4px;
-  scroll-snap-type: x proximity;
   scrollbar-width: thin;
   scrollbar-color: var(--fg-faint) var(--bg-sunken);
 }
