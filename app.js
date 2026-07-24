@@ -1094,9 +1094,10 @@ function openSheet(id) {
   // The same stream is public on the official channel, titled with the date and
   // the room ("CEDEC2026 基調講演 中継 【7/22(水) 第1会場】"). Searching the channel
   // for those two beats guessing a video id, and on a phone it hands off to the
-  // YouTube app — where picture-in-picture works.
+  // YouTube app — where picture-in-picture works. Only offer it for sessions
+  // actually streamed (配信○); "表記なし" has no stream to find.
   const ytUrl =
-    viewUrl && s.date && s.room
+    s.streamState === 'ok' && s.date && s.room
       ? `https://www.youtube.com/@cedecyoutube5093/search?query=${encodeURIComponent(
           `${Number(s.date.split('-')[1])}/${Number(s.date.split('-')[2])} 第${s.room}会場`,
         )}`
