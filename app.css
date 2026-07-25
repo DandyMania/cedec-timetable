@@ -776,16 +776,23 @@ body.bar-top .dropdown__menu { bottom: auto; top: calc(100% + 4px); }
   font-size: 11px;
   color: var(--fg-faint);
 }
-/* Only this arrow opens the company search; the name beside it is inert. */
+/* A small accent chip so it reads as a distinct link — the faint ↗ with an
+   invisible over-sized hit area was getting mis-tapped. Now the tap area equals
+   what you see (no negative margins). Only this opens the search; the name and
+   company beside it are inert. */
 .sp__go {
-  color: var(--fg-faint);
+  display: inline-block;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 13%, transparent);
   text-decoration: none;
-  font-size: 10px;
-  padding: 5px 6px;
-  margin: -5px -2px -5px 1px;
+  font-size: 11px;
+  line-height: 1;
+  padding: 3px 6px;
+  margin-left: 4px;
   border-radius: 6px;
+  vertical-align: middle;
 }
-a.sp__go:hover { color: var(--accent); background: var(--bg-sunken); }
+a.sp__go:active { background: color-mix(in srgb, var(--accent) 26%, transparent); }
 /* Floor badge next to the venue name (official floor map). */
 .room__floor {
   margin-left: 4px;
