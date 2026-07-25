@@ -1182,7 +1182,9 @@ function openSheet(id) {
     state.meta?.archiveOnly || (over ? !hasTimeshift(s) : s.streamState === 'ng')
       ? ''
       : `https://cedec.cesa.or.jp/${state.year}/timetable/view/${encodeURIComponent(s.id)}`;
-  const viewLabel = over ? 'タイムシフト視聴' : '視聴';
+  // Always just "視聴" — タイムシフト視聴 overflowed the footer, and the note in
+  // the body already spells out that it's the replay window.
+  const viewLabel = '視聴';
   // The same stream is public on the official channel, titled with the date and
   // the room ("CEDEC2026 基調講演 中継 【7/22(水) 第1会場】"). Searching the channel
   // for those two beats guessing a video id, and on a phone it hands off to the
