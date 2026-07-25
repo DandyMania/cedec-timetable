@@ -479,9 +479,9 @@ function sessionCard(s, terms, liveState, showDate) {
   } ${liveState === 'past' ? 'card--past' : ''} ${
     fav ? 'card--fav' : ''
   }" data-id="${esc(s.id)}" role="button" tabindex="0">
-    <div class="card__head">${s.date ? `<span class="card__date">${dayLabel(s.date)}</span>` : ''}${time}${
+    <div class="card__head">${cat}${s.date ? `<span class="card__date">${dayLabel(s.date)}</span>` : ''}${time}${
       room ? ' · ' + room : ''
-    }${cat ? ' · ' + cat : ''}${format ? ' · ' + format : ''} ${badge}${
+    }${format ? ' · ' + format : ''} ${badge}${
       clash ? '<span class="tag tag--clash" title="同じ時間に他のお気に入りがあります">⚠ 時間かぶり</span>' : ''
     }${marks ? `<span class="marks">${marks}</span>` : ''}</div>
     <h2 class="card__title">${highlight(s.title, terms)}</h2>
