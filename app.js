@@ -453,18 +453,15 @@ function sessionCard(s, terms, liveState, showDate) {
   const speakers = (s.speakers ?? [])
     .map(
       (x) =>
-        // Names and companies are plain text; only the small ↗ after each is a
-        // link, so a thumb aimed at the card still opens the detail. The name's
-        // ↗ searches the person (name + company), the company's ↗ its site.
-        `<span class="sp"><span class="sp__name">${highlight(x.name, terms)}</span><a class="sp__go"
-             href="${speakerNameSearchUrl(x)}" target="_blank" rel="noopener"
-             title="${esc(x.name)} を検索" aria-label="${esc(x.name)} を検索">↗</a>${
-          x.company
-            ? `<span class="sp__co">${highlight(x.company, terms)}<a class="sp__go"
-                 href="${speakerSearchUrl(x)}" target="_blank" rel="noopener"
-                 title="${esc(x.company)} 公式サイトを検索" aria-label="${esc(x.company)} 公式サイトを検索">↗</a></span>`
-            : ''
-        }</span>`,
+        // One link per speaker, at the end of the line: a card with many
+        // speakers otherwise packed two chips each into a dense mis-tap field.
+        // The single ↗ searches the person (name + company); the company's own
+        // site stays a tap away in the detail sheet. Names/companies are inert.
+        `<span class="sp"><span class="sp__name">${highlight(x.name, terms)}</span>${
+          x.company ? `<span class="sp__co">${highlight(x.company, terms)}</span>` : ''
+        }<a class="sp__go" href="${speakerNameSearchUrl(x)}" target="_blank" rel="noopener"
+             title="${esc(x.name)}${x.company ? ` ${esc(x.company)}` : ''} を検索"
+             aria-label="${esc(x.name)} を検索">↗</a></span>`,
     )
     .join('');
   // One-line gist: the first bullet of "what you get" reads better than the
