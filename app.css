@@ -1523,7 +1523,9 @@ a.detail__speaker-company { color: var(--accent); }
 .sheet__footer {
   flex: 0 0 auto;
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
+  row-gap: 8px;
   margin: 0 -16px;
   padding: 10px 16px calc(12px + env(safe-area-inset-bottom));
   background: var(--bg-elev);

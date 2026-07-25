@@ -1167,17 +1167,22 @@ function openSheet(id) {
   // The official site puts a 視聴する button on every session except the ones
   // marked 配信NG — checked against all 221 pages, no exceptions. The address is
   // derived from the id, so no guessing is involved. It asks for a login.
+  // While the event runs, the official page has a 視聴 button for every non-NG
+  // session (live). Once it is over, only the timeshift replays remain, so the
+  // button becomes タイムシフト視聴 and is limited to the sessions that have one.
+  const over = eventOver();
   const viewUrl =
-    state.meta?.archiveOnly || s.streamState === 'ng'
+    state.meta?.archiveOnly || (over ? !hasTimeshift(s) : s.streamState === 'ng')
       ? ''
       : `https://cedec.cesa.or.jp/${state.year}/timetable/view/${encodeURIComponent(s.id)}`;
+  const viewLabel = over ? 'タイムシフト視聴' : '視聴';
   // The same stream is public on the official channel, titled with the date and
   // the room ("CEDEC2026 基調講演 中継 【7/22(水) 第1会場】"). Searching the channel
   // for those two beats guessing a video id, and on a phone it hands off to the
   // YouTube app — where picture-in-picture works. Only offer it for sessions
   // actually streamed (配信○); "表記なし" has no stream to find.
   const ytUrl =
-    s.streamState === 'ok' && s.date && s.room
+    (over ? hasTimeshift(s) : s.streamState === 'ok') && s.date && s.room
       ? `https://www.youtube.com/@cedecyoutube5093/search?query=${encodeURIComponent(
           `${Number(s.date.split('-')[1])}/${Number(s.date.split('-')[2])} 第${s.room}会場`,
         )}`
@@ -1234,7 +1239,7 @@ function openSheet(id) {
     ${
       viewUrl
         ? `<a class="btn btn--sm btn--watch" href="${esc(viewUrl)}" target="_blank" rel="noopener"
-             title="公式の視聴ページ（CEDECのログインが必要）"><span aria-hidden="true">▶</span>視聴</a>`
+             title="公式の視聴ページ（CEDECのログインが必要）"><span aria-hidden="true">▶</span>${viewLabel}</a>`
         : ''
     }
     ${
