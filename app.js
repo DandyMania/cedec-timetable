@@ -132,12 +132,19 @@ function floorOf(room) {
   return state.year === CURRENT_YEAR ? (ROOM_FLOOR[Number(room)] ?? '') : '';
 }
 
-// The official YouTube timeshift (replay) window closes at this time.
+// The official YouTube timeshift (replay) window closes at this time. Compared
+// against the real epoch (Date.now), so the deadline is correct on any device
+// timezone — no dependence on the JST-shifted clock used for display.
 const TIMESHIFT_UNTIL = '2026年8月4日(火) 10:00';
+const TIMESHIFT_DEADLINE_MS = Date.parse('2026-08-04T10:00:00+09:00');
+function timeshiftOpen() {
+  return Date.now() < TIMESHIFT_DEADLINE_MS;
+}
 // Only the sessions the feed marks "YouTubeタイムシフト配信 OK" have a replay;
-// some 配信○ talks were live-only, so this is stricter than streamState.
+// some 配信○ talks were live-only, so this is stricter than streamState. And
+// once the window closes there is nothing left to watch, so treat it as none.
 function hasTimeshift(s) {
-  return (s.notes ?? []).some((n) => /タイムシフト配信\s*OK/.test(n));
+  return timeshiftOpen() && (s.notes ?? []).some((n) => /タイムシフト配信\s*OK/.test(n));
 }
 
 function highlight(text, terms) {
