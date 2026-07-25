@@ -621,8 +621,9 @@ function render() {
       // Keep the wall-clock view usable while searching: show the hits that
       // fall on the selected day.
       const dayHits = rows.filter((s) => s.day === state.day);
+      // No evening events while searching — the board should only hold the hits.
       els.list.innerHTML = dayHits.length
-        ? renderGrid(dayHits)
+        ? renderGrid(dayHits, state.day, false)
         : `<div class="empty">この日には見つからなかった<div class="empty__hint">
             別の日を選ぶか、リスト表示に切り替えてみて</div></div>`;
     } else {
@@ -668,8 +669,12 @@ function render() {
     }
     els.status.textContent = `${rows.length}件${narrowed.length ? ' · ' + narrowed.join(' · ') : ''}`;
     if (gridView() && state.day !== 'fav') {
-      // The board already places the evening events on the clock.
-      els.list.innerHTML = rows.length ? renderGrid(rows) : emptyMessage();
+      // Evening events belong on the board only when nothing is narrowing the
+      // list — a category filter (e.g. サウンド) should drop the parties too,
+      // matching how the list view hides them.
+      const filtering =
+        state.cat || state.rooms.size || state.tags.size || state.flags.size;
+      els.list.innerHTML = rows.length ? renderGrid(rows, state.day, !filtering) : emptyMessage();
     } else if (favGrid) {
       // Favourites as a timetable: only starred sessions of the chosen day,
       // and no evening events (those aren't part of "my plan").
