@@ -132,6 +132,14 @@ function floorOf(room) {
   return state.year === CURRENT_YEAR ? (ROOM_FLOOR[Number(room)] ?? '') : '';
 }
 
+// The official YouTube timeshift (replay) window closes at this time.
+const TIMESHIFT_UNTIL = '2026年8月4日(火) 10:00';
+// Only the sessions the feed marks "YouTubeタイムシフト配信 OK" have a replay;
+// some 配信○ talks were live-only, so this is stricter than streamState.
+function hasTimeshift(s) {
+  return (s.notes ?? []).some((n) => /タイムシフト配信\s*OK/.test(n));
+}
+
 function highlight(text, terms) {
   const safe = esc(text);
   if (!terms.length) return safe;
@@ -1201,6 +1209,11 @@ function openSheet(id) {
              <span class="detail__policy-note">公式サイトの表示に合わせています。SNS投稿がOKの
              セッションでも、全内容の文字起こしおよびそれに類する行為は禁止です。</span>
            </p>`
+    }
+    ${
+      !state.meta?.archiveOnly && hasTimeshift(s)
+        ? `<p class="detail__timeshift">▶ タイムシフト配信（見逃し）は ${esc(TIMESHIFT_UNTIL)} まで視聴できます。</p>`
+        : ''
     }
     ${s.description ? `<h3>セッションの内容</h3><p>${linkify(s.description)}</p>` : ''}
     ${s.takeaway ? `<h3>受講して得られるもの</h3><p>${linkify(s.takeaway)}</p>` : ''}

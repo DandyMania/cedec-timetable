@@ -1504,6 +1504,12 @@ a.detail__speaker-name { display: inline-block; color: var(--fg); text-decoratio
 }
 a.detail__speaker-company { color: var(--accent); }
 .detail__ext { font-size: 10px; opacity: 0.7; }
+.detail__timeshift {
+  margin: 10px 0 0;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--accent);
+}
 .detail__speaker p { font-size: 13px; color: var(--fg-muted); margin-top: 6px; }
 .detail__actions { display: flex; gap: 8px; margin-top: 18px; flex-wrap: wrap; }
 
