@@ -132,7 +132,8 @@ function floorOf(room) {
   return state.year === CURRENT_YEAR ? (ROOM_FLOOR[Number(room)] ?? '') : '';
 }
 
-// The official YouTube timeshift (replay) window closes at this time. Compared
+// The official timeshift (replay) window closes at this time — per the CEDEC
+// guide, replays go up the day after each session and stay until then. Compared
 // against the real epoch (Date.now), so the deadline is correct on any device
 // timezone — no dependence on the JST-shifted clock used for display.
 const TIMESHIFT_UNTIL = '2026年8月4日(火) 10:00';
@@ -140,11 +141,19 @@ const TIMESHIFT_DEADLINE_MS = Date.parse('2026-08-04T10:00:00+09:00');
 function timeshiftOpen() {
   return Date.now() < TIMESHIFT_DEADLINE_MS;
 }
-// Only the sessions the feed marks "YouTubeタイムシフト配信 OK" have a replay;
-// some 配信○ talks were live-only, so this is stricter than streamState. And
-// once the window closes there is nothing left to watch, so treat it as none.
-function hasTimeshift(s) {
-  return timeshiftOpen() && (s.notes ?? []).some((n) => /タイムシフト配信\s*OK/.test(n));
+// Only the sessions the feed marks "YouTubeタイムシフト配信 OK" have a public
+// replay on the YouTube channel; some 配信○ talks were live-only, so this is
+// stricter than streamState. Once the window closes there is nothing to find.
+function hasYtTimeshift(s) {
+  return timeshiftOpen() && (s.notes ?? []).some((n) => /YouTubeタイムシフト配信\s*OK/.test(n));
+}
+// The login-walled official platform is broader: its timeshift covers every
+// session except the ones marked 公式タイムシフト配信 NG. Verified on the public
+// detail pages — sessions with no streaming note at all still show a
+// タイムシフト配信 button; only the NG ones say 配信なし. So absence of the NG
+// label is the signal, not presence of an OK one.
+function hasOfficialTimeshift(s) {
+  return timeshiftOpen() && !(s.notes ?? []).some((n) => /公式タイムシフト配信\s*NG/.test(n));
 }
 
 function highlight(text, terms) {
@@ -1172,11 +1181,12 @@ function openSheet(id) {
   // marked 配信NG — checked against all 221 pages, no exceptions. The address is
   // derived from the id, so no guessing is involved. It asks for a login.
   // While the event runs, the official page has a 視聴 button for every non-NG
-  // session (live). Once it is over, only the timeshift replays remain, so the
-  // button becomes タイムシフト視聴 and is limited to the sessions that have one.
+  // session (live). Once it is over, the timeshift replays remain — and those
+  // cover everything except the 公式タイムシフト配信 NG sessions, until the
+  // window closes.
   const over = eventOver();
   const viewUrl =
-    state.meta?.archiveOnly || (over ? !hasTimeshift(s) : s.streamState === 'ng')
+    state.meta?.archiveOnly || (over ? !hasOfficialTimeshift(s) : s.streamState === 'ng')
       ? ''
       : `https://cedec.cesa.or.jp/${state.year}/timetable/view/${encodeURIComponent(s.id)}`;
   // Always just "視聴" — タイムシフト視聴 overflowed the footer, and the note in
@@ -1188,7 +1198,7 @@ function openSheet(id) {
   // YouTube app — where picture-in-picture works. Only offer it for sessions
   // actually streamed (配信○); "表記なし" has no stream to find.
   const ytUrl =
-    (over ? hasTimeshift(s) : s.streamState === 'ok') && s.date && s.room
+    (over ? hasYtTimeshift(s) : s.streamState === 'ok') && s.date && s.room
       ? `https://www.youtube.com/@cedecyoutube5093/search?query=${encodeURIComponent(
           `${Number(s.date.split('-')[1])}/${Number(s.date.split('-')[2])} 第${s.room}会場`,
         )}`
@@ -1227,7 +1237,7 @@ function openSheet(id) {
            </p>`
     }
     ${
-      !state.meta?.archiveOnly && hasTimeshift(s)
+      !state.meta?.archiveOnly && hasOfficialTimeshift(s)
         ? `<p class="detail__timeshift">▶ タイムシフト配信（見逃し）は ${esc(TIMESHIFT_UNTIL)} まで視聴できます。</p>`
         : ''
     }
