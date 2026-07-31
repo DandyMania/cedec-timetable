@@ -3,9 +3,11 @@ name: Refresh data and deploy
 on:
   push:
     branches: [main]
-  schedule:
-    # Every two hours. GitHub cron is UTC; the conference runs 2026-07-22..24 JST.
-    - cron: '5 */2 * * *'
+  # The scheduled refresh (cron '5 */2 * * *', every two hours) was removed on
+  # 2026-08-01. The conference ran 2026-07-22..24 JST and is over, so the source
+  # data no longer changes and a periodic re-fetch only burns Actions minutes.
+  # Refresh manually from the Actions tab when the source is known to have changed.
+  # Restore the schedule block when preparing the next year's edition.
   workflow_dispatch:
 
 permissions:

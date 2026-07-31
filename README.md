@@ -18,6 +18,8 @@ CEDEC 2026 のセッションを探すための非公式ビューアです。
   当日は「今やってる講演へ」で現在時刻に飛べます。
 - **マイプラン** — ★を押した講演だけをまとめて見られます（端末内に保存され、外部には送りません）。
 - **絞り込み** — カテゴリ・会場・キーワードタグ。
+- **過去の CEDEC** — 年度を切り替えると 2020〜2025 のセッション（計 1,227 件）も
+  同じ検索で引けます（アーカイブ表示）。
 
 ## データについて
 
@@ -26,7 +28,8 @@ CEDEC 2026 のセッションを探すための非公式ビューアです。
 - 出典: `https://stat.cedec.cesa.or.jp/download/2026/cedec_schedule.json`
 - 会場（部屋番号）は公式 JSON に含まれないため、
   [CEDEC非公式タイムテーブル](https://kazunori-toybox.com/cedec_schedule/) のデータを利用しています。
-- GitHub Actions が 2 時間おきに取り直し、変更があれば自動で反映します。
+- 会期（2026-07-22〜24）が終わり元データが動かなくなったため、2 時間おきの自動取得は
+  2026-08-01 に停止しました。以後の取り直しは GitHub Actions の手動実行（`workflow_dispatch`）で行います。
 
 公式の最新情報は [CEDEC 2026 公式サイト](https://cedec.cesa.or.jp/2026/) を確認してください。
 本サイトは有志による非公式なものであり、CESA / CEDEC 運営委員会とは関係ありません。
@@ -59,7 +62,9 @@ node scripts/serve.mjs        # http://localhost:8787/ で確認
 | `app.js` | 表示・絞り込み・マイプラン・詳細 |
 | `search.js` | 検索（正規化・同義語・スコアリング） |
 | `sw.js` | オフライン用 Service Worker |
-| `data/sessions.json` | 正規化済みのセッション |
-| `data/meta.json` | 日別件数・カテゴリ・会場などの索引 |
+| `data/<年>/sessions.json` | 正規化済みのセッション（年ごと） |
+| `data/<年>/meta.json` | 日別件数・カテゴリ・会場などの索引（年ごと） |
+| `data/years.json` | 収録している年と件数の一覧（アーカイブ判定を含む） |
+| `data/events.json` | 夜のイベント（非公式タイムテーブル由来） |
 | `scripts/fetch-data.mjs` | データ取り込み |
 | `scripts/serve.mjs` | ローカル確認用の簡易サーバ |

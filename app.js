@@ -1348,8 +1348,8 @@ function openAbout() {
     CESA / CEDEC 運営委員会とは関係ありません。</p>
     <h3>データの出どころ</h3>
     <p>セッション情報は <a href="https://cedec.cesa.or.jp/2026/" target="_blank" rel="noopener">CEDEC 2026 公式</a>
-    が配布している JSON を取り込んでいます。2 時間ごとの定期実行で取り直していますが、
-    GitHub Actions の都合で遅れることがあります。最新は公式サイトを確認してください。</p>
+    が配布している JSON を取り込んでいます。会期が終わり元データが動かなくなったため、
+    自動での取り直しは停止しました。最新は公式サイトを確認してください。</p>
     <p>会場（部屋番号）は公式データに含まれないため、
     <a href="https://kazunori-toybox.com/cedec_schedule/" target="_blank" rel="noopener">CEDEC非公式タイムテーブル</a>
     のデータを利用しています。</p>
