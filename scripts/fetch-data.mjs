@@ -117,6 +117,32 @@ async function fetchCedil(year) {
   }
 }
 
+// Reuse the CEDiL links already on disk when the source gave us nothing.
+//
+// Same reasoning as the room fallback in buildCurrent: a transient outage at
+// the source must not wipe data we already have. Without this, an empty map
+// turned every `cedilUrl` into null while the `cedil` flag kept saying the
+// material exists, leaving the file self-contradictory.
+//
+// Measured 2026-08-01: the scheduled run 4f1d2f1 dropped all 87 links this way
+// (cedil flag stayed at 195). Re-running once the source was reachable
+// restored all 87, so the loss was purely a fetch failure being swallowed.
+async function reusePreviousCedil(year, map) {
+  if (map.size) return map;
+  try {
+    const prev = JSON.parse(
+      await readFile(path.join(DATA_DIR, year, 'sessions.json'), 'utf8'),
+    );
+    for (const s of prev) {
+      if (s.title && s.cedilUrl) map.set(titleKey(s.title), s.cedilUrl);
+    }
+    console.warn(`  reused ${map.size} CEDiL links from the previous build`);
+  } catch {
+    console.warn('  no previous CEDiL links to fall back on');
+  }
+  return map;
+}
+
 /** Stretches of 20+ minutes where no room has a session: breaks. */
 function findBreaks(sessions) {
   const byDay = new Map();
@@ -225,7 +251,7 @@ async function buildCurrent(year) {
     }
   }
 
-  const cedilByTitle = await fetchCedil(year);
+  const cedilByTitle = await reusePreviousCedil(year, await fetchCedil(year));
 
   const dates = [...new Set(raw.map((s) => parseStamp(s.start)?.date).filter(Boolean))].sort();
   const dayByDate = new Map(dates.map((d, i) => [d, i + 1]));
@@ -305,7 +331,7 @@ async function buildPast(year) {
   const community = await fetchJson(communityUrl(year), 'community');
   const body = community.json ?? {};
   const raw = body.sessions ?? [];
-  const cedilByTitle = await fetchCedil(year);
+  const cedilByTitle = await reusePreviousCedil(year, await fetchCedil(year));
 
   const sessions = raw.map((s, index) => {
     const startMin = toMinutes(s.start);
