@@ -370,11 +370,42 @@ async function buildPast(year) {
 
 // ---------------------------------------------------------------- main
 
+// Keep the previous `generatedAt` when nothing else changed.
+//
+// `generatedAt` is the time of the fetch, so a fresh value on every run made
+// meta.json differ even when the source was untouched. The deploy workflow
+// commits whenever `git status --porcelain data` is non-empty, so that guard
+// never held: every scheduled run produced a commit and a redeploy. Measured
+// 2026-08-01 — 36 consecutive bot commits whose only change was this field,
+// while sessions.json and sourceLastModified stayed put.
+//
+// Nothing reads `generatedAt` (app.js shows `sourceLastModified`), so it is
+// kept for provenance only and must not churn. Comparing with the field
+// blanked on both sides is what makes "unchanged" mean unchanged.
 async function write(year, built) {
   const dir = path.join(DATA_DIR, year);
   await mkdir(dir, { recursive: true });
-  await writeFile(path.join(dir, 'sessions.json'), JSON.stringify(built.sessions), 'utf8');
-  await writeFile(path.join(dir, 'meta.json'), JSON.stringify(built.meta, null, 2), 'utf8');
+
+  const sessionsPath = path.join(dir, 'sessions.json');
+  const metaPath = path.join(dir, 'meta.json');
+  const sessionsText = JSON.stringify(built.sessions);
+
+  try {
+    const previous = JSON.parse(await readFile(metaPath, 'utf8'));
+    const previousSessions = await readFile(sessionsPath, 'utf8');
+    // Spreading keeps each key in its original position, so this compares
+    // structure and values while ignoring only the timestamp.
+    const same =
+      previousSessions === sessionsText &&
+      JSON.stringify({ ...previous, generatedAt: null }) ===
+        JSON.stringify({ ...built.meta, generatedAt: null });
+    if (same && previous.generatedAt) built.meta.generatedAt = previous.generatedAt;
+  } catch {
+    // No previous output (or it is unreadable) — write a fresh timestamp.
+  }
+
+  await writeFile(sessionsPath, sessionsText, 'utf8');
+  await writeFile(metaPath, JSON.stringify(built.meta, null, 2), 'utf8');
 }
 
 async function main() {
